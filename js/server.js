@@ -1,16 +1,14 @@
 var express = require("express");
-// var config = require("./config")
-// var tsession = require("temboo/core/temboosession");
+var xml2js = require('xml2js');
+var config = require("./config")
+var tsession = require("temboo/core/temboosession");
 
-// var session = new tsession.TembooSession("cwarny", config.credentials.temboo.app.key.name, config.credentials.temboo.app.key.value);
+var session = new tsession.TembooSession("cwarny", config.credentials.temboo.app.key.name, config.credentials.temboo.app.key.value);
+var Google = require("temboo/Library/Google/Analytics");
+var getMetricsChoreo = new Google.GetMetrics(session);
+var getMetricsInputs = getMetricsChoreo.newInputSet();
 
-// var Google = require("temboo/Library/Google/Analytics");
-
-// var getMetricsChoreo = new Google.GetMetrics(session);
-
-// var getMetricsInputs = getMetricsChoreo.newInputSet();
-
-// getMetricsInputs.setCredential('GoogleAnalytics');
+getMetricsInputs.setCredential('GoogleAnalytics');
 
 var app = express();
 
@@ -56,11 +54,11 @@ var users = {
 	]
 };
 
-app.get('/users', function(req, res){
+app.get("/users", function(req, res){
 	res.json(users);
 });
 
-app.get('/users/:id', function(req, res) {
+app.get("/users/:id", function(req, res) {
 	if(users.length <= req.params.id || req.params.id < 0) {
 		res.statusCode = 404;
 		return res.send('Error 404: No user found');
@@ -70,7 +68,7 @@ app.get('/users/:id', function(req, res) {
 	res.json(user);
 });
 
-app.post('/users', function(req, res) {
+app.post("/users", function(req, res) {
 	if(!req.body.hasOwnProperty('first') || !req.body.hasOwnProperty('last') || !req.body.hosOwnProperty('avatar')) {
 		res.statusCode = 400;
 		return res.send('Error 400: Post syntax incorrect.');
@@ -84,6 +82,31 @@ app.post('/users', function(req, res) {
 
 	users.push(newUser);
 	res.json(true);
+});
+
+app.post("/search", function(req,res) {
+
+	getMetricsInputs.set_Filters("ga:source==t.co");
+	getMetricsInputs.set_EndDate("2013-09-11");
+	getMetricsInputs.set_StartDate("2013-08-01");
+	getMetricsInputs.set_Metrics("ga:visits");
+	getMetricsInputs.set_Dimensions("ga:fullReferrer,ga:dateHour");
+	getMetricsInputs.set_ProfileId("75218327");
+
+	var parser = new xml2js.Parser();
+
+	getMetricsChoreo.execute(
+	    getMetricsInputs,
+	    function(results){
+	    	var xml = results.get_Response();
+	    	parser.parseString(xml, function(err,result) {
+	    		res.json(result);
+	    	})
+	    },
+	    function(error){
+	    	res.send(error.type); res.send(error.message);
+	    }
+	);
 });
 
 app.listen(process.env.PORT || 3000);
