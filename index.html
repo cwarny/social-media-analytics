@@ -14,12 +14,56 @@
 	<script src="js/libs/ember-1.0.0.js"></script>
 </head>
 <body>
-	<script type="text/x-handlebars" data-template-name="parameters">
+
+	<script type="text/x-handlebars">
+
+		<nav class="navbar navbar-default" role="navigation">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+					<span class="sr-only">Toggle navigation</span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+				<a class="navbar-brand" href="#">Socialr</a>
+			</div>
+			<div class="collapse navbar-collapse navbar-ex1-collapse">
+				<ul class="nav navbar-nav">
+					<li>{{#linkTo "referrers"}}Referrers{{/linkTo}}</li>
+					<li>{{#linkTo "fetch"}}Fetch{{/linkTo}}</li>
+				</ul>
+			</div>
+		</nav>
+		{{outlet}}
+	</script>
+
+	<script type="text/x-handlebars" data-template-name="referrers">
+		<div class="container">
+			<div class="row-fluid">
+				<ul class="nav nav-list span3 well">
+					{{#each model}}
+						<li>{{#linkTo "referrer" this}} {{fullreferrer}} <span class="badge">{{totalVisits}}</span> {{/linkTo}}</li>
+					{{/each}}
+				</ul>
+				<div class="span9 well">
+					{{outlet}}
+				</div>
+			</div>
+		</div>
+	</script>
+
+	<script type="text/x-handlebars" data-template-name="referrer">
+		{{#each visit in visits}}
+			{{visit.count}}
+		{{/each}}
+	</script>
+
+	<script type="text/x-handlebars" data-template-name="fetch">
 		<div class="container">
 			<div class="row-fluid">
 				<ul class="nav nav-list span3 well">
 					<h2>Choose your parameters</h2>
-					<form role="form" {{action save on="submit"}}>
+					<form role="form" {{action fetch on="submit"}}>
 						<div class="form-group">
 							<label>
 								Profile ID: {{view Ember.TextField valueBinding="profileId" placeholder=profileId}}
@@ -43,35 +87,7 @@
 			</div>
 		</div>
 	</script>
-  
-	<script type="text/x-handlebars" data-template-name="user">
-		<h2>
-			{{first}} {{last}}
-			<img {{bindAttr src="avatar"}} class="pull-right" width=50 />
-		</h2>
-		<dl>
-			<dt>First</dt>
-			<dd>{{first}}</dd>
-			<dt>Last</dt>
-			<dd>{{last}}</dd>
-		</dl>
-		{{#linkTo "editUser" this class="btn btn-primary"}}Edit{{/linkTo}}
-	</script>
 
-	<script type="text/x-handlebars" data-template-name="editUser">
-		<h2>Edit User</h2>
-		<form class="form-inline" {{action save on="submit"}}>
-			<label>
-				First: {{view Ember.TextField valueBinding="first" placeholder=first}}
-			</label></br>
-			<label>
-				Last: {{input type="text" value=last}}
-			</label>
-			<div class="controls">
-				<button type="submit" class="btn btn-primary">Done</button>
-			</div>
-		</form>
-	</script>
 	<script src="js/libs/ember-data-latest.js"></script>
 	<script src="js/app.js"></script>
 </body>

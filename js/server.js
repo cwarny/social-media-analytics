@@ -1,8 +1,10 @@
 var express = require("express");
 var fs = require("fs");
-var xml2js = require('xml2js');
-var config = require("./config")
+var xml2js = require("xml2js");
 var tsession = require("temboo/core/temboosession");
+var uu = require("underscore");
+var config = require("./config");
+var htmlDec = require("htmldec");
 
 var session = new tsession.TembooSession("cwarny", config.credentials.temboo.app.key.name, config.credentials.temboo.app.key.value);
 var Google = require("temboo/Library/Google/Analytics");
@@ -18,7 +20,6 @@ var allowCrossDomain = function (req, res, next) {
     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
-    // Intercept OPTIONS method
     if ('OPTIONS' == req.method) {
       res.send(200);
     }
@@ -33,26 +34,26 @@ app.configure(function() {
 	app.use(allowCrossDomain);
 });
 
-app.get("/visits", function (req, res){
-	fs.readFile("../api/visits.json", function (err,data) {
+app.get("/referrers", function (req, res){
+	fs.readFile("../api/referrers.json", function (err,data) {
 		if (err) throw err;
 		return res.json(JSON.parse(data));
 	});
 });
 
-app.get("/visits/:id", function (req, res) {
-	fs.readFile("../api/visits.json", function (err,data) {
+app.get("/referrers/:id", function (req, res) {
+	fs.readFile("../api/referrers.json", function (err,data) {
 		if (err) throw err;
-		var visits = JSON.parse(data).visits;
-		if (visits.length <= req.params.id || req.params.id < 0) {
+		var referrers = JSON.parse(data).referrers;
+		if (referrers.length <= req.params.id || req.params.id < 0) {
 			res.statusCode = 404;
-			return res.send('Error 404: No visit found');
+			return res.send('Error 404: No referrer found');
 		}
-		return res.json({"visit": visits[req.params.id]});
+		return res.json({"referrer": referrers[req.params.id]});
 	});
 });
 
-app.post("/fetch", function (req,res) {
+app.put("/fetch", function (req,res) {
 	getMetricsInputs.set_Filters("ga:source==t.co");
 	getMetricsInputs.set_EndDate(req.body.endDate);
 	getMetricsInputs.set_StartDate(req.body.startDate);
@@ -68,20 +69,36 @@ app.post("/fetch", function (req,res) {
 	    	var xml = results.get_Response();
 	    	parser.parseString(xml, function (err,result) {
 
-	    		var newVisits = [];
+	    		var newReferrers = {};
 	    		for (var entry in result.feed.entry) {
-	    			var fullReferrer = entry["dxp:dimension"][0].$.value;
-	    			var dateHour = entry["dxp:dimension"][1].$.value;
-	    			var visits = entry["dxp.metric"][0].$.value;
-	    			newVisits.push({fullReferrer:fullReferrer, dateHour:dateHour, visits:visits});
+	    			var fullreferrer = entry["dxp:dimension"][0].$.value;
+	    			var datehour = entry["dxp:dimension"][1].$.value;
+	    			var count = entry["dxp.metric"][0].$.value;
+	    			var visit = {datehour:datehour,count:count};
+
+	    			if (uu.has(newReferrers,fullreferrer)) {
+	    				newReferrers[fullreferrer].push(visit);
+	    			} else {
+	    				newReferrers[fullreferrer] = [visit];
+	    			}
 	    		}
+	    		newReferrers = uu.map(newReferrers, function(v,k) {return {"fullreferrer":k,"visits":v}});
 
-	    		fs.readFile("../api/visits.json", function (err,data) {
+	    		fs.readFile("../api/referrers.json", function (err,data) {
 	    			if (err) throw err;
-	    			var visits = JSON.parse(data).visits;
-	    			visits = visits.concat(newVisits);
+	    			var referrers = JSON.parse(data).referrers;
 
-	    			fs.writeFile("../api/visits.json", JSON.stringify(visits), function (err) {
+	    			for (var ref in newReferrers) {
+	    				if (uu.has(uu.pluck(referrers, "fullreferrer")), ref.fullreferrer) {
+	    					referrers[ref].visits.concat(ref.visits);
+	    				} else {
+	    					referrers[ref].visits = visits;
+	    				}
+	    			}
+
+	    			referrers = referrers.concat(newReferrers);
+
+	    			fs.writeFile("../api/referrers.json", JSON.stringify({"referrers":referrers}), function (err) {
 	    				if (err) throw err;
 						console.log("Saved");
 						res.json(true);

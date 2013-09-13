@@ -1,0 +1,31 @@
+{
+	"referrers":[
+		{
+			"id": 0,
+			"fullreferrer": "t.co/9bVF1Xp1dP",
+			"visits":[
+				{
+					"id": 0,
+					"datehour": "2013083009",
+					"count": 3
+				},
+				{
+					"id": 1,
+					"datehour": "2013083010",
+					"count": 5
+				}
+			]
+		},
+		{
+			"id": 1,
+			"fullreferrer": "t.co/9bVF1Xp1dP",
+			"visits":[
+				{
+					"id": 2,
+					"datehour": "2013083009",
+					"count": 2
+				}
+			]
+		}
+	]
+}
