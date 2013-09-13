@@ -1,0 +1,29 @@
+feed.entry[0].dxp.dimension[0].value --> full referrer path
+feed.entry[0].dxp.dimension[1].value --> time
+feed.entry[1].dxp.metric[0].$.value --> number of visits
+
+
+
+getMetricsInputs.set_Filters("ga:source==t.co");
+getMetricsInputs.set_EndDate("2013-09-11");
+getMetricsInputs.set_StartDate("2013-08-01");
+getMetricsInputs.set_Metrics("ga:visits");
+getMetricsInputs.set_Dimensions("ga:fullReferrer,ga:dateHour");
+getMetricsInputs.set_ProfileId("75218327");
+
+var parser = new xml2js.Parser();
+
+parser.on('end', function(result) {
+  eyes.inspect(result);
+});
+
+getMetricsChoreo.execute(
+	getMetricsInputs,
+	function(results) {
+		var xml = results.get_Response();
+	    parser.parseString(xml);
+	},
+	function(error){
+		console.log(error.type); console.log(error.message);
+	}
+);
