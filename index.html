@@ -12,6 +12,7 @@
 	<script src="js/libs/bootstrap.min.js"></script>
 	<script src="js/libs/handlebars-1.0.0.js"></script>
 	<script src="js/libs/ember-1.0.0.js"></script>
+	<script src="js/libs/d3.v3.min.js"></script>
 </head>
 <body>
 
@@ -42,7 +43,7 @@
 			<div class="row-fluid">
 				<ul class="nav nav-list span3 well">
 					{{#each model}}
-						<li>{{#linkTo "referrer" this}} {{fullreferrer}} <span class="badge">{{totalVisits}}</span> {{/linkTo}}</li>
+						<li>{{#linkTo "referrer" this}} {{tweet.user.screen_name}} <span class="badge">{{totalVisits}}</span> {{/linkTo}}</li>
 					{{/each}}
 				</ul>
 				<div class="span9 well">
@@ -53,9 +54,18 @@
 	</script>
 
 	<script type="text/x-handlebars" data-template-name="referrer">
-		{{#each visit in visits}}
-			{{visit.count}}
-		{{/each}}
+		<div class="row">
+			<div class="col-md-1">
+				<img {{bindAttr src=tweet.user.profile_image_url}} alt="Profile picture">
+			</div>
+			<div class="col-md-11">
+				<blockquote>
+					<p>{{tweet.text}}</p>
+					<small>{{tweet.user.name}} (@{{tweet.user.screen_name}})</small>
+				</blockquote>
+			</div>
+			{{view App.BarGraph isLoadedBinding="model.isLoaded" dataBinding=visits}}
+		</div>
 	</script>
 
 	<script type="text/x-handlebars" data-template-name="fetch">
@@ -89,6 +99,8 @@
 	</script>
 
 	<script src="js/libs/ember-data-latest.js"></script>
+	<script src="js/BarChart.js"></script>
 	<script src="js/app.js"></script>
+	<script src="js/model.js"></script>
 </body>
 </html>

@@ -4,7 +4,7 @@ var xml2js = require("xml2js");
 var tsession = require("temboo/core/temboosession");
 var uu = require("underscore");
 var config = require("./config");
-var htmlDec = require("htmldec");
+var ReferrerProvider = require('./referrerprovider').ReferrerProvider;
 
 var session = new tsession.TembooSession("cwarny", config.credentials.temboo.app.key.name, config.credentials.temboo.app.key.value);
 var Google = require("temboo/Library/Google/Analytics");
@@ -28,28 +28,23 @@ var allowCrossDomain = function (req, res, next) {
     }
 };
 
-app.configure(function() {
+app.configure(function () {
 	app.use(express.bodyParser());
 	app.use(express.methodOverride());
 	app.use(allowCrossDomain);
 });
 
+var referrerProvider = new ReferrerProvider('localhost', 27017);
+
 app.get("/referrers", function (req, res){
-	fs.readFile("../api/referrers.json", function (err,data) {
-		if (err) throw err;
-		return res.json(JSON.parse(data));
-	});
+	referrerProvider.findAll(function(error,r) {
+      res.json({"referrers":r});
+    });
 });
 
 app.get("/referrers/:id", function (req, res) {
-	fs.readFile("../api/referrers.json", function (err,data) {
-		if (err) throw err;
-		var referrers = JSON.parse(data).referrers;
-		if (referrers.length <= req.params.id || req.params.id < 0) {
-			res.statusCode = 404;
-			return res.send('Error 404: No referrer found');
-		}
-		return res.json({"referrer": referrers[req.params.id]});
+	referrerProvider.find(parseInt(req.params.id), function(error,r) {
+		res.json({"referrer":r[0]});
 	});
 });
 

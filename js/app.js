@@ -15,34 +15,52 @@ App.Store = DS.Store.extend({
 	adapter: 'App.Adapter'
 });
 
-App.Visit = DS.Model.extend({
-	referrer: DS.belongsTo("App.Referrer"),
-	datehour: DS.attr("string"),
-	count: DS.attr("number")
-});
-
-App.Referrer = DS.Model.extend({
-	fullreferrer: DS.attr("string"),
-	visits: DS.hasMany("App.Visit"),
-	totalVisits: function() {
-		return this.get("visits").get("length");
-	}.property("visits.@each")
-});
-
 App.Adapter.map("App.Referrer", {
-	visits: {embedded: "always"}
+	visits: {embedded: "always"},
+	tweet: {embedded: "always"}
+});
+
+App.Adapter.map("App.Tweet", {
+	user: {embedded: "always"},
+	children: {embedded: "always"}
 });
 
 App.ReferrersRoute = Ember.Route.extend({
-	model: function() {
+	model: function () {
 		return App.Referrer.find();
 	}
 });
 
 App.ReferrerRoute = Ember.Route.extend({
-	model: function(params) {
+	model: function (params) {
 		return App.Referrer.find(params.referrer_id);
 	}
+});
+
+App.TweetRoute = Ember.Route.extend({
+	model: function (params) {
+		App.Tweet.find(params.tweet_id);
+	}
+});
+
+App.BarGraph = Ember.View.extend({
+	classNames: ["chart"],
+	chart: BarChart()
+			.margin({left: 40, top: 40, bottom: 80, right: 40})
+			.width(200)
+			.height(200),
+
+	didInsertElement: function() {
+		Ember.run.once(this, "updateChart");
+	},
+
+	updateChart: function() {
+		if (this.get("isLoaded")) {
+			d3.select(this.$()[0])
+				.data([this.get("data").getEach("count")])
+				.call(this.get("chart"));
+		}
+	}.observes("data")
 });
 
 App.FetchController = Ember.Controller.extend({
