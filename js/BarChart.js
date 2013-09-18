@@ -1,43 +1,81 @@
 function BarChart() {
+
+	var margin = {left: 40, top: 20, bottom: 30, right: 20},
+		xScale = d3.scale.ordinal(),
+		yScale = d3.scale.linear(),
+		xAxis = d3.svg.axis().scale(xScale).orient("bottom"),
+		duration = 500;
+
 	function chart(selection) {
+
 		selection.each(function (data) {
-			var w = width-margin.left-margin.right;
-            var h = height-margin.top-margin.bottom;
-            var barPadding = 1;
 			
-			// Create the svg variable that we will act upon
-			var svg = d3.select(this)
-						.append("svg")
-						.attr("width", w)
-						.attr("height", h);
+			var w = width - margin.left - margin.right;
+			var h = height - margin.top - margin.bottom;
 
-			// Draw the bars
-			svg.selectAll("rect")
-				.data(data)
-				.enter()
+			xScale.domain(data.map(function(d) { return d.datehour; }))
+					.rangeRoundBands([0, w], .1);
+
+			var xAxis = d3.svg.axis()
+							.scale(xScale)
+							.orient("bottom");
+
+			yScale.domain([0, d3.max(data, function(d) { return d.count; })])
+					.range([h, 0]);
+
+			// Select the svg element, if it exists
+			var svg = selection.selectAll("svg")
+						.data([data]);
+						
+			// Otherwise, create the skeletal chart.
+			var gEnter = svg.enter()
+							.append("svg")
+							.append("g");
+
+			gEnter.append("g")
+				.attr("class", "x axis")
+				.attr("transform", "translate(0," + h + ")")
+				.call(xAxis);
+
+			svg.attr("width", w + margin.left + margin.right)
+				.attr("height", h + margin.top + margin.bottom)
+				
+			var g = svg.select("g")				
+						.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+			g.select(".x.axis")
+				.attr("transform", "translate(0, " + yScale(0) + ")") // transform to 0 baseline (in case of neg values)
+				.transition()
+				.duration(duration)
+				.call(xAxis);
+
+			var bars = g.selectAll(".bar")
+						.remove();
+
+			var bars = g.selectAll(".bar")
+						.data(function(d) {return d;});
+
+			bars.enter()
 				.append("rect")
-				.attr({ // You can bundle multiple attributes into an object {property1:value1,property2:value2,...}; then pass that object into attr()
-					"x": function(d,i) { return i * (w/data.length); }, // Tying the x value to the width of the SVG, so our visualization scales with no problem
-					"y": function(d) { return h - d * 4; }, // In SVG, y axis goes from top to bottom
-					"width": w / data.length - barPadding,
-					"height": function(d) { return d * 4; },
-					"fill": function(d) { return "rgb(0,0," + (d * 10) + ")";} 
-				}); // The *4 is just to scale things up a little bit
-
-			// Add data labels
-			svg.selectAll("text")
-				.data(data)
-				.enter()
-				.append("text")
-				.text(function(d) {return d;})
+				.attr("class","bar")
+				.attr("height", 0)
+				.attr("y", yScale(0))
+				.transition()
+				.duration(duration)
 				.attr({
-					"x": function(d,i) { return i * (w/data.length) + (w/data.length - barPadding) / 2; }, // Sets the x position of the text at the middle of the bar
-					"y": function(d) { return h - d * 4 + 14; },
-					"font-family":"sans-serif",
-					"font-size":"11px",
-					"fill":"white",
-					"text-anchor":"middle" // This is to ensure the label text is centered at the x position
+					"x": function(d) { return xScale(d.datehour); },
+					"width": xScale.rangeBand(),
+					"y": function(d) { return yScale(d3.max([0, d.count])); },
+					"height": function(d) { return h - yScale(d.count); }
 				});
+
+			bars.exit()
+				.transition()
+				.duration(duration)
+				.attr("y", h)
+				.attr("height", 0)
+				.remove();
+
 		});
 	}
 
@@ -53,11 +91,11 @@ function BarChart() {
 		return chart;
     };
 
-    chart.height = function(_) {
+	chart.height = function(_) {
 		if (!arguments.length) return height;
 		height = _;
 		return chart;
-    };
+	};
 
 	return chart;
 }

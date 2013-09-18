@@ -1,33 +1,77 @@
 var App = Ember.Application.create();
 
 App.Router.map(function() {
-	this.resource('referrers', function() {
-		this.resource('referrer', {path: '/:referrer_id'});
+	this.resource("referrers", function() {
+		this.resource("referrer", {path: "/:referrer_id"});
 	}),
-	this.route('fetch', {path: '/fetch'});
+	this.route("fetch", {path: '/fetch'}),
+	this.route("login");
 });
 
-App.Adapter = DS.RESTAdapter.extend({
-	url: "http://localhost:3000"
+App.LoginRoute = Ember.Route.extend({
+	setupController: function (controller, model) {
+		controller.reset();
+	}
 });
 
-App.Store = DS.Store.extend({
-	adapter: 'App.Adapter'
+App.LoginController = Ember.Controller.extend({
+	
+	reset: function () {
+		this.setProperties({
+			username: "",
+			password: "",
+			errorMessage: "",
+		});
+	},
+
+	token: localStorage.token,
+	tokenChanged: function () {
+		localStorage.token = this.get("token");
+	}.observes("token"),
+
+	actions: {
+		login: function () {
+			var self = this;
+			var data = this.getProperties("username","password");
+			self.set("errorMessage", null);
+			Ember.$.post("http://localhost:3000/auth.json", data).then(function (response) {
+				self.set("errorMessage", response.message);
+				if (response.success) {
+					self.set("token", response.token);
+					self.transitionToRoute("/referrers")
+				}
+			});
+		}
+	}
 });
 
-App.Adapter.map("App.Referrer", {
-	visits: {embedded: "always"},
-	tweet: {embedded: "always"}
+App.Referrer = Ember.Object.extend({
+	totalVisits: function() {
+		return d3.sum(this.get("visits").getEach("count"));
+	}.property("visits.@each")
 });
 
-App.Adapter.map("App.Tweet", {
-	user: {embedded: "always"},
-	children: {embedded: "always"}
+App.Referrer.reopenClass({
+	findAll: function () {
+		return $.get("http://localhost:3000/referrers", {message:"hello"}).then(function (response) {
+			var referrers = Em.A();
+			response.referrers.forEach(function (r) {
+				referrers.pushObject(App.Referrer.create(r));
+			});
+			return referrers;
+		});
+	},
+
+	find: function (id) {
+		return $.get("http://localhost:3000/referrers/" + id).then(function (response) {
+			return App.Referrer.create(response.referrer);
+		});
+	}
 });
 
 App.ReferrersRoute = Ember.Route.extend({
 	model: function () {
-		return App.Referrer.find();
+		return App.Referrer.findAll();
 	}
 });
 
@@ -37,17 +81,10 @@ App.ReferrerRoute = Ember.Route.extend({
 	}
 });
 
-App.TweetRoute = Ember.Route.extend({
-	model: function (params) {
-		App.Tweet.find(params.tweet_id);
-	}
-});
-
 App.BarGraph = Ember.View.extend({
 	classNames: ["chart"],
 	chart: BarChart()
-			.margin({left: 40, top: 40, bottom: 80, right: 40})
-			.width(200)
+			.width(400)
 			.height(200),
 
 	didInsertElement: function() {
@@ -55,11 +92,9 @@ App.BarGraph = Ember.View.extend({
 	},
 
 	updateChart: function() {
-		if (this.get("isLoaded")) {
-			d3.select(this.$()[0])
-				.data([this.get("data").getEach("count")])
-				.call(this.get("chart"));
-		}
+		d3.select(this.$()[0])
+			.data([this.get("data")])
+			.call(this.get("chart"));
 	}.observes("data")
 });
 

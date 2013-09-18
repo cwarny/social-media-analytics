@@ -34,18 +34,56 @@ app.configure(function () {
 	app.use(allowCrossDomain);
 });
 
+var currentToken;
+app.post("/auth.json", function(req,res) {
+	var body = req.body,
+		username = body.username,
+		password = body.password;
+
+	if (username == "sma" && password == "password") {
+		currentToken = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+		res.send({
+			success: true,
+			token: currentToken
+		});
+	} else {
+		res.send({
+			success: false,
+			message: "Invalid username/password"
+		});
+	}
+});
+
+function validTokenProvided(req,res) {
+	return true;
+
+	var userToken = req.body.token || req.param("token") || req.headers.token;
+
+	if (!currentToken || userToken != currentToken) {
+		res.send(401, {error: "Invalid token. You provided: " + userToken});
+		return false;
+	}
+
+	return true;
+}
+
 var referrerProvider = new ReferrerProvider('localhost', 27017);
 
 app.get("/referrers", function (req, res){
-	referrerProvider.findAll(function(error,r) {
-      res.json({"referrers":r});
-    });
+	console.log(req.param("message"));
+	if (validTokenProvided(req,res)) {
+		referrerProvider.findAll(function(error,r) {
+      		res.json({"referrers":r});
+    	});
+	}
 });
 
 app.get("/referrers/:id", function (req, res) {
-	referrerProvider.find(parseInt(req.params.id), function(error,r) {
-		res.json({"referrer":r[0]});
-	});
+	if (validTokenProvided(req,res)) {
+		referrerProvider.find(parseInt(req.params.id), function(error,r) {
+			res.json({"referrer":r[0]});
+		});
+	}
 });
 
 app.put("/fetch", function (req,res) {
@@ -106,6 +144,8 @@ app.put("/fetch", function (req,res) {
 	    }
 	);
 });
+
+
 
 app.listen(process.env.PORT || 3000);
 console.log('Listening on port 3000');
