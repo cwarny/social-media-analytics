@@ -1,17 +1,12 @@
-var express = require("express");
-var fs = require("fs");
-var xml2js = require("xml2js");
-var tsession = require("temboo/core/temboosession");
-var uu = require("underscore");
-var config = require("./config");
-var ReferrerProvider = require('./referrerprovider').ReferrerProvider;
-
-var session = new tsession.TembooSession("cwarny", config.credentials.temboo.app.key.name, config.credentials.temboo.app.key.value);
-var Google = require("temboo/Library/Google/Analytics");
-var getMetricsChoreo = new Google.GetMetrics(session);
-var getMetricsInputs = getMetricsChoreo.newInputSet();
-
-getMetricsInputs.setCredential('GoogleAnalytics');
+var express = require("express"),
+	fs = require("fs"),
+	xml2js = require("xml2js"),
+	uu = require("underscore"),
+	config = require("./config"),
+	ReferrerProvider = require('./referrerprovider').ReferrerProvider,
+	http = require("http"),
+	path = require("path"),
+	gapi = require("./gapi");
 
 var app = express();
 
@@ -28,10 +23,22 @@ var allowCrossDomain = function (req, res, next) {
     }
 };
 
+app.configure('development', function() {
+	app.use(express.errorHandler());
+});
+
 app.configure(function () {
+	app.set("port", process.env.PORT || 3000);
+	app.set("views", __dirname + "/views");
+	app.set("view engine", "jade");
+	app.use(express.favicon());
+	app.use(express.logger('dev'));
+	app.use(express.bodyParser());
+	app.use(express.cookieParser());
 	app.use(express.bodyParser());
 	app.use(express.methodOverride());
 	app.use(allowCrossDomain);
+	app.use(app.router);
 });
 
 var currentToken;
@@ -55,7 +62,6 @@ app.post("/auth.json", function(req,res) {
 });
 
 function validTokenProvided(req,res) {
-	return true;
 
 	var userToken = req.body.token || req.param("token") || req.headers.token;
 
@@ -67,10 +73,35 @@ function validTokenProvided(req,res) {
 	return true;
 }
 
+app.get('/authenticate', function (req, res) {
+	res.json({url: gapi.url});
+});
+
+app.get('/oauth2callback', function(req, res) {
+	var code = req.query.code;
+	gapi.client.getToken(code, function (err, tokens) {
+		
+		// Here, store the tokens in the users collection of the sma database 
+		
+		gapi.client.credentials = tokens;
+		getData();
+	});
+
+	res.json(true);
+});
+
+var getData = function () {
+	gapi.oauth.userinfo.get().withAuthClient(gapi.client).execute(function (err, results) {
+		my_email = results.email;
+		my_profile.name = results.name;
+
+		// Store data in database
+	});
+}
+
 var referrerProvider = new ReferrerProvider('localhost', 27017);
 
-app.get("/referrers", function (req, res){
-	console.log(req.param("message"));
+app.get("/referrers", function (req, res) {
 	if (validTokenProvided(req,res)) {
 		referrerProvider.findAll(function(error,r) {
       		res.json({"referrers":r});
@@ -145,7 +176,5 @@ app.put("/fetch", function (req,res) {
 	);
 });
 
-
-
 app.listen(process.env.PORT || 3000);
-console.log('Listening on port 3000');
+console.log('Express server started on port %s', server.address().port);
