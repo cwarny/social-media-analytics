@@ -17,7 +17,6 @@
 <body>
 
 	<script type="text/x-handlebars">
-
 		<div class="container">
 			<nav class="navbar navbar-default" role="navigation">
 				<div class="navbar-header">
@@ -33,7 +32,11 @@
 					<ul class="nav navbar-nav pull-right">
 						<li>{{#linkTo "referrers"}}Referrers{{/linkTo}}</li>
 						<li>{{#linkTo "fetch"}}Fetch{{/linkTo}}</li>
-						<li>{{#linkTo "login"}}Login{{/linkTo}}</li>
+						{{#if user}}
+							<li>{{#linkTo "welcome"}}Login{{/linkTo}}</li>
+						{{else}}
+							<li>{{#linkTo "welcome"}}Logout{{/linkTo}}</li>
+						{{/if}}
 					</ul>
 				</div>
 			</nav>
@@ -42,48 +45,11 @@
 	</script>
 
 	<script type="text/x-handlebars" data-template-name="login">
-		<form class="form-inline" {{action login on="submit"}}>
-			<h2>Log In</h2>
-			{{input value=username type="text" placeholder="Username"}}
-			{{input value=password type="password" placeholder="Password"}}
-			{{input class="btn" type="submit" value="Log In"}}
-		</form>
-		{{#if errorMessage}}
-			<div class="alert alert-danger">{{errorMessage}}</div>
-		{{/if}}
-	</script>
-
-	<script type="text/x-handlebars" data-template-name="referrers">
-		<div class="container">
-			<div class="row">
-				<div class="col-md-2">
-					<ul class="nav nav-pills nav-stacked">
-						{{#each model}}
-							{{#linkTo "referrer" this tagName="li" href=false}} <a {{bindAttr href="view.href"}} {{tweet.user.screen_name}} <span class="badge pull-right">{{totalVisits}}</span> </a> {{/linkTo}}
-						{{/each}}
-					</ul>
-				</div>
-					{{outlet}}
-				</div>
-			</div>
-		</div>
+		
 	</script>
 
 	<script type="text/x-handlebars" data-template-name="referrer">
-		<div class="col-md-9 col-md-offset-1">
-			<div class="well row">
-				<div class="col-md-1">
-					<img {{bindAttr src=tweet.user.profile_image_url}} alt="Profile picture">
-				</div>
-				<div class="col-md-11">
-					<blockquote>
-						<p>{{tweet.text}}</p>
-						<small>{{tweet.user.name}} (@{{tweet.user.screen_name}})</small>
-					</blockquote>
-				</div>
-			</div>
-			{{view App.BarGraph isLoadedBinding="model.isLoaded" dataBinding=visits}}
-		</div>
+		
 	</script>
 
 	<script type="text/x-handlebars" data-template-name="fetch">

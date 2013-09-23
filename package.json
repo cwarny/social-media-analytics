@@ -1,0 +1,12 @@
+{
+  "name": "social-media-analytics",
+  "description": "Analyzing who talks about you, how influential they are and what online social conversations they spawn",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "express": "3.4.0",
+    "jade": "*",
+    "mongodb": "1.3.19",
+    "stylus": "*"
+  }
+}
