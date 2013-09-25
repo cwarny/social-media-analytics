@@ -1,37 +1,25 @@
 var express = require("express"),
+	app = express(),
 	passport = require("passport"),
 	util = require("util"),
 	path = require("path"),
 	GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 	DbInterface = require('./dbinterface').DbInterface
 
-var app = express();
 var dbInterface = new DbInterface('localhost', 27017);
 
 var GOOGLE_CLIENT_ID = "898266335618-fhhc3qu7ad057j5a70m1mr3ikttud14k.apps.googleusercontent.com";
 var GOOGLE_CLIENT_SECRET = "ktNpbeUU1DBsRFkTm08nySaH";
 
-// var allowCrossDomain = function (req, res, next) {
-//     res.header('Access-Control-Allow-Origin', '*');
-//     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
-//     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-
-//     if ('OPTIONS' == req.method) {
-//       res.send(200);
-//     }
-//     else {
-//       next();
-//     }
-// };
-
-passport.serializeUser(function(user, done) {
+passport.serializeUser(function (user, done) {
 	done(null, user);
 });
 
-passport.deserializeUser(function(obj, done) {
+passport.deserializeUser(function (obj, done) {
 	done(null, obj);
 });
 
+var currentToken;
 passport.use(new GoogleStrategy({
 	clientID: GOOGLE_CLIENT_ID,
 	clientSecret: GOOGLE_CLIENT_SECRET,
@@ -39,6 +27,7 @@ passport.use(new GoogleStrategy({
 	},
 	function(accessToken, refreshToken, profile, done) {
 		process.nextTick(function () {
+			currentToken = accessToken;
 			return done(null, profile);
 		});
 	}
@@ -63,7 +52,7 @@ app.configure(function () {
 });
 
 app.get("/", function (req, res) {
-	res.render("layout", {user: req.user});
+	res.render("layout");
 });
 
 // app.get("/account", ensureAuthenticated, function (req, res) {
@@ -79,10 +68,10 @@ app.get("/auth/google",
 app.get("/auth/google/callback", 
 	passport.authenticate('google', { failureRedirect: "/"}),
 	function (req, res) {
-		res.redirect("/");
+		res.redirect("/#/referrers");
 	});
 
-function ensureAuthenticated(req, res, next) {
+function ensureAuthenticated (req, res, next) {
 	if (req.isAuthenticated()) { return next(); }
 	res.redirect("/")
 }

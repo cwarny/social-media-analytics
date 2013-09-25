@@ -1,13 +1,12 @@
-{{#if user}}
-	<p>You are logged in</p>
-{{else}}
-	<div class="jumbotron">
-		<div class="container">
-			<h1>Hi there</h1>
-			<p>Socialr enables you to analyze who talks about your content, how influential they are and what online social conversations they spawn</p>
-			<form role="form" {{action login on="submit"}}>
-				<input type="submit" value="Sign on with Google" class="btn btn-primary pull-right">
-			</form>
-		</div>
+<div class="jumbotron">
+	<div class="container">
+		<h1>Hi there</h1>
+		<p>Socialr enables you to analyze who talks about your content, how influential they are and what online social conversations they spawn</p>
+		<form role="form">
+			<input type="button" class="btn btn-primary" {{action "authorize"}} value="Sign On with Google" id="authorize-button">
+		</form>
 	</div>
+</div>
+{{#if access_token}}
+	You are signed in.
 {{/if}}

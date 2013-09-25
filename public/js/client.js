@@ -9,22 +9,47 @@ App.Router.map(function() {
 	this.route("fetch", {path: '/fetch'});
 });
 
-App.IndexRoute = Ember.Route.extend({
+App.ApplicationRoute = Ember.Route.extend({
 	redirect: function () {
 		this.transitionTo("welcome");
 	}
 });
 
-App.ApplicationView = Ember.View.extend({
-	template: Ember.TEMPLATES["index"]
+App.WelcomeRoute = Ember.Route.extend({
+	model: function() {
+		return this.get("access_token");
+	}
 });
 
-App.WelcomeRoute = Ember.Route.extend({
+App.WelcomeController = Ember.Controller.extend({
+
+	clientId: "898266335618-fhhc3qu7ad057j5a70m1mr3ikttud14k.apps.googleusercontent.com",
+	apiKey: "AIzaSyDN7bglcSAiykKx1GodBfzWjP1E0x1CLlk",
+	scopes: "https://www.googleapis.com/auth/userinfo.profile",
+
 	actions: {
-		login: function () {
-			$.get("/auth/google")
+		authorize: function() {
+			var self = this;
+			gapi.auth.authorize({client_id: this.get("clientId"), scope: this.get("scopes"), immediate:true}, function (result) {
+				if (result) {
+					alert("Login succeeded!");
+					console.log(result);
+					self.set("access_token", result.access_token);
+					self.transitionToRoute("welcome");
+					// The user has authorized access.
+					// Load the Analytics Client.
+					loadAnalyticsClient();
+				} else {
+					// User has not authenticated and authorized.
+					handleUnAuthorized();
+				}
+			});
 		}
 	}
+});
+
+App.ApplicationView = Ember.View.extend({ // ApplicationView is the client-side equivalent of server-side layout.jade
+	template: Ember.TEMPLATES["index"]
 });
 
 App.WelcomeView = Ember.View.extend({
@@ -77,6 +102,10 @@ App.LoginController = Ember.Controller.extend({
 			});
 		}
 	}
+});
+
+App.LoginView = Ember.View.extend({
+	template: Ember.TEMPLATES["login"]
 });
 
 App.Referrer = Ember.Object.extend({
