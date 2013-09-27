@@ -3,7 +3,7 @@ from ga import get_referrers
 from cascade import *
 from collections import defaultdict
 
-results = get_referrers(table_id='ga:76829462',start_date='2013-08-28',end_date='2013-09-19')
+results = get_referrers(table_id='ga:75218327',start_date='2013-08-28',end_date='2013-08-30')
 
 referrers = defaultdict(list)
 for row in results["rows"]:

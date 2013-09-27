@@ -12,15 +12,14 @@ App.ApplicationView = Ember.View.extend({ // ApplicationView is the client-side 
 	template: Ember.TEMPLATES["index"]
 });
 
+// The redirect causes problems when refreshing a page: at each refresh, the ember app is reinitialized, and therefore the user is redirected to the welcome page after each refresh
 App.ApplicationRoute = Ember.Route.extend({
 	redirect: function () {
 		this.transitionTo("welcome");
 	}
 });
 
-App.WelcomeRoute = Ember.Route.extend({
-	template: Ember.TEMPLATES["welcome"]
-});
+App.WelcomeRoute = Ember.Route.extend();
 
 App.Referrer = Ember.Object.extend({
 	totalVisits: function() {
@@ -32,7 +31,6 @@ App.Referrer.reopenClass({
 	findAll: function () {
 		return $.get("/referrers").then(function (response) {
 			if (response.success) {
-				console.log("hello");
 				var referrers = Em.A();
 				response.referrers.forEach(function (r) {
 					referrers.pushObject(App.Referrer.create(r));
@@ -47,7 +45,12 @@ App.Referrer.reopenClass({
 
 	find: function (id) {
 		return $.get("/referrers/" + id).then(function (response) {
-			return App.Referrer.create(response.referrer);
+			if (response.success) {
+				return App.Referrer.create(response.referrer);
+			} else {
+				alert("You must log in");
+				window.open("http://localhost:3000/login", "_self");	
+			}
 		});
 	}
 });
@@ -58,18 +61,10 @@ App.ReferrersRoute = Ember.Route.extend({
 	}
 });
 
-App.ReferrersView = Ember.View.extend({
-	template: Ember.TEMPLATES["referrers"]
-});
-
 App.ReferrerRoute = Ember.Route.extend({
 	model: function (params) {
 		return App.Referrer.find(params.referrer_id);
 	}
-});
-
-App.ReferrerView = Ember.View.extend({
-	template: Ember.TEMPLATES["referrer"]
 });
 
 App.BarGraph = Ember.View.extend({
