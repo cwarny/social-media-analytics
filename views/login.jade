@@ -4,17 +4,8 @@ html
 		title Social Media Analytics
 		link(rel="stylesheet", href="css/bootstrap.min.css")
 		link(rel="stylesheet", href="css/style.css")
-		script(type="text/javascript", src="js/libs/jquery-1.9.1.js")
-		script(type="text/javascript", src="js/libs/bootstrap.min.js")
-		script(type="text/javascript", src="js/libs/handlebars-1.0.0.js")
-		script(type="text/javascript", src="js/libs/ember-1.0.0.js")
-		script(type="text/javascript", src="js/libs/d3.v3.min.js")
-		script(type="text/javascript", src="js/templates.js")
-		script(type="text/javascript", src="js/BarChart.js")
-		script(type="text/javascript", src="js/client.js")
 
 	body
-
 		.container
 			nav(class="navbar navbar-default", role="navigation")
 				.navbar-header
@@ -36,4 +27,5 @@ html
 							li
 								a(href="/login") Login
 
-			block content
+			p You need a Google account to log into Socialr
+			a(href="/auth/google", type="button", class="btn btn-primary") Log In with Google

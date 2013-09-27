@@ -1,7 +1,6 @@
 var express = require("express"),
 	app = express(),
 	passport = require("passport"),
-	util = require("util"),
 	path = require("path"),
 	GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 	DbInterface = require('./dbinterface').DbInterface
@@ -12,11 +11,13 @@ var GOOGLE_CLIENT_ID = "898266335618-fhhc3qu7ad057j5a70m1mr3ikttud14k.apps.googl
 var GOOGLE_CLIENT_SECRET = "ktNpbeUU1DBsRFkTm08nySaH";
 
 passport.serializeUser(function (user, done) {
-	done(null, user);
+	done(null, user.id);
 });
 
 passport.deserializeUser(function (obj, done) {
-	done(null, obj);
+	User.findById(id, function(err, user) {
+		done(err, user);
+	});
 });
 
 var currentToken;
@@ -52,12 +53,17 @@ app.configure(function () {
 });
 
 app.get("/", function (req, res) {
-	res.render("layout");
+	res.render("layout", {user: req.user});
 });
 
-// app.get("/account", ensureAuthenticated, function (req, res) {
-// 	res.json({ user: req.user });
-// });
+app.get("/login", function (req, res) {
+	res.render("login");
+});
+
+app.get('/logout', function (req, res){
+	req.logout();
+	res.redirect('/');
+});
 
 app.get("/auth/google", 
 	passport.authenticate('google', { scope: ['https://www.googleapis.com/auth/userinfo.profile','https://www.googleapis.com/auth/userinfo.email'] }),
@@ -71,62 +77,35 @@ app.get("/auth/google/callback",
 		res.redirect("/#/referrers");
 	});
 
-function ensureAuthenticated (req, res, next) {
-	if (req.isAuthenticated()) { return next(); }
-	res.redirect("/")
-}
-
-
-
-
-var currentToken;
-app.post("/auth.json", function (req,res) {
-	var body = req.body,
-		username = body.username,
-		password = body.password;
-
-	if (username == "sma" && password == "password") {
-		currentToken = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-		res.send({
-			success: true,
-			token: currentToken
-		});
-	} else {
-		res.send({
-			success: false,
-			message: "Invalid username/password"
-		});
-	}
-});
-
-function validTokenProvided (req,res) {
-	return true;
-
-	var userToken = req.body.token || req.param("token") || req.headers.token;
-
-	if (!currentToken || userToken != currentToken) {
-		res.send(401, {error: "Invalid token. You provided: " + userToken});
-		return false;
-	}
-
-	return true;
-}
-
 app.get("/referrers", function (req, res) {
-	if (validTokenProvided(req,res)) {
-		dbInterface.findAll("referrers", function(error,r) {
-      		res.json({"referrers":r});
-    	});
+	if (req.isAuthenticated()) {
+		console.log("authenticated");
+		dbInterface.findAll("referrers", function (error, r) {
+			res.json({
+				success: true,
+				referrers: r
+			});
+	    });
+	} else {
+		res.json({
+			success: false,
+			message: "Not authenticated"
+		});
 	}
 });
 
 app.get("/referrers/:id", function (req, res) {
-	if (validTokenProvided(req,res)) {
-		referrerProvider.find("referrers", parseInt(req.params.id), function(error,r) {
-			res.json({"referrer":r[0]});
-		});
-	}
+	referrerProvider.find("referrers", parseInt(req.params.id), function(error,r) {
+		res.json({"referrer":r[0]});
+	});
 });
 
 var server = app.listen(process.env.PORT || 3000);
 console.log('Express server started on port %s', server.address().port);
+
+function ensureAuthenticated (req, res, next) {
+	if (req.isAuthenticated()) {
+		return next(); 
+	}
+	res.redirect("http://localhost:3000/login")
+}
