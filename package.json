@@ -10,6 +10,7 @@
     "stylus": "*",
     "passport": "*",
     "passport-google-oauth": "*",
-    "googleapis": "*"
+    "googleapis": "*",
+    "underscore": "*"
   }
 }

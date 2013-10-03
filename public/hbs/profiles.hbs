@@ -1,0 +1,15 @@
+<div class="col-md-1">
+	<span class="glyphicon glyphicon-chevron-right"></span>
+</div>
+<div class="col-md-3">
+	<h3>3. Select profile</h3>
+	<div class="col-md-12 well">
+		<ul class="nav nav-pills nav-stacked">
+			{{#each model}}
+				{{#linkTo "referrers" tagName="li" href=false}}
+					<a {{bindAttr href="view.href"}}>{{name}}</a>
+				{{/linkTo}}
+			{{/each}}
+		</ul>
+	</div>
+</div>

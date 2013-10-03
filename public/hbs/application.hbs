@@ -1,0 +1,34 @@
+<div class="container">
+	<nav class="navbar navbar-default" role="navigation">
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></scan>
+				<span class="icon-bar"></scan>
+				<span class="icon-bar"></scan>
+			</button>
+			<a href="/" class="navbar-brand">Socialr</a>
+		</div>
+		<div class="collapse navbar-collapse navbar-ex1-collapse">
+			<ul class="nav navbar-nav pull-right">
+				<li><a href="/#/accounts">Explore</a></li>
+				{{#if user}}
+					<li><a href="/logout">Logout</a></li>
+				{{else}}
+					<li><a href="/login">Login</a></li>
+				{{/if}}
+			</ul>
+		</div>
+	</nav>
+	{{#unless user}}
+		<div class="jumbotron">
+			<div class="container">
+				<h1>Hi there</h1>
+				<p>Socialr enables you to analyze who talks about your content, how influential they are and what online social conversations they spawn</p>
+				<a href="http://localhost:3000/login" type="button" class="btn btn-primary">Log In</a>
+				</form>
+			</div>
+		</div>
+	{{/unless}}
+	{{outlet}}
+</div>

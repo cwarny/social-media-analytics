@@ -3,12 +3,17 @@
 		<div class="col-md-2">
 			<ul class="nav nav-pills nav-stacked">
 				{{#each model}}
-					{{#linkTo "referrer" this tagName="li" href=false}} <a {{bindAttr href="view.href"}} {{tweet.user.screen_name}} <span class="badge pull-right">{{totalVisits}}</span> </a> {{/linkTo}}
+					{{#linkTo "referrer" this tagName="li" href=false}} 
+						<a {{bindAttr href="view.href"}}> 
+							{{tweet.user.screen_name}}
+							<span class="badge pull-right">{{totalVisits}}</span> 
+						</a>
+					{{/linkTo}}
 				{{/each}}
 			</ul>
 		</div>
 		<div>
-			{{outlet}}
+			{{outlet referrer}}
 		</div>
 	</div>
 </div>

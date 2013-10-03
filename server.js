@@ -4,6 +4,8 @@ var express = require("express"),
 	path = require("path"),
 	GoogleStrategy = require('passport-google-oauth').OAuth2Strategy,
 	googleapis = require('googleapis'),
+	request = require("request"),
+	uu = require("underscore"),
 	Referrers = require('./referrers').Referrers,
 	Users = require('./users').Users;
 
@@ -28,15 +30,15 @@ app.configure(function () {
 	app.use(app.router);
 });
 
-var GOOGLE_CLIENT_ID = "898266335618-fhhc3qu7ad057j5a70m1mr3ikttud14k.apps.googleusercontent.com";
-var GOOGLE_CLIENT_SECRET = "ktNpbeUU1DBsRFkTm08nySaH";
+var GOOGLE_CLIENT_ID = "898266335618-fhhc3qu7ad057j5a70m1mr3ikttud14k.apps.googleusercontent.com",
+	GOOGLE_CLIENT_SECRET = "ktNpbeUU1DBsRFkTm08nySaH",
+	GOOGLE_REDIRECT_URL = "http://localhost:3000/auth/google/callback";
 
 passport.use(new GoogleStrategy({
 	clientID: GOOGLE_CLIENT_ID,
 	clientSecret: GOOGLE_CLIENT_SECRET,
-	callbackURL: "http://localhost:3000/auth/google/callback",
-	access_type: "offline",
-	approval_prompt: "force"
+	callbackURL: GOOGLE_REDIRECT_URL,
+	access_type: "offline"
 	},
 	function (accessToken, refreshToken, profile, done) {
 		process.nextTick(function () {
@@ -58,8 +60,13 @@ passport.deserializeUser(function (id, done) {
 });
 
 app.get("/", function (req, res) {
+	// res.render("layout", {user: req.user});
+	res.sendfile("index.html");
+});
+
+app.get("/user", function (req, res) {
 	console.log(req.user);
-	res.render("layout", {user: req.user});
+	res.json(req.user);
 });
 
 app.get("/login", function (req, res) {
@@ -78,27 +85,81 @@ app.get("/auth/google",
 	}
 );
 
-app.get("/analytics/google", 
-	googleapis
-		.discover("analytics", "v3")
-		.execute(function (err, client) {
-			var params = { shortUrl: 'http://goo.gl/DdUKX' };
-			var req1 = client.analytics.url.get(params);
-			req1.execute(function (err, response) {
-				console.log('Long url is', response.longUrl);
-			});
-
-			var req2 = client.plus.people.get({ userId: '+burcudogan' });
-			req2.execute();
-		});
-);
-
 app.get("/auth/google/callback", 
 	passport.authenticate("google", { failureRedirect: "/login" }),
 	function (req, res) {
-		res.redirect("/");
+		res.redirect("/#/accounts");
 	}
 );
+
+app.get("/accounts", function (req, res) {
+	if (req.isAuthenticated()) {
+		request("https://www.googleapis.com/analytics/v3/management/accounts?access_token=" + req.user.access_token + "&access_type_token=bearer", function (error, response, body) {
+			if (!error && response.statusCode == 200) {
+				var accounts = JSON.parse(body).items;
+				res.json({
+					success: true,
+					accounts: accounts
+				});
+			}
+		});
+	} else {
+		res.json({
+			success: false,
+			message: "Not authenticated"
+		});
+	}
+});
+
+app.get("/webproperties/:id", function (req, res) {
+	if (req.isAuthenticated()) {
+		request("https://www.googleapis.com/analytics/v3/management/accounts/" + req.params.id + "/webproperties" + "?access_token=" + req.user.access_token + "&access_type_token=bearer", function (error, response, body) {
+			if (!error && response.statusCode == 200) {
+				var webproperties = JSON.parse(body).items;
+				res.json({
+					success: true,
+					webproperties: webproperties
+				});
+			}
+		});
+	} else {
+		res.json({
+			success: false,
+			message: "Not authenticated"
+		});
+	}
+});
+
+app.get("/profiles/:id", function (req, res) {
+	if (req.isAuthenticated()) {
+		var accountId = req.params.id.split("-")[1];
+		request("https://www.googleapis.com/analytics/v3/management/accounts/" + accountId + "/webproperties/" + req.params.id + "/profiles" + "?access_token=" + req.user.access_token + "&access_type_token=bearer", function (error, response, body) {
+			if (!error && response.statusCode == 200) {
+				var profiles = JSON.parse(body).items;
+				res.json({
+					success: true,
+					profiles: profiles
+				});
+			}
+		});
+	} else {
+		res.json({
+			success: false,
+			message: "Not authenticated"
+		});
+	}
+});
+
+app.get("/analytics/google/reporting/", function (req, res) {
+	var accessToken = req.user.access_token;
+	var id = JSON.parse(body).items[0].id;
+	request("https://www.googleapis.com/analytics/v3/data/ga?ids=ga%3A" + id + "&dimensions=ga%3AfullReferrer%2Cga%3AdateHour&metrics=ga%3Avisits&filters=ga%3Asource%3D%3Dt.co&start-date=2013-08-28&end-date=2013-08-30&access_token=" + accessToken, function (error, response, body) {
+		if (!error && response.statusCode == 200) {
+			var rows = JSON.parse(body).rows;
+			res.json(rows);
+		}
+	});
+});
 
 app.get("/referrers", function (req, res) {
 	if (req.isAuthenticated()) {
@@ -107,7 +168,7 @@ app.get("/referrers", function (req, res) {
 				success: true,
 				referrers: r
 			});
-	    });
+		});
 	} else {
 		res.json({
 			success: false,
