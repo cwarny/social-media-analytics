@@ -4,7 +4,7 @@ Socialr enables you to analyze who talks about your content, how influential the
 
 # Concept
 
-This web, built with Ember, grabs your Google Analytics account data, checks your site's visitors data for Twitter [ghost URLs](https://support.twitter.com//entries/109623) as referrers. This means people landed on your page after clicking on your URL embedded in a tweet. These Twitter ghost URLs are unique to the users who encoded them, so that you can trace back:
+This Ember-based web app grabs your Google Analytics account data, checks your site's visitors data for Twitter [ghost URLs](https://support.twitter.com//entries/109623) as referrers. This means people landed on your page after clicking on your URL embedded in a tweet. These Twitter ghost URLs are unique to the users who encoded them, so that you can trace back:
 
 - Who tweeted about your web content;
 - How many clicks per hour was generated per referring tweet;
