@@ -1,30 +1,13 @@
-# Notes
+# Socialr
 
-## Import json file into MongoDB
+Socialr enables you to analyze who talks about your content, how influential they are and what online social conversations they spawn.
 
-```
-$ mongoimport --db sma --collection referrers --file "../api/referrers.json" --jsonArray
-```
+# Concept
 
-## Express REST API with data stored in json file
+This web, built with Ember, grabs your Google Analytics account data, checks your site's visitors data for Twitter [ghost URLs](https://support.twitter.com//entries/109623) as referrers. This means people landed on your page after clicking on your URL embedded in a tweet. These Twitter ghost URLs are unique to the users who encoded them, so that you can trace back:
 
-```
-app.get("/referrers", function (req, res){
-	fs.readFile("../api/referrers.json", function (err,data) {
-		if (err) throw err;
-		return res.json(JSON.parse(data));
-	});
-});
+- Who tweeted about your web content;
+- How many clicks per hour was generated per referring tweet;
+- What conversations (retweets and replies) were spawned by each referring tweet.
 
-app.get("/referrers/:id", function (req, res) {
-	fs.readFile("../api/referrers.json", function (err,data) {
-		if (err) throw err;
-		var referrers = JSON.parse(data).referrers;
-		if (referrers.length <= req.params.id || req.params.id < 0) {
-			res.statusCode = 404;
-			return res.send('Error 404: No referrer found');
-		}
-		return res.json({"referrer": referrers[req.params.id]});
-	});
-});
-```
+Providing you that information through an easy-to-navigate web app is the goal of Socialr.
