@@ -65,8 +65,17 @@ app.get("/", function (req, res) {
 });
 
 app.get("/user", function (req, res) {
-	console.log(req.user);
-	res.json(req.user);
+	if (req.isAuthenticated()) {
+		res.json({
+			authenticated: true,
+			user: req.user
+		})
+	} else {
+		res.json({
+			authenticated: false,
+			user: null
+		});
+	}
 });
 
 app.get("/login", function (req, res) {
@@ -88,7 +97,7 @@ app.get("/auth/google",
 app.get("/auth/google/callback", 
 	passport.authenticate("google", { failureRedirect: "/login" }),
 	function (req, res) {
-		res.redirect("/#/accounts");
+		res.redirect("/#/explore");
 	}
 );
 
@@ -111,14 +120,14 @@ app.get("/accounts", function (req, res) {
 	}
 });
 
-app.get("/webproperties/:id", function (req, res) {
+app.get("/accounts/:id", function (req, res) {
 	if (req.isAuthenticated()) {
 		request("https://www.googleapis.com/analytics/v3/management/accounts/" + req.params.id + "/webproperties" + "?access_token=" + req.user.access_token + "&access_type_token=bearer", function (error, response, body) {
 			if (!error && response.statusCode == 200) {
 				var webproperties = JSON.parse(body).items;
 				res.json({
 					success: true,
-					webproperties: webproperties
+					account: {id: req.params.id, webproperties: webproperties}
 				});
 			}
 		});
@@ -130,7 +139,7 @@ app.get("/webproperties/:id", function (req, res) {
 	}
 });
 
-app.get("/profiles/:id", function (req, res) {
+app.get("/webproperties/:id", function (req, res) {
 	if (req.isAuthenticated()) {
 		var accountId = req.params.id.split("-")[1];
 		request("https://www.googleapis.com/analytics/v3/management/accounts/" + accountId + "/webproperties/" + req.params.id + "/profiles" + "?access_token=" + req.user.access_token + "&access_type_token=bearer", function (error, response, body) {
@@ -138,7 +147,7 @@ app.get("/profiles/:id", function (req, res) {
 				var profiles = JSON.parse(body).items;
 				res.json({
 					success: true,
-					profiles: profiles
+					webproperty: {id: req.params.id, profiles: profiles}
 				});
 			}
 		});

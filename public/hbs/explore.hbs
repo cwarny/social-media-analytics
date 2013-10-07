@@ -1,0 +1,16 @@
+<div class="row">
+	<div class="col-md-3">
+		<h3>1. Select account</h3>
+		<div class="col-md-12 well">
+			<ul class="nav nav-pills nav-stacked">
+				{{#each content}} 
+					<li><a {{bindAttr href="view.href"}} {{action "fetch" id}}>{{name}}</a></li>
+				{{/each}}
+			</ul>
+		</div>
+	</div>
+	{{outlet account}}
+</div>
+<div class="container">
+	{{outlet referrers}}
+</div>

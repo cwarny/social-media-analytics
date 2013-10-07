@@ -1,88 +1,97 @@
 var App = Ember.Application.create();
 
 App.Router.map(function() {
-	// this.resource("welcome"),
-	this.resource("accounts", function () {
-		this.resource("webproperties", {path: "/:account_id"}, function () {
-			this.resource("profiles", {path: "/:webproperties_id"}, function () {
-				this.resource("referrers", function () {
-					this.resource("referrer", {path: "/:referrer_id"});
-				});
-			});
+	this.resource("explore", function () {
+		this.resource("account", {path: "account/:account_id"}, function () {
+			this.resource("webproperty", {path: "webproperty/:webproperty_id"}, function () {
+				this.resource("profile", {path: "profile/:profile_id"}, function () {
+					this.resource("referrers", function () {
+						this.resource("referrer", {path: "/:referrer_id"});
+					})
+				})
+			})
 		})
-	});
+	})
 });
 
-// App.ApplicationView = Ember.View.extend({ // ApplicationView is the client-side equivalent of server-side layout.jade
-// 	template: Ember.TEMPLATES["index"]
-// });
-
-// The redirect causes problems when refreshing a page: at each refresh, the ember app is reinitialized, and therefore the user is redirected to the welcome page after each refresh
 App.ApplicationRoute = Ember.Route.extend({
 	model: function () {
-		return $.get("/user").then(function (response) {
-			console.log(response.user);
-			return response.user;
+		return $.get("/user").then(function (res) {
+			return {user: res.user};
 		})
 	}
-	// redirect: function () {
-	// 	this.transitionTo("welcome");
-	// }
 });
 
-App.Account = Ember.Object.extend({
-	init: function () {
-		this.set("webproperties", App.Webproperty.findAll(this.get("id")));
-	}
-});
+App.Account = Ember.Object.extend();
 
 App.Account.reopenClass({
 	findAll: function () {
-		return $.get("/accounts").then(function (response) {
-			if (response.success) {
-				return response.accounts.map(function (a) {
+		return $.get("/accounts").then(function (res) {
+			if (res.success) {
+				return res.accounts.map(function (a) {
 					return App.Account.create(a);
 				});
+			} else {
+				alert("You must log in");
+				window.open("http://localhost:3000/login", "_self");
 			}
 		});
 	}
 });
 
-App.AccountsRoute = Ember.Route.extend({
+App.ExploreRoute = Ember.Route.extend({
 	model: function () {
 		return App.Account.findAll();
+	},
+	renderTemplate: function () {
+		this.render({
+			into: "application",
+			outlet: "accounts"
+		});
+	},
+	actions: {
+		fetch: function (id) {
+			var self = this;
+			$.get("/accounts/" + id).then(function (res) {
+				if (res.success) {
+					self.transitionTo("account", res.account);
+				}
+			})
+		} 
 	}
 });
 
-App.Webproperty = Ember.Object.extend({
-	init: function () {
-		this.set("profiles", App.Profile.findAll(this.get("id")));
+App.AccountRoute = Ember.Route.extend({
+	renderTemplate: function () {
+		this.render({
+			into: "explore",
+			outlet: "account"
+		});
+	},
+	actions: {
+		fetch: function (id) {
+			var self = this;
+			$.get("/webproperties/" + id).then(function (res) {
+				if (res.success) {
+					self.transitionTo("webproperty", res.webproperty);
+				}
+			})
+		} 
 	}
 });
 
-App.Webproperty.reopenClass({
-	findAll: function (id) {
-		return $.get("/webproperties/" + id).then(function (response) {
-			if (response.success) {
-				return response.webproperties.map(function (wp) {
-					return App.Webproperty.create(wp);
-				});
-			}
+App.WebpropertyRoute = Ember.Route.extend({
+	renderTemplate: function () {
+		this.render({
+			into: "account",
+			outlet: "webproperty"
 		});
 	}
 });
 
-App.Profile = Ember.Object.extend();
-
-App.Profile.reopenClass({
-	findAll: function (id) {
-		return $.get("/profiles/" + id).then(function (response) {
-			if (response.success) {
-				return response.profiles.map(function (p) {
-					return App.Profile.create(p);
-				});
-			}
-		});
+App.ProfileRoute = Ember.Route.extend({
+	redirect: function () {
+		this.transitionTo("referrers");
 	}
 });
 
@@ -94,9 +103,9 @@ App.Referrer = Ember.Object.extend({
 
 App.Referrer.reopenClass({
 	findAll: function () {
-		return $.get("/referrers").then(function (response) {
-			if (response.success) {
-				return response.referrers.map(function (r) {
+		return $.get("/referrers").then(function (res) {
+			if (res.success) {
+				return res.referrers.map(function (r) {
 					return App.Referrer.create(r);
 				});
 			} else {
@@ -105,14 +114,10 @@ App.Referrer.reopenClass({
 			}
 		});
 	},
-
 	find: function (id) {
-		return $.get("/referrers/" + id).then(function (response) {
-			if (response.success) {
-				return App.Referrer.create(response.referrer);
-			} else {
-				alert("You must log in");
-				window.open("http://localhost:3000/login", "_self");	
+		return $.get("/referrers/" + id).then(function (res) {
+			if (res.success) {
+				return App.Referrer.create(res.referrer);
 			}
 		});
 	}
@@ -120,12 +125,11 @@ App.Referrer.reopenClass({
 
 App.ReferrersRoute = Ember.Route.extend({
 	model: function () {
-		console.log(this.get("profileId"));
 		return App.Referrer.findAll();
 	},
 	renderTemplate: function () {
 		this.render({
-			into: "accounts",
+			into: "explore",
 			outlet: "referrers"
 		});
 	}

@@ -1,8 +1,0 @@
-<div class="row">
-	<div class="col-md-3">
-		<h3>1. Account</h3>
-		{{view Ember.Select contentBinding=this optionValuePath="content.id" optionLabelPath="content.name" valueBinding="selectedAccount.id" prompt="Please select an account"}}
-	</div>
-	{{outlet}}
-</div>
-{{outlet referrers}}

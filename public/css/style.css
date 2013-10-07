@@ -1,20 +1,19 @@
 img {
-  width: 50px;
-  margin-right: 10px;
+	width: 50px;
+	margin-right: 10px;
 }
 
 .axis path,
 .axis line {
-  fill: none;
-  stroke: #000;
-  shape-rendering: crispEdges;
+	fill: none;
+	stroke: #000;
+	shape-rendering: crispEdges;
 }
 
 .bar {
-  fill: steelblue;
+	fill: steelblue;
 }
 
 .x.axis path {
-  display: none;
+	display: none;
 }
-
