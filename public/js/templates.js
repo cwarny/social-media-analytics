@@ -118,12 +118,12 @@ function program1(depth0,data) {
   hashContexts = {};
   options = {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
   data.buffer.push(escapeExpression(((stack1 = helpers.outlet || depth0.outlet),stack1 ? stack1.call(depth0, "account", options) : helperMissing.call(depth0, "outlet", "account", options))));
-  data.buffer.push("\n</div>\n<div class=\"container\">\n	");
+  data.buffer.push("\n</div>\n</br>\n</br>\n</br>\n<div class=\"container referrers\">\n	");
   hashTypes = {};
   hashContexts = {};
   options = {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
   data.buffer.push(escapeExpression(((stack1 = helpers.outlet || depth0.outlet),stack1 ? stack1.call(depth0, "referrers", options) : helperMissing.call(depth0, "outlet", "referrers", options))));
-  data.buffer.push("\n</div>");
+  data.buffer.push("\n</div>\n</br>\n</br>\n</br>\n</br>\n</br>\n</br>\n</br>\n</br>\n</br>\n</br>\n</br>\n</br>");
   return buffer;
   
 });
@@ -205,7 +205,7 @@ function program2(depth0,data) {
   return buffer;
   }
 
-  data.buffer.push("<div class=\"container\">\n	<div class=\"row\">\n		<div class=\"col-md-2\">\n			<ul class=\"nav nav-pills nav-stacked\">\n				");
+  data.buffer.push("<div class=\"container\">\n	<div class=\"row\">\n		<div class=\"col-md-2 col-md-offset-5\">\n			<h2>Referrers</h2>\n		</div>\n	</div>\n	</br>\n	<div class=\"row\">\n		<div class=\"col-md-2\">\n			<ul class=\"nav nav-pills nav-stacked\">\n				");
   hashTypes = {};
   hashContexts = {};
   stack1 = helpers.each.call(depth0, "model", {hash:{},inverse:self.noop,fn:self.program(1, program1, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});

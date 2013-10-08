@@ -91,7 +91,7 @@ App.WebpropertyRoute = Ember.Route.extend({
 
 App.ProfileRoute = Ember.Route.extend({
 	redirect: function () {
-		this.transitionTo("referrers");
+		this.transitionTo("referrers")//.then($("body").scrollTop($("div.referrers").offset().top));
 	}
 });
 
@@ -135,6 +135,15 @@ App.ReferrersRoute = Ember.Route.extend({
 	}
 });
 
+App.ReferrersView = Em.View.extend({
+	didInsertElement: function () {
+		// $("body").scrollTop($("div.referrers").offset().top);
+		$('html, body').animate({
+	        scrollTop: $("div.referrers").offset().top
+	    }, 500);
+	}
+});
+
 App.ReferrerRoute = Ember.Route.extend({
 	model: function (params) {
 		return App.Referrer.find(params.referrer_id);
@@ -153,11 +162,15 @@ App.BarGraph = Ember.View.extend({
 			.width(400)
 			.height(200),
 
-	didInsertElement: function() {
+	didInsertElement: function () {
 		Ember.run.once(this, "updateChart");
+		// $("body").scrollTop($("div.referrers").offset().top);
+		$('html, body').animate({
+	        scrollTop: $("div.referrers").offset().top
+	    }, 500);
 	},
 
-	updateChart: function() {
+	updateChart: function () {
 		d3.select(this.$()[0])
 			.data([this.get("data")])
 			.call(this.get("chart"));
