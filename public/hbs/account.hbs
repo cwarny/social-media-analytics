@@ -1,11 +1,9 @@
-<div class="col-md-3 col-md-offset-1">
-	<h3>2. Select web property</h3>
-	<div class="col-md-12 well">
-		<ul class="nav nav-pills nav-stacked">
-			{{#each webproperties}} 
-				<li><a {{bindAttr href="view.href"}} {{action "fetch" id}}>{{name}}</a></li>
-			{{/each}}
-		</ul>
-	</div>
+<div class="col-md-4">
+	<dl class="faq">
+		<dt class="two">Select property</dt>
+		{{#each webproperties}}
+			<dd><a {{bindAttr href="view.href"}} {{action "fetch" id}}>{{name}}</a></dd>
+		{{/each}}
+	</dl>
 </div>
 {{outlet webproperty}}

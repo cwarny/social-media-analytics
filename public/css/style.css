@@ -17,3 +17,44 @@ img {
 .x.axis path {
 	display: none;
 }
+
+.faq {
+	counter-reset: my-badass-counter;
+}
+
+.faq dt {
+	position: relative;
+	font: bold 16px Georgia;
+	padding: 4px 0 20px 0;
+}
+
+.faq dt:before {
+	position: absolute;
+	left: 0;
+	top: 0;
+	font: bold 50px/1 Sans-Serif;
+}
+
+.faq dt.one:before {
+	content: counter(my-badass-counter);
+	counter-increment: my-badass-counter 1;
+}
+
+.faq dt.two:before {
+	content: counter(my-badass-counter);
+	counter-increment: my-badass-counter 2;
+}
+
+.faq dt.three:before {
+	content: counter(my-badass-counter);
+	counter-increment: my-badass-counter 3;
+}
+
+.faq dd {
+	margin: 0 0 10px 0;
+}
+
+.faq dt, .faq dd {
+	padding-left: 50px;
+}
+	

@@ -137,8 +137,7 @@ App.ReferrersRoute = Ember.Route.extend({
 
 App.ReferrersView = Em.View.extend({
 	didInsertElement: function () {
-		// $("body").scrollTop($("div.referrers").offset().top);
-		$('html, body').animate({
+		$("html, body").animate({
 	        scrollTop: $("div.referrers").offset().top
 	    }, 500);
 	}
@@ -164,8 +163,7 @@ App.BarGraph = Ember.View.extend({
 
 	didInsertElement: function () {
 		Ember.run.once(this, "updateChart");
-		// $("body").scrollTop($("div.referrers").offset().top);
-		$('html, body').animate({
+		$("html, body").animate({
 	        scrollTop: $("div.referrers").offset().top
 	    }, 500);
 	},

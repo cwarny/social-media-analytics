@@ -1,12 +1,10 @@
-<div class="col-md-3 col-md-offset-1">
-	<h3>3. Select profile</h3>
-	<div class="col-md-12 well">
-		<ul class="nav nav-pills nav-stacked">
-			{{#each profiles}}
-				{{#linkTo "profile" this tagName="li" href=false}}
-					<a {{bindAttr href="view.href"}}>{{name}}</a>
-				{{/linkTo}}
-			{{/each}}
-		</ul>
-	</div>
+<div class="col-md-4">
+	<dl class="faq">
+		<dt class="three">Select profile</dt>
+		{{#each profiles}}
+			{{#linkTo "profile" this tagName="dd" href=false}}
+				<a {{bindAttr href="view.href"}}>{{name}}</a>
+			{{/linkTo}}
+		{{/each}}
+	</dl>
 </div>
