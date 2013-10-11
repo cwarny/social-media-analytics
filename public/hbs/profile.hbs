@@ -6,7 +6,7 @@
 	<div class="row">
 		<div class="col-md-2">
 			<ul class="nav nav-pills nav-stacked">
-				{{#each model}}
+				{{#each referrers}}
 					{{#linkTo "referrer" this tagName="li" href=false}} 
 						<a {{bindAttr href="view.href"}}> 
 							{{tweet.user.screen_name}}

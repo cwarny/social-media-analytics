@@ -7,13 +7,21 @@ var express = require("express"),
 	request = require("request"),
 	async = require("async"),
 	uu = require("underscore"),
+	Twitter = require("./Twitter").Twitter,
 	Referrers = require('./referrers').Referrers,
 	Users = require('./users').Users;
 	Accounts = require('./accounts').Accounts;
 
-var referrers = new Referrers('localhost', 27017);
-var users = new Users('localhost', 27017);
-var accounts = new Accounts('localhost', 27017);
+var twitter = new Twitter({
+	consumerKey: "ZSQCknnf5fXbnF8xvj5PmQ",
+	consumerSecret: "MtBrBUJR1kijGAiQLRfOclmEQ9JdDphH2aMB3xtT6g",
+	accessToken: "347348265-hkdqdSxQHppceJIELJoTNcW3l1SbKA60SRkWPPjL",
+	accessTokenSecret: "D1wgG5MUROZYQtPRZK2gYwzFcaZl61a93XfRVfdfc"
+});
+
+var referrers = new Referrers('localhost', 27017),
+	users = new Users('localhost', 27017),
+	accounts = new Accounts('localhost', 27017);
 
 app.configure(function () {
 	app.set("port", process.env.PORT || 3000);
@@ -49,34 +57,7 @@ passport.use(new GoogleStrategy({
 				if (user.length > 0) {
 					done(err, user[0]);
 				} else {
-					profile.access_token = accessToken;
-					profile.refresh_token = refreshToken;
-					request("https://www.googleapis.com/analytics/v3/management/accounts?access_token=" + accessToken + "&access_type_token=bearer", function (error, response, body) {
-						var ga_accounts = JSON.parse(body).items;
-						async.map(ga_accounts, function (account, callback1) {
-							request("https://www.googleapis.com/analytics/v3/management/accounts/" + account.id + "/webproperties" + "?access_token=" + accessToken + "&access_type_token=bearer", function (error, response, body) {
-								var webproperties = JSON.parse(body).items;
-								async.map(webproperties, function (webproperty, callback2) {
-									request("https://www.googleapis.com/analytics/v3/management/accounts/" + account.id + "/webproperties/" + webproperty.id + "/profiles" + "?access_token=" + accessToken + "&access_type_token=bearer", function (error, response, body) {
-										var profiles = JSON.parse(body).items;
-										webproperty.profiles = profiles;
-										callback2(null,webproperty);
-									})
-									}, function (err, results) {
-										account.webproperties = results;
-										account.userId = profile.id;
-										callback1(null,account)
-									}
-								)
-							})
-						}, function (err, results) {
-							accounts.save(results, function (err, accounts) {
-								users.save(profile, function (err, user) {
-									done(err,user[0]);
-								})
-							});
-						})
-					})
+					processNewUser(accessToken, refreshToken, profile, done);
 				}
 			});
 		});
@@ -84,7 +65,6 @@ passport.use(new GoogleStrategy({
 ));
 
 passport.serializeUser(function (user, done) {
-	console.log(user);
 	done(null, user.id);
 });
 
@@ -198,6 +178,88 @@ app.get("/referrers/:id", function (req, res) {
 var server = app.listen(process.env.PORT || 3000);
 console.log("Express server started on port %s", server.address().port);
 
+
+// Utility functions
+
 function nf (num,dec) {
 	return ("0" + num).slice(-dec);
+}
+
+function processNewUser (accessToken, refreshToken, profile, done) {
+	profile.access_token = accessToken;
+	profile.refresh_token = refreshToken;
+	request("https://www.googleapis.com/analytics/v3/management/accounts?access_token=" + accessToken + "&access_type_token=bearer", function (error, response, body) {
+		var ga_accounts = JSON.parse(body).items;
+		async.map(ga_accounts, 
+			function (account, callback1) {
+				request("https://www.googleapis.com/analytics/v3/management/accounts/" + account.id + "/webproperties" + "?access_token=" + accessToken + "&access_type_token=bearer", function (error, response, body) {
+					var webproperties = JSON.parse(body).items;
+					async.map(webproperties, 
+						function (webproperty, callback2) {
+							request("https://www.googleapis.com/analytics/v3/management/accounts/" + account.id + "/webproperties/" + webproperty.id + "/profiles" + "?access_token=" + accessToken + "&access_type_token=bearer", function (error, response, body) {
+								var profiles = JSON.parse(body).items;
+								async.map(profiles, 
+									function (profile, callback3) {
+										var today = new Date();
+										request("https://www.googleapis.com/analytics/v3/data/ga?ids=ga%3A" + profile.id + "&dimensions=ga%3AfullReferrer%2Cga%3AdateHour&metrics=ga%3Avisits&filters=ga%3Asource%3D%3Dt.co&start-date=2013-01-01&end-date=" + today.getFullYear() + "-" + nf(today.getMonth() + 1,2) + "-" + nf(today.getDate() + 1,2) + "&access_token=" + accessToken, function (error, response, body) {
+											var body = JSON.parse(body);
+											var referrers = [];
+											if (body.hasOwnProperty("rows")) {
+												var rows = body.rows;
+												referrers = reformatReferrers(rows);
+											}
+											async.map(referrers, 
+												function (referrer, callback4) {
+													console.log(referrer);
+													twitter.search({q: "http://" + referrer.fullreferrer},
+														function (err, response, body) {
+															console.log("ERROR [%s]", err);
+														},
+														function (data) {
+															console.log(data);
+															referrer.tweet = JSON.parse(data).statuses[0];
+															callback4(null,referrer);
+														}
+													)
+												}, 
+												function (err, results) {
+													profile.referrers = referrers;
+													callback3(null,profile);
+												}
+											)
+										})
+									}, function (err, results) {
+										webproperty.profiles = results;
+										callback2(null,webproperty);
+									}
+								)
+							})
+						}, function (err, results) {
+							account.webproperties = results;
+							account.userId = profile.id;
+							callback1(null,account)
+						}
+					)
+				})
+			}, function (err, results) {
+				accounts.save(results, function (err, accounts) {
+					users.save(profile, function (err, user) {
+						done(err,user[0]);
+					})
+				});
+			}
+		)
+	})
+}
+
+function reformatReferrers (rows) {
+	var referrers = {};
+	for (var i=0; i<rows.length; i++) {
+		if (referrers.hasOwnProperty(rows[i][0])) {
+			referrers[rows[i][0]].push({datehour: rows[i][1], count: rows[i][2]});
+		} else {
+			referrers[rows[i][0]] = [{datehour: rows[i][1], count: rows[i][2]}];
+		}
+	}
+	return uu.map(uu.pairs(referrers), function(pair) {return {id: Math.ceil(Math.random() * 100), fullreferrer: pair[0], visits: pair[1]}})
 }

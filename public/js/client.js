@@ -5,9 +5,7 @@ App.Router.map(function() {
 		this.resource("account", {path: "account/:account_id"}, function () {
 			this.resource("webproperty", {path: "webproperty/:webproperty_id"}, function () {
 				this.resource("profile", {path: "profile/:profile_id"}, function () {
-					this.resource("referrers", function () {
-						this.resource("referrer", {path: "/:referrer_id"});
-					})
+					this.resource("referrer", {path: "/:referrer_id"});
 				})
 			})
 		})
@@ -48,17 +46,7 @@ App.ExploreRoute = Ember.Route.extend({
 			into: "application",
 			outlet: "accounts"
 		});
-	}/*,
-	actions: {
-		fetch: function (id) {
-			var self = this;
-			$.get("/accounts/" + id).then(function (res) {
-				if (res.success) {
-					self.transitionTo("account", res.account);
-				}
-			})
-		} 
-	}*/
+	}
 });
 
 App.AccountRoute = Ember.Route.extend({
@@ -67,17 +55,7 @@ App.AccountRoute = Ember.Route.extend({
 			into: "explore",
 			outlet: "account"
 		});
-	}/*,
-	actions: {
-		fetch: function (id) {
-			var self = this;
-			$.get("/webproperties/" + id).then(function (res) {
-				if (res.success) {
-					self.transitionTo("webproperty", res.webproperty);
-				}
-			})
-		} 
-	}*/
+	}
 });
 
 App.WebpropertyRoute = Ember.Route.extend({
@@ -89,67 +67,69 @@ App.WebpropertyRoute = Ember.Route.extend({
 	}
 });
 
-App.ProfileRoute = Ember.Route.extend({
-	redirect: function () {
-		this.transitionTo("referrers")//.then($("body").scrollTop($("div.referrers").offset().top));
-	}
-});
+// App.ProfileRoute = Ember.Route.extend({
+// 	redirect: function () {
+// 		this.transitionTo("referrers");
+// 	}
+// });
 
-App.Referrer = Ember.Object.extend({
+App.Referrer = Ember.Controller.extend({
 	totalVisits: function() {
 		return d3.sum(this.get("visits").getEach("count"));
 	}.property("visits.@each")
 });
 
-App.Referrer.reopenClass({
-	findAll: function () {
-		return $.get("/referrers").then(function (res) {
-			if (res.success) {
-				return res.referrers.map(function (r) {
-					return App.Referrer.create(r);
-				});
-			} else {
-				alert("You must log in");
-				window.open("http://localhost:3000/login", "_self");
-			}
-		});
-	},
-	find: function (id) {
-		return $.get("/referrers/" + id).then(function (res) {
-			if (res.success) {
-				return App.Referrer.create(res.referrer);
-			}
-		});
-	}
-});
+// App.Referrer.reopenClass({
+// 	findAll: function (id) {
+// 		console.log(id);
+// 		return $.get("/referrers").then(function (res) {
+// 			if (res.success) {
+// 				return res.referrers.map(function (r) {
+// 					return App.Referrer.create(r);
+// 				});
+// 			} else {
+// 				alert("You must log in");
+// 				window.open("http://localhost:3000/login", "_self");
+// 			}
+// 		});
+// 	},
+// 	find: function (id) {
+// 		return $.get("/referrers/" + id).then(function (res) {
+// 			if (res.success) {
+// 				return App.Referrer.create(res.referrer);
+// 			}
+// 		});
+// 	}
+// });
 
-App.ReferrersRoute = Ember.Route.extend({
-	model: function () {
-		return App.Referrer.findAll();
-	},
+App.ProfileRoute = Ember.Route.extend({
+	// model: function (params) {
+	// 	console.log(params);
+	// 	return App.Referrer.findAll(params.profile_id);
+	// },
 	renderTemplate: function () {
 		this.render({
 			into: "explore",
-			outlet: "referrers"
+			outlet: "profile"
 		});
 	}
 });
 
-App.ReferrersView = Em.View.extend({
+App.ProfileView = Em.View.extend({
 	didInsertElement: function () {
 		$("html, body").animate({
-	        scrollTop: $("div.referrers").offset().top
+	        scrollTop: $("div.profile").offset().top
 	    }, 500);
 	}
 });
 
 App.ReferrerRoute = Ember.Route.extend({
-	model: function (params) {
-		return App.Referrer.find(params.referrer_id);
-	},
+	// model: function (params) {
+	// 	return App.Referrer.find(params.referrer_id);
+	// },
 	renderTemplate: function () {
 		this.render({
-			into: "referrers",
+			into: "profile",
 			outlet: "referrer"
 		});
 	}
@@ -164,7 +144,7 @@ App.BarGraph = Ember.View.extend({
 	didInsertElement: function () {
 		Ember.run.once(this, "updateChart");
 		$("html, body").animate({
-	        scrollTop: $("div.referrers").offset().top
+	        scrollTop: $("div.profile").offset().top
 	    }, 500);
 	},
 
