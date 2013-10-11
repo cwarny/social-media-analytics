@@ -2,7 +2,9 @@
 	<dl class="faq">
 		<dt class="two">Select property</dt>
 		{{#each webproperties}}
-			<dd><a {{bindAttr href="view.href"}} {{action "fetch" id}}>{{name}}</a></dd>
+			{{#linkTo "webproperty" this tagName="dd" href=false}}
+				<a {{bindAttr href="view.href"}}>{{name}}</a>
+			{{/linkTo}}
 		{{/each}}
 	</dl>
 </div>

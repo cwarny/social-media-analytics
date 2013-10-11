@@ -11,6 +11,7 @@
     "passport": "*",
     "passport-google-oauth": "*",
     "googleapis": "*",
-    "underscore": "*"
+    "underscore": "*",
+    "async": "*"
   }
 }

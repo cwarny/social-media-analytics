@@ -48,7 +48,7 @@ App.ExploreRoute = Ember.Route.extend({
 			into: "application",
 			outlet: "accounts"
 		});
-	},
+	}/*,
 	actions: {
 		fetch: function (id) {
 			var self = this;
@@ -58,7 +58,7 @@ App.ExploreRoute = Ember.Route.extend({
 				}
 			})
 		} 
-	}
+	}*/
 });
 
 App.AccountRoute = Ember.Route.extend({
@@ -67,7 +67,7 @@ App.AccountRoute = Ember.Route.extend({
 			into: "explore",
 			outlet: "account"
 		});
-	},
+	}/*,
 	actions: {
 		fetch: function (id) {
 			var self = this;
@@ -77,7 +77,7 @@ App.AccountRoute = Ember.Route.extend({
 				}
 			})
 		} 
-	}
+	}*/
 });
 
 App.WebpropertyRoute = Ember.Route.extend({

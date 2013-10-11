@@ -5,12 +5,15 @@ var express = require("express"),
 	GoogleStrategy = require('passport-google-oauth').OAuth2Strategy,
 	googleapis = require('googleapis'),
 	request = require("request"),
+	async = require("async"),
 	uu = require("underscore"),
 	Referrers = require('./referrers').Referrers,
 	Users = require('./users').Users;
+	Accounts = require('./accounts').Accounts;
 
 var referrers = new Referrers('localhost', 27017);
 var users = new Users('localhost', 27017);
+var accounts = new Accounts('localhost', 27017);
 
 app.configure(function () {
 	app.set("port", process.env.PORT || 3000);
@@ -42,14 +45,46 @@ passport.use(new GoogleStrategy({
 	},
 	function (accessToken, refreshToken, profile, done) {
 		process.nextTick(function () {
-			users.findOrCreate(accessToken, refreshToken, profile, function (err, user) {
-				done(null, user);
+			users.find(profile.id, function (err, user) {
+				if (user.length > 0) {
+					done(err, user[0]);
+				} else {
+					profile.access_token = accessToken;
+					profile.refresh_token = refreshToken;
+					request("https://www.googleapis.com/analytics/v3/management/accounts?access_token=" + accessToken + "&access_type_token=bearer", function (error, response, body) {
+						var ga_accounts = JSON.parse(body).items;
+						async.map(ga_accounts, function (account, callback1) {
+							request("https://www.googleapis.com/analytics/v3/management/accounts/" + account.id + "/webproperties" + "?access_token=" + accessToken + "&access_type_token=bearer", function (error, response, body) {
+								var webproperties = JSON.parse(body).items;
+								async.map(webproperties, function (webproperty, callback2) {
+									request("https://www.googleapis.com/analytics/v3/management/accounts/" + account.id + "/webproperties/" + webproperty.id + "/profiles" + "?access_token=" + accessToken + "&access_type_token=bearer", function (error, response, body) {
+										var profiles = JSON.parse(body).items;
+										webproperty.profiles = profiles;
+										callback2(null,webproperty);
+									})
+									}, function (err, results) {
+										account.webproperties = results;
+										account.userId = profile.id;
+										callback1(null,account)
+									}
+								)
+							})
+						}, function (err, results) {
+							accounts.save(results, function (err, accounts) {
+								users.save(profile, function (err, user) {
+									done(err,user[0]);
+								})
+							});
+						})
+					})
+				}
 			});
 		});
 	}
 ));
 
 passport.serializeUser(function (user, done) {
+	console.log(user);
 	done(null, user.id);
 });
 
@@ -103,14 +138,11 @@ app.get("/auth/google/callback",
 
 app.get("/accounts", function (req, res) {
 	if (req.isAuthenticated()) {
-		request("https://www.googleapis.com/analytics/v3/management/accounts?access_token=" + req.user.access_token + "&access_type_token=bearer", function (error, response, body) {
-			if (!error && response.statusCode == 200) {
-				var accounts = JSON.parse(body).items;
-				res.json({
-					success: true,
-					accounts: accounts
-				});
-			}
+		accounts.findAll(req.user.id, function (error, a) {
+			res.json({
+				success: true,
+				accounts: a
+			});
 		});
 	} else {
 		res.json({
@@ -120,49 +152,10 @@ app.get("/accounts", function (req, res) {
 	}
 });
 
-app.get("/accounts/:id", function (req, res) {
-	if (req.isAuthenticated()) {
-		request("https://www.googleapis.com/analytics/v3/management/accounts/" + req.params.id + "/webproperties" + "?access_token=" + req.user.access_token + "&access_type_token=bearer", function (error, response, body) {
-			if (!error && response.statusCode == 200) {
-				var webproperties = JSON.parse(body).items;
-				res.json({
-					success: true,
-					account: {id: req.params.id, webproperties: webproperties}
-				});
-			}
-		});
-	} else {
-		res.json({
-			success: false,
-			message: "Not authenticated"
-		});
-	}
-});
-
-app.get("/webproperties/:id", function (req, res) {
-	if (req.isAuthenticated()) {
-		var accountId = req.params.id.split("-")[1];
-		request("https://www.googleapis.com/analytics/v3/management/accounts/" + accountId + "/webproperties/" + req.params.id + "/profiles" + "?access_token=" + req.user.access_token + "&access_type_token=bearer", function (error, response, body) {
-			if (!error && response.statusCode == 200) {
-				var profiles = JSON.parse(body).items;
-				res.json({
-					success: true,
-					webproperty: {id: req.params.id, profiles: profiles}
-				});
-			}
-		});
-	} else {
-		res.json({
-			success: false,
-			message: "Not authenticated"
-		});
-	}
-});
-
-app.get("/analytics/google/reporting/", function (req, res) {
+app.get("/analytics/google/reporting/:id", function (req, res) {
 	var accessToken = req.user.access_token;
-	var id = JSON.parse(body).items[0].id;
-	request("https://www.googleapis.com/analytics/v3/data/ga?ids=ga%3A" + id + "&dimensions=ga%3AfullReferrer%2Cga%3AdateHour&metrics=ga%3Avisits&filters=ga%3Asource%3D%3Dt.co&start-date=2013-08-28&end-date=2013-08-30&access_token=" + accessToken, function (error, response, body) {
+	var today = new Date();
+	request("https://www.googleapis.com/analytics/v3/data/ga?ids=ga%3A" + req.params.id + "&dimensions=ga%3AfullReferrer%2Cga%3AdateHour&metrics=ga%3Avisits&filters=ga%3Asource%3D%3Dt.co&start-date=2013-01-01&end-date=" + today.getFullYear() + "-" + nf(today.getMonth() + 1,2) + "-" + nf(today.getDate() + 1) + "&access_token=" + accessToken, function (error, response, body) {
 		if (!error && response.statusCode == 200) {
 			var rows = JSON.parse(body).rows;
 			res.json(rows);
@@ -188,7 +181,7 @@ app.get("/referrers", function (req, res) {
 
 app.get("/referrers/:id", function (req, res) {
 	if (req.isAuthenticated()) {
-		referrers.find(req.user.id, parseInt(req.params.id), function(error,r) {
+		referrers.find(req.user.id, parseInt(req.params.id), function (error,r) {
 			res.json({
 				success: true,
 				referrer: r[0]
@@ -204,3 +197,7 @@ app.get("/referrers/:id", function (req, res) {
 
 var server = app.listen(process.env.PORT || 3000);
 console.log("Express server started on port %s", server.address().port);
+
+function nf (num,dec) {
+	return ("0" + num).slice(-dec);
+}

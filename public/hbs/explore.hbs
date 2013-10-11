@@ -3,7 +3,9 @@
 		<dl class="faq">
 			<dt class="one">Select account</dt>
 			{{#each content}}
-				<dd><a {{bindAttr href="view.href"}} {{action "fetch" id}}>{{name}}</a></dd>
+				{{#linkTo "account" this tagName="dd" href=false}}
+					<a {{bindAttr href="view.href"}}>{{name}}</a>
+				{{/linkTo}}
 			{{/each}}
 		</dl>
 	</div>

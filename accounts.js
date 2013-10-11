@@ -5,44 +5,47 @@ var MongoClient = require("mongodb").MongoClient,
 	ObjectID = require("mongodb").ObjectID;
 
 
-Users = function(host, port) {
+Accounts = function(host, port) {
 	var mongoClient = new MongoClient(new Server(host, port));
 	mongoClient.open(function (){});
 	this.db = mongoClient.db("sma");
 };
 
-Users.prototype.getCollection = function (callback) {
-	this.db.collection("users", function (error, users) {
+Accounts.prototype.getCollection = function (callback) {
+	this.db.collection("accounts", function (error, accounts) {
 		if (error) {
 			callback(error);
 		} else {
-			callback(null, users);
+			callback(null, accounts);
 		}
 	});
 };
 
-Users.prototype.find = function (id, callback) {
-	this.getCollection(function (error, users) {
+Accounts.prototype.findAll = function (userId, callback) {
+	this.getCollection(function (error, accounts) {
 		if (error) {
 			callback(error);
 		} else {
-			users.find({"id": id}).toArray(function (error, results) {
+			accounts.find({userId: userId}).toArray(function (error, results) {
 				if (error) {
 					callback(error);
 				} else {
-					callback(null,results);
+					callback(null, results);
 				}
 			});
 		}
 	});
-}
+};
 
-Users.prototype.save = function (profile, callback) {
-	this.getCollection(function (error, users) {
+Accounts.prototype.save = function (items, callback) {
+	this.getCollection(function (error, accounts) {
 		if (error) {
 			callback(error);
 		} else {
-			users.insert(profile, {safe: true}, function (error, results) {
+			if (typeof(items.length) == "undefined") {
+				items = [items];
+			}
+			accounts.insert(items, {safe: true}, function (error, results) {
 				if (error) {
 					callback(error)
 				} else {
@@ -53,4 +56,4 @@ Users.prototype.save = function (profile, callback) {
 	});
 };
 
-exports.Users = Users;
+exports.Accounts = Accounts;
