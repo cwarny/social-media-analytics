@@ -1,12 +1,12 @@
 <div class="col-md-9 col-md-offset-1">
 	<div class="well row">
 		<div class="col-md-1">
-			<img {{bindAttr src=tweet.user.profile_image_url}} alt="Profile picture">
+			<img {{bindAttr src=user.profile_image_url}} alt="Profile picture">
 		</div>
 		<div class="col-md-11">
 			<blockquote>
-				<p>{{tweet.text}}</p>
-				<small>{{tweet.user.name}} (@{{tweet.user.screen_name}})</small>
+				<p>{{text}}</p>
+				<small>{{user.name}} (@{{user.screen_name}})</small>
 			</blockquote>
 		</div>
 	</div>

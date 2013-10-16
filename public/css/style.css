@@ -57,4 +57,13 @@ img {
 .faq dt, .faq dd {
 	padding-left: 50px;
 }
+
+text {
+	font: 10px sans-serif;
+}
+
+line {
+	stroke: #000;
+	stroke-width: 0.5px;
+}
 	
