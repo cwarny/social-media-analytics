@@ -5,7 +5,7 @@ App.Router.map(function() {
 		this.resource("account", {path: "account/:account_id"}, function () {
 			this.resource("webproperty", {path: "webproperty/:webproperty_id"}, function () {
 				this.resource("profile", {path: "profile/:profile_id"}, function () {
-					this.resource("referrer", {path: "/:referrer_id"});
+					this.resource("referrer", {path: "referrer/:referrer_id"});
 				})
 			})
 		})
@@ -99,7 +99,7 @@ App.ReferrerRoute = Ember.Route.extend({
 // 	}.property("clicks.@each")
 // });
 
-App.BarGraph = Ember.View.extend({
+App.BarChartComponent = Ember.Component.extend({
 	classNames: ["chart"],
 	chart: BarChart()
 			.width(400)
@@ -113,26 +113,7 @@ App.BarGraph = Ember.View.extend({
 	},
 
 	updateChart: function () {
-		d3.select(this.$()[0])
-			.data([this.get("data")])
-			.call(this.get("chart"));
-	}.observes("data")
-});
-
-App.CascadeChartComponent = Ember.Component.extend({
-	classNames: ["chart"],
-	chart: Cascade()
-			.width(960)
-			.height(500),
-
-	didInsertElement: function () {
-		Ember.run.once(this, "update");
-		$("html, body").animate({
-	        scrollTop: $("div.profile").offset().top
-	    }, 500);
-	},
-
-	update: function () {
+		console.log(this.get("data"));
 		d3.select(this.$()[0])
 			.data([this.get("data")])
 			.call(this.get("chart"));

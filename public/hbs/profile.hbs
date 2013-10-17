@@ -1,26 +1,17 @@
 <div class="container">
-	</br>
-	</br>
-	</br>
-	</br>
 	<div class="row">
 		<div class="col-md-2">
 			<ul class="nav nav-pills nav-stacked">
-				{{#each node in referrers.nodes}}
-					{{#unless node.count}}
-						{{#linkTo "referrer" this tagName="li" href=false}} 
-							<a {{bindAttr href="view.href"}}> 
-								{{node.user.screen_name}}
-								{{!-- <span class="badge pull-right">{{totalClicks}}</span> --}}
-							</a>
+				{{#each referrers.nodes}}
+					<a {{bindAttr href="view.href"}}>
+						{{#linkTo "referrer" this}}
+							{{user.screen_name}}
+							<span class="badge pull-right">{{totalClicks}}</span>
 						{{/linkTo}}
-					{{/unless}}
+					</a>
 				{{/each}}
 			</ul>
 		</div>
-		<div class="col-md-9 col-md-offset-1">
-			{{cascade-chart data=referrers}}
-		</div>
-		{{!-- {{outlet referrer}} --}}
+		{{outlet referrer}}
 	</div>
 </div>

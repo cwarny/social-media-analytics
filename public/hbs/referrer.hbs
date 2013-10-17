@@ -10,5 +10,7 @@
 			</blockquote>
 		</div>
 	</div>
-	{{view App.BarGraph isLoadedBinding="model.isLoaded" dataBinding=visits}}
+	{{#bar-chart data=clicks}}
+		<h3>Clicks</h3>
+	{{/bar-chart}}
 </div>

@@ -13,7 +13,7 @@ function BarChart() {
 			var w = width - margin.left - margin.right;
 			var h = height - margin.top - margin.bottom;
 
-			xScale.domain(data.map(function(d) { return d.datehour; }))
+			xScale.domain(data.map(function(d) { return d.created_at; }))
 					.rangeRoundBands([0, w], .1);
 
 			var xAxis = d3.svg.axis()
@@ -63,7 +63,7 @@ function BarChart() {
 				.transition()
 				.duration(duration)
 				.attr({
-					"x": function(d) { return xScale(d.datehour); },
+					"x": function(d) { return xScale(d.created_at); },
 					"width": xScale.rangeBand(),
 					"y": function(d) { return yScale(d3.max([0, d.count])); },
 					"height": function(d) { return h - yScale(d.count); }

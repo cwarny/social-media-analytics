@@ -3,9 +3,9 @@ function Cascade () {
 	var margin = {top: 20, right: 10, bottom: 20, left: 10};
 	var dateformat = d3.time.format("%Y%m%d%H")
 
-	function chart (selection) {
+	function chart (parent) {
 
-		selection.each(function (data) {
+		parent.each(function (data) {
 
 			var w = width - margin.left - margin.right,
 				h = height - margin.top - margin.bottom;
@@ -63,7 +63,7 @@ function Cascade () {
 				}
 			});
 
-			var svg = selection.append("svg")
+			var svg = parent.append("svg")
 				.attr("width", w + margin.left + margin.right)
 				.attr("height", h + margin.top + margin.bottom)
 				.append("g")
@@ -84,9 +84,18 @@ function Cascade () {
 				})
 				.attr("y2", function (d) {
 					return data.nodes[d.target].y;
-				});
+			});
 
-			svg.selectAll("path")
+			svg.on("click", function (selected) {
+				vis.transition().duration(1000)
+					.attr("fill", function (d) {
+						if (selected) {
+							return "black";
+						}
+					})
+			});
+
+			var vis = svg.selectAll("path")
 				.data(data.nodes)
 				.enter()
 				.append("path")
@@ -98,44 +107,66 @@ function Cascade () {
 				})
 				.attr("fill", function (d) {
 					return colorScale(d.symbol);
-				})
-				.on("mouseover", function (d) {
-					var gx = w - 400,
-						gy = 50;
+			})
 
-					var g = svg.append("g")
-						.attr({
-							"id": "tweetbox",
-							"stroke": "black",
-							"fill":"white",
-							"transform": "translate(" + gx + "," + gy + ")"
-						});
+			vis.on("mouseover", function (d) {
+				var gx = w - 400,
+					gy = 50;
 
-					g.append("image")
-						.attr({
-							"xlink:href": d.user.profile_image_url,
-							"height": 50,
-							"width": 50
-						});
+				var g = svg.append("g")
+					.attr({
+						"id": "tweetbox",
+						"stroke": "black",
+						"fill":"white",
+						"transform": "translate(" + gx + "," + gy + ")"
+					});
 
-					var text = g.append("text")
-						.attr({
-							"y": 15,
-							"fill": "black" 
-						});
+				g.append("image")
+					.attr({
+						"xlink:href": d.user.profile_image_url,
+						"height": 50,
+						"width": 50
+					});
 
-					text.append("tspan")
-						.attr("x",60)
-						.text(d.text);
-						
-					text.append("tspan")
-						.attr("x",60)
-						.attr("dy",15)
-						.text("- " + d.user.name + " (@" + d.user.screen_name + ")");	
+				var text = g.append("text")
+					.attr({
+						"y": 15,
+						"fill": "black" 
+					});
+
+				text.append("tspan")
+					.attr("x",60)
+					.text(d.text);
+					
+				text.append("tspan")
+					.attr("x",60)
+					.attr("dy",15)
+					.text("- " + d.user.name + " (@" + d.user.screen_name + ")");	
 				})
 				.on("mouseout", function (d) {
 					d3.select("#tweetbox").remove();
-				});
+			});
+
+			svg.on("click", function (selected) {
+				vis.transition().duration(1000)
+					.attr("fill", function (d) {
+						if (selected) {
+							var a = selected.id == d.id ? 255 : 0;
+							if (d.symbol == "circle") {
+								return "rgba(0,0,255," + a + ")";
+							} else if (d.symbol == "square") {
+								return "rgba(255,0,0," + a + ")";
+							} else if (d.symbol == "triangle-up") {
+								return "rgba(0,255,0," + a + ")";
+							} else {
+								return "rgba(255,255,0," + a + ")";
+							}
+						} else {
+							console.log("hello");
+							return colorScale(d.symbol);
+						}
+				})
+			})
 		})
 	};
 
