@@ -1,16 +1,7 @@
 <div class="container">
 	<div class="row">
 		<div class="col-md-2">
-			<ul class="nav nav-pills nav-stacked">
-				{{#each referrers.nodes}}
-					<a {{bindAttr href="view.href"}}>
-						{{#linkTo "referrer" this}}
-							{{user.screen_name}}
-							<span class="badge pull-right">{{totalClicks}}</span>
-						{{/linkTo}}
-					</a>
-				{{/each}}
-			</ul>
+			{{control "treeBranch" referrers}}
 		</div>
 		{{outlet referrer}}
 	</div>

@@ -99,6 +99,36 @@ App.ReferrerRoute = Ember.Route.extend({
 // 	}.property("clicks.@each")
 // });
 
+App.TreeBranchController = Ember.ObjectController.extend({});
+
+App.register("controller:treeBranch", App.TreeBranchController, {singleton: false});
+
+App.TreeBranchView = Ember.View.extend({
+	tagName: "ul",
+	templateName: "tree-branch",
+	classNames: ["tree-branch"]
+});
+
+App.TreeNodeController = Ember.ObjectController.extend({
+	isExpanded: false,
+	actions: {
+		toggle: function () {
+			this.set("isExpanded", !this.get("isExpanded"));
+		},
+		click: function () {
+			this.transitionToRoute("referrer",this);
+		}
+	}
+});
+
+App.register("controller:treeNode", App.TreeNodeController, {singleton: false});
+
+App.TreeNodeView = Ember.View.extend({
+	tagName: "li",
+	templateName: "tree-node",
+	classNames: ["tree-node"]
+});
+
 App.BarChartComponent = Ember.Component.extend({
 	classNames: ["chart"],
 	chart: BarChart()
