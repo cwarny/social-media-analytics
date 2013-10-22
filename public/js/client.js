@@ -143,9 +143,25 @@ App.BarChartComponent = Ember.Component.extend({
 	},
 
 	updateChart: function () {
-		console.log(this.get("data"));
-		d3.select(this.$()[0])
-			.data([this.get("data")])
-			.call(this.get("chart"));
+		if (this.get("data")) {
+			d3.select(this.$()[0])
+				.data([this.get("data")])
+				.call(this.get("chart"));
+		} else {
+			d3.select(this.$()[0])
+				.data([[]])
+				.call(this.get("chart"));
+		}
 	}.observes("data")
+});
+
+$(document).ready(function () {
+	$(window).bind("scroll", function (e) { 
+		console.log($(this).scrollTop());
+		if ($(this).scrollTop() > 300 ) { 
+			$(".tweetbox").css({position: "fixed", top: "25px"}); 
+		} else {
+			$(".tweetbox").css({position: "absolute", top: "0px"}); 
+		}
+	});
 });

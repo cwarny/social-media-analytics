@@ -156,11 +156,11 @@ helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
   var buffer = '', stack1, hashContexts, hashTypes, options, helperMissing=helpers.helperMissing, escapeExpression=this.escapeExpression;
 
 
-  data.buffer.push("<div class=\"container\">\n	<div class=\"row\">\n		<div class=\"col-md-2\">\n			");
+  data.buffer.push("<div class=\"container\">\n	<div class=\"row\">\n		<div class=\"col-md-3\">\n			");
   hashContexts = {'controlID': depth0};
   hashTypes = {'controlID': "STRING"};
   options = {hash:{
-    'controlID': ("ember13823266532631")
+    'controlID': ("ember13824142851041")
   },contexts:[depth0,depth0],types:["STRING","ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
   data.buffer.push(escapeExpression(((stack1 = helpers.control || depth0.control),stack1 ? stack1.call(depth0, "treeBranch", "referrers", options) : helperMissing.call(depth0, "control", "treeBranch", "referrers", options))));
   data.buffer.push("\n		</div>\n		");
@@ -179,17 +179,17 @@ helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
   var buffer = '', stack1, hashContexts, hashTypes, options, escapeExpression=this.escapeExpression, helperMissing=helpers.helperMissing;
 
 
-  data.buffer.push("<div class=\"col-md-9 col-md-offset-1\">\n	<div class=\"well row\">\n		<div class=\"col-md-1\">\n			<img ");
+  data.buffer.push("<div class=\"col-md-9\">\n	<div class=\"tweetbox\">\n		<div class=\"well row\">\n			<div class=\"col-md-1\">\n				<img ");
   hashContexts = {'src': depth0};
   hashTypes = {'src': "ID"};
   data.buffer.push(escapeExpression(helpers.bindAttr.call(depth0, {hash:{
     'src': ("user.profile_image_url")
   },contexts:[],types:[],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-  data.buffer.push(" alt=\"Profile picture\">\n		</div>\n		<div class=\"col-md-11\">\n			<blockquote>\n				<p>");
+  data.buffer.push(" alt=\"Profile picture\">\n			</div>\n			<div class=\"col-md-11\">\n				<blockquote>\n					<p>");
   hashTypes = {};
   hashContexts = {};
   data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "text", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-  data.buffer.push("</p>\n				<small>");
+  data.buffer.push("</p>\n					<small>");
   hashTypes = {};
   hashContexts = {};
   data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "user.name", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
@@ -197,14 +197,14 @@ helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
   hashTypes = {};
   hashContexts = {};
   data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "user.screen_name", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-  data.buffer.push(")</small>\n			</blockquote>\n		</div>\n	</div>\n	");
+  data.buffer.push(")</small>\n				</blockquote>\n			</div>\n		</div>\n		");
   hashContexts = {'data': depth0};
   hashTypes = {'data': "ID"};
   options = {hash:{
     'data': ("clicks")
   },contexts:[],types:[],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
   data.buffer.push(escapeExpression(((stack1 = helpers['bar-chart'] || depth0['bar-chart']),stack1 ? stack1.call(depth0, options) : helperMissing.call(depth0, "bar-chart", options))));
-  data.buffer.push("\n</div>");
+  data.buffer.push("\n	</div>\n</div>");
   return buffer;
   
 });
@@ -259,7 +259,7 @@ function program6(depth0,data) {
   hashContexts = {'controlID': depth0};
   hashTypes = {'controlID': "STRING"};
   options = {hash:{
-    'controlID': ("ember13823266532632")
+    'controlID': ("ember13824142851042")
   },contexts:[depth0,depth0],types:["STRING","ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
   data.buffer.push(escapeExpression(((stack1 = helpers.control || depth0.control),stack1 ? stack1.call(depth0, "treeBranch", "content", options) : helperMissing.call(depth0, "control", "treeBranch", "content", options))));
   data.buffer.push("\n");
@@ -307,7 +307,7 @@ helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
   hashContexts = {'controlID': depth0};
   hashTypes = {'controlID': "STRING"};
   options = {hash:{
-    'controlID': ("ember13823266532633")
+    'controlID': ("ember13824142851043")
   },contexts:[depth0,depth0],types:["STRING","ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
   data.buffer.push(escapeExpression(((stack1 = helpers.control || depth0.control),stack1 ? stack1.call(depth0, "treeBranch", "content", options) : helperMissing.call(depth0, "control", "treeBranch", "content", options))));
   
