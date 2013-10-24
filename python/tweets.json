@@ -1,32 +1,6 @@
 [
  {
   "fullreferrer": "t.co/9bVF1Xp1dP",
-  "clicks": [
-    {
-      "id": 1,
-      "created_at": "2013082913",
-      "count": "3",
-      "depth": 2
-    }, 
-    {
-      "id": 2,
-      "created_at" : "2013082914",
-      "count" : "3",
-      "depth": 2
-    }, 
-    {
-      "id": 3,
-      "created_at" : "2013082915",
-      "count" : "1",
-      "depth": 2
-    },
-    {
-      "id": 4,
-      "created_at" : "2013082916",
-      "count" : "1",
-      "depth": 2
-    }
-  ],
   "contributors": null, 
   "truncated": false, 
   "text": "RT @EuroBanks: The Real Trouble With Economics http://t.co/YHh29OQ07T", 
@@ -229,14 +203,6 @@
  }, 
  {
   "fullreferrer": "t.co/hD5CpWXrrt",
-  "clicks": [
-    {
-      "id": 5,
-      "created_at" : "2013082912",
-      "count" : "1",
-      "depth": 2
-    }
-  ],
   "contributors": null, 
   "truncated": false, 
   "text": "Analysis of econ policy in real-time\nhttp://t.co/A9IvaaxcES", 
@@ -326,20 +292,6 @@
  }, 
  {
   "fullreferrer": "t.co/hD5CphUjht",
-  "clicks": [
-    {
-      "id": 6,
-      "created_at" : "2013082912",
-      "count" : "2",
-      "depth": 2
-    },
-    {
-      "id": 7,
-      "created_at" : "2013082913",
-      "count" : "1",
-      "depth": 2
-    }
-  ],
   "contributors": null, 
   "truncated": false, 
   "text": "The Real Trouble With Economics http://t.co/YHh29OQ07T", 

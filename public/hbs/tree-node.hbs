@@ -8,6 +8,12 @@
 	{{/if}}
 </span>
 <a {{action click}} class="text">{{user.screen_name}}</a>
+{{#if in_reply_to_status_id}}
+	<span class="glyphicon glyphicon-share-alt"></span>
+{{/if}}
+{{#if retweeted_status}}
+	<span class="glyphicon glyphicon-retweet"></span>
+{{/if}}
 {{#if isExpanded}}
-	{{control "treeBranch" content}}
+	{{view App.TreeBranchView}}
 {{/if}}

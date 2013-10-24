@@ -76,7 +76,7 @@ App.ProfileRoute = Ember.Route.extend({
 	}
 });
 
-App.ProfileView = Em.View.extend({
+App.ProfileView = Ember.View.extend({
 	didInsertElement: function () {
 		$("html, body").animate({
 	        scrollTop: $("div.profile").offset().top
@@ -93,20 +93,12 @@ App.ReferrerRoute = Ember.Route.extend({
 	}
 });
 
-// App.ReferrerController = Ember.Controller.extend({
-// 	totalClicks: function() {
-// 		return d3.sum(this.get("clicks").getEach("count"));
-// 	}.property("clicks.@each")
-// });
-
 App.TreeBranchController = Ember.ObjectController.extend({});
-
-App.register("controller:treeBranch", App.TreeBranchController, {singleton: false});
 
 App.TreeBranchView = Ember.View.extend({
 	tagName: "ul",
 	templateName: "tree-branch",
-	classNames: ["tree-branch"]
+	classNames: ["tree-branch"],
 });
 
 App.TreeNodeController = Ember.ObjectController.extend({
@@ -116,12 +108,10 @@ App.TreeNodeController = Ember.ObjectController.extend({
 			this.set("isExpanded", !this.get("isExpanded"));
 		},
 		click: function () {
-			this.transitionToRoute("referrer",this);
+			console.log(this);
 		}
 	}
 });
-
-App.register("controller:treeNode", App.TreeNodeController, {singleton: false});
 
 App.TreeNodeView = Ember.View.extend({
 	tagName: "li",
@@ -137,12 +127,13 @@ App.BarChartComponent = Ember.Component.extend({
 
 	didInsertElement: function () {
 		Ember.run.once(this, "updateChart");
-		$("html, body").animate({
-	        scrollTop: $("div.profile").offset().top
-	    }, 500);
 	},
 
 	updateChart: function () {
+		$("html, body").animate({
+			scrollTop: $("div.profile").offset().top
+		}, 500);
+
 		if (this.get("data")) {
 			d3.select(this.$()[0])
 				.data([this.get("data")])
@@ -155,13 +146,13 @@ App.BarChartComponent = Ember.Component.extend({
 	}.observes("data")
 });
 
-$(document).ready(function () {
-	$(window).bind("scroll", function (e) { 
-		console.log($(this).scrollTop());
-		if ($(this).scrollTop() > 300 ) { 
-			$(".tweetbox").css({position: "fixed", top: "25px"}); 
-		} else {
-			$(".tweetbox").css({position: "absolute", top: "0px"}); 
-		}
-	});
-});
+// Ensures tweetbox scrolls
+// $(document).ready(function () {
+// 	$(window).bind("scroll", function (e) { 
+// 		if ($(this).scrollTop() > 300 ) { 
+// 			$(".tweetbox").css({position: "fixed", top: "25px"}); 
+// 		} else {
+// 			$(".tweetbox").css({position: "absolute", top: "0px"}); 
+// 		}
+// 	});
+// });
