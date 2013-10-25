@@ -93,8 +93,6 @@ App.ReferrerRoute = Ember.Route.extend({
 	}
 });
 
-App.TreeBranchController = Ember.ObjectController.extend({});
-
 App.TreeBranchView = Ember.View.extend({
 	tagName: "ul",
 	templateName: "tree-branch",
@@ -114,9 +112,20 @@ App.TreeNodeController = Ember.ObjectController.extend({
 });
 
 App.TreeNodeView = Ember.View.extend({
-	tagName: "li",
 	templateName: "tree-node",
-	classNames: ["tree-node"]
+	classNames: ["tree-node"],
+	didInsertElement: function () {
+		var id = "#" + this.get("controller").get("model").id;
+		$("li" + id + " > span[rel=popover]").popover({ 
+			html : true, 
+			content: function () {
+				console.log($("li" + id + " > div"));
+				return $("li" + id + " > div").html();
+			},
+			trigger: "hover",
+			placement: "auto top"
+		});
+	}
 });
 
 App.BarChartComponent = Ember.Component.extend({

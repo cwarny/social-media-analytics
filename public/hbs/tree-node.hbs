@@ -1,19 +1,34 @@
-<span {{bindAttr class=":toggle-icon children.length::leaf"}} {{action toggle}}>
-	{{#if children}}
-		{{#if isExpanded}}
-			&#x25BC;
-		{{else}}
-			&#x25B6;
+<li {{bindAttr id=id}} style="margin-bottom: 10px;margin-top: 10px">
+	<span {{bindAttr class=":toggle-icon children.length::leaf"}} {{action toggle}}>
+		{{#if children}}
+			{{#if isExpanded}}
+				&#x25BC;
+			{{else}}
+				&#x25B6;
+			{{/if}}
 		{{/if}}
+	</span>
+	<span rel="popover">{{user.screen_name}}</span>
+	<div style="display: none">
+		<div class="row">
+			<div class="col-md-1">
+				<img {{bindAttr src=user.profile_image_url}} alt="Profile picture">
+			</div>
+			<div class="col-md-11">
+				<blockquote>
+					<p>{{text}}</p>
+					<small>{{user.name}} (@{{user.screen_name}})</small>
+				</blockquote>
+			</div>
+		</div>
+	</div>
+	{{#if in_reply_to_status_id}}
+		<span class="glyphicon glyphicon-share-alt"></span>
 	{{/if}}
-</span>
-<a {{action click}} class="text">{{user.screen_name}}</a>
-{{#if in_reply_to_status_id}}
-	<span class="glyphicon glyphicon-share-alt"></span>
-{{/if}}
-{{#if retweeted_status}}
-	<span class="glyphicon glyphicon-retweet"></span>
-{{/if}}
-{{#if isExpanded}}
-	{{view App.TreeBranchView}}
-{{/if}}
+	{{#if retweeted_status}}
+		<span class="glyphicon glyphicon-retweet"></span>
+	{{/if}}
+	{{#if isExpanded}}
+		{{view App.TreeBranchView}}
+	{{/if}}
+</li>

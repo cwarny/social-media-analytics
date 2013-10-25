@@ -1,17 +1,16 @@
 <div class="col-md-8">
-	<div class="tweetbox">
-		<div class="well row">
-			<div class="col-md-1">
-				<img {{bindAttr src=user.profile_image_url}} alt="Profile picture">
-			</div>
-			<div class="col-md-11">
-				<blockquote>
-					<p>{{text}}</p>
-					<small>{{user.name}} (@{{user.screen_name}})</small>
-				</blockquote>
-			</div>
+	<div class="well row tweetbox">
+		<div class="col-md-1">
+			<img {{bindAttr src=user.profile_image_url}} alt="Profile picture">
+		</div>
+		<div class="col-md-11">
+			<blockquote>
+				<p>{{text}}</p>
+				<small>{{user.name}} (@{{user.screen_name}})</small>
+			</blockquote>
 		</div>
 		{{bar-chart data=clicks}}
+		</br>
 		{{view App.TreeBranchView}}
 	</div>
 </div>
