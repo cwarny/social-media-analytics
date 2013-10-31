@@ -7,17 +7,18 @@ var express = require("express"),
 	request = require("request"),
 	async = require("async"),
 	uu = require("underscore"),
-	Twitter = require("./Twitter").Twitter,
+	twitterAPI = require('node-twitter-api'),
 	Referrers = require('./referrers').Referrers,
 	Users = require('./users').Users;
 	Accounts = require('./accounts').Accounts;
 
-var twitter = new Twitter({
+var twitter = new twitterAPI({
 	consumerKey: "ZSQCknnf5fXbnF8xvj5PmQ",
-	consumerSecret: "MtBrBUJR1kijGAiQLRfOclmEQ9JdDphH2aMB3xtT6g",
-	accessToken: "347348265-hkdqdSxQHppceJIELJoTNcW3l1SbKA60SRkWPPjL",
-	accessTokenSecret: "D1wgG5MUROZYQtPRZK2gYwzFcaZl61a93XfRVfdfc"
+	consumerSecret: "MtBrBUJR1kijGAiQLRfOclmEQ9JdDphH2aMB3xtT6g"
 });
+
+var accessToken = "347348265-hkdqdSxQHppceJIELJoTNcW3l1SbKA60SRkWPPjL",
+	accessTokenSecret = "D1wgG5MUROZYQtPRZK2gYwzFcaZl61a93XfRVfdfc";
 
 var referrers = new Referrers('localhost', 27017),
 	users = new Users('localhost', 27017),
@@ -249,18 +250,19 @@ function grabReferrers (user, webproperty, profiles, callback2) {
 function grabTweets (profile, referrers, callback3) {
 	async.map(referrers, 
 		function (referrer, callback4) {
-			twitter.search({q: "http://" + referrer.fullreferrer},
-				function (err, response, body) {
-					console.log("ERROR [%s]", err);
+			twitter.search({
+					q: "http://" + referrer.fullreferrer
 				},
-				function (data) {
-					referrer.tweet = JSON.parse(data).statuses[0];
-					callback4(null,referrer);
+				accessToken,
+				accessTokenSecret,
+				function (error, data, response) {
+					var tweet = JSON.parse(data).statuses[0];
+					build_tweet_tree(referrer, [tweet], callback4);
 				}
 			)
 		}, 
 		function (err, results) {
-			profile.referrers = referrers;
+			profile.referrers = results;
 			callback3(null,profile);
 		}
 	)
@@ -276,4 +278,72 @@ function reformatReferrers (rows) {
 		}
 	}
 	return uu.map(uu.pairs(referrers), function(pair) {return {id: Math.ceil(Math.random() * 100), fullreferrer: pair[0], visits: pair[1]}})
+}
+
+function build_tweet_tree (referrer, tweets, depth, callback4) {
+	depth++;
+	async.map(tweets, 
+		function (tweet, callback) {
+			findChildren(referrer, tweet, depth, callback4, callback)
+		},
+		function (err, results) {
+			referrer.tweet = results[0];
+			callback4(null,referrer);
+		}
+	);
+}
+
+function findChildren (referrer, tweet, depth, callback4, callback) {
+	async.parallel([
+			function (callback1) {
+				get_retweets(tweet,callback1);
+			},
+			function (callback1) {
+				get_replies(tweet,callback1);
+			}
+		],
+		function (err, results) {
+			tweet.children = uu.flatten(results);
+			if (depth < 5) build_tweet_tree(referrer, tweet.children, depth, callback4);
+			callback(null,tweet);
+		}
+	);
+}
+
+function get_retweets (tweet,callback) {
+	if (tweet.retweet_count > 0)) {
+		twitter.statuses("retweets",
+			{
+				id: tweet.id_str
+			},
+			accessToken,
+			accessTokenSecret,
+			function (error, data, response) {
+				if (data instanceof Array) {
+					callback(null,data);
+				} else {
+					callback(null,[]);
+				}
+			}
+		);
+	} else {
+		callback(null,[]);
+	}
+}
+
+function get_replies (tweet,callback) {
+	console.log(tweet.id);
+	var q = util.format("@%s", tweet.user.screen_name);
+	twitter.search({
+			q: q
+		},
+		accessToken,
+		accessTokenSecret,
+		function (error, data, response) {
+			var statuses = data.statuses.filter(function (d) {
+				return d.in_reply_to_status_id == tweet.id;
+			});
+			callback(null, statuses);
+		}
+	);
 }
