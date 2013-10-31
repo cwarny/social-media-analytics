@@ -58,6 +58,7 @@ passport.use(new GoogleStrategy({
 				if (user.length > 0) {
 					done(err, user[0]);
 				} else {
+					console.log("Processing new user.");
 					processNewUser(accessToken, refreshToken, profile, done);
 				}
 			});
@@ -196,9 +197,9 @@ function processNewUser (accessToken, refreshToken, user, done) {
 }
 
 function grabWebproperties (user, ga_accounts, done) {
-	async.map(ga_accounts, 
+	async.mapSeries(ga_accounts, 
 		function (account, callback1) {
-			request("https://www.googleapis.com/analytics/v3/management/accounts/" + account.id + "/webproperties" + "?access_token=" + user.access_token + "&access_type_token=bearer", function (error, response, body) {
+			request("https://www.googleapis.com/analytics/v3/management/accounts/" + account.id + "/webproperties?access_token=" + user.access_token + "&access_type_token=bearer", function (error, response, body) {
 				var webproperties = JSON.parse(body).items;
 				grabProfiles(user, account, webproperties, callback1);
 			})
@@ -213,9 +214,9 @@ function grabWebproperties (user, ga_accounts, done) {
 }
 
 function grabProfiles (user, account, webproperties, callback1) {
-	async.map(webproperties, 
+	async.mapSeries(webproperties, 
 		function (webproperty, callback2) {
-			request("https://www.googleapis.com/analytics/v3/management/accounts/" + account.id + "/webproperties/" + webproperty.id + "/profiles" + "?access_token=" + user.access_token + "&access_type_token=bearer", function (error, response, body) {
+			request("https://www.googleapis.com/analytics/v3/management/accounts/" + account.id + "/webproperties/" + webproperty.id + "/profiles?access_token=" + user.access_token + "&access_type_token=bearer", function (error, response, body) {
 				var profiles = JSON.parse(body).items;
 				grabReferrers(user, webproperty, profiles, callback2);
 			})
@@ -228,10 +229,10 @@ function grabProfiles (user, account, webproperties, callback1) {
 }
 
 function grabReferrers (user, webproperty, profiles, callback2) {
-	async.map(profiles, 
+	async.mapSeries(profiles, 
 		function (profile, callback3) {
 			var today = new Date();
-			request("https://www.googleapis.com/analytics/v3/data/ga?ids=ga%3A" + profile.id + "&dimensions=ga%3AfullReferrer%2Cga%3AdateHour&metrics=ga%3Avisits&filters=ga%3Asource%3D%3Dt.co&start-date=2013-01-01&end-date=" + today.getFullYear() + "-" + nf(today.getMonth() + 1,2) + "-" + nf(today.getDate() + 1,2) + "&access_token=" + user.access_token, function (error, response, body) {
+			request("https://www.googleapis.com/analytics/v3/data/ga?ids=ga%3A" + profile.id + "&dimensions=ga%3AfullReferrer%2Cga%3AdateHour&metrics=ga%3Avisits&filters=ga%3Asource%3D%3Dt.co&start-date=2013-10-27&end-date=" + today.getFullYear() + "-" + nf(today.getMonth() + 1,2) + "-" + nf(today.getDate(),2) + "&access_token=" + user.access_token, function (error, response, body) {
 				var body = JSON.parse(body);
 				var referrers = [];
 				if (body.hasOwnProperty("rows")) {
@@ -248,7 +249,7 @@ function grabReferrers (user, webproperty, profiles, callback2) {
 }
 
 function grabTweets (profile, referrers, callback3) {
-	async.map(referrers, 
+	async.mapSeries(referrers, 
 		function (referrer, callback4) {
 			twitter.search({
 					q: "http://" + referrer.fullreferrer
@@ -256,8 +257,8 @@ function grabTweets (profile, referrers, callback3) {
 				accessToken,
 				accessTokenSecret,
 				function (error, data, response) {
-					var tweet = JSON.parse(data).statuses[0];
-					build_tweet_tree(referrer, [tweet], callback4);
+					var tweet = data.length > 0 ? [data.statuses[0]] : [];
+					//build_tweet_tree(referrer, tweet, 0, callback4);
 				}
 			)
 		}, 
@@ -311,7 +312,7 @@ function findChildren (referrer, tweet, depth, callback4, callback) {
 }
 
 function get_retweets (tweet,callback) {
-	if (tweet.retweet_count > 0)) {
+	if (tweet.retweet_count > 0) {
 		twitter.statuses("retweets",
 			{
 				id: tweet.id_str
@@ -332,7 +333,6 @@ function get_retweets (tweet,callback) {
 }
 
 function get_replies (tweet,callback) {
-	console.log(tweet.id);
 	var q = util.format("@%s", tweet.user.screen_name);
 	twitter.search({
 			q: q
