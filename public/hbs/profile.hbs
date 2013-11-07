@@ -3,7 +3,9 @@
 		<div class="col-md-3">
 			<ul class="nav nav-pills nav-stacked">
 				{{#each referrers}}
-					<li>{{#linkTo "referrer" this}}{{user.screen_name}}<span class="badge">{{totalClicks}}</span>{{/linkTo}}</li>
+					{{#if text}}
+						<li>{{#linkTo "referrer" this}}{{user.screen_name}}<span class="badge">{{totalClicks}}</span>{{/linkTo}}</li>
+					{{/if}}
 				{{/each}}
 			</ul>
 		</div>
