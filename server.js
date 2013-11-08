@@ -10,8 +10,10 @@ var express = require("express"),
 	util = require("util"),
 	twitterAPI = require("node-twitter-api"),
 	Referrers = require("./referrers").Referrers,
-	Users = require("./users").Users;
-	Accounts = require("./accounts").Accounts;
+	Users = require("./users").Users,
+	Accounts = require("./accounts").Accounts,
+	Webproperties = require("./webproperties").Webproperties,
+	Profiles = require("./profiles").Profiles;
 
 var credentials = [
 	{
@@ -73,7 +75,9 @@ var twitter = new twitterAPI({
 
 var referrers = new Referrers('localhost', 27017),
 	users = new Users('localhost', 27017),
-	accounts = new Accounts('localhost', 27017);
+	accounts = new Accounts('localhost', 27017),
+	webproperties = new Webproperties('localhost', 27017),
+	profiles = new Profiles('localhost', 27017);
 
 app.configure(function () {
 	app.set("port", process.env.PORT || 3000);
@@ -259,11 +263,11 @@ function processNewUser (accessToken, refreshToken, user, done) {
 	user.refresh_token = refreshToken;
 	request("https://www.googleapis.com/analytics/v3/management/accounts?access_token=" + accessToken + "&access_type_token=bearer", function (error, response, body) {
 		var ga_accounts = JSON.parse(body).items;
-		ga_accounts = uu.map(ga_accounts, function (d) {d.userId = user.id;});
+		ga_accounts = uu.map(ga_accounts, function (d) {d.userId = user.id; return d;});
 		accounts.save(ga_accounts, function (err, accounts) {
 			console.log("Accounts saved to database.");
+			grabWebproperties(user, ga_accounts, done);
 		});
-		grabWebproperties(user, ga_accounts, done);
 	})
 }
 
@@ -271,29 +275,30 @@ function grabWebproperties (user, ga_accounts, done) {
 	async.mapSeries(ga_accounts, 
 		function (account, callback1) {
 			request("https://www.googleapis.com/analytics/v3/management/accounts/" + account.id + "/webproperties?access_token=" + user.access_token + "&access_type_token=bearer", function (error, response, body) {
-				var webproperties = JSON.parse(body).items;
-				webproperties.save(webproperties, function (err, webproperties) {
+				var ga_webproperties = JSON.parse(body).items;
+				webproperties.save(ga_webproperties, function (err, results) {
 					console.log("Webproperties saved to database.");
+					grabProfiles(user, account, ga_webproperties, callback1);
 				});
-				grabProfiles(user, account, webproperties, callback1);
 			})
 		}, function (err, results) {
 			users.save(user, function (err, user) {
+				console.log("User saved to database.");
 				done(err,user[0]);
 			});
 		}
 	)
 }
 
-function grabProfiles (user, account, webproperties, callback1) {
-	async.mapSeries(webproperties, 
+function grabProfiles (user, account, ga_webproperties, callback1) {
+	async.mapSeries(ga_webproperties, 
 		function (webproperty, callback2) {
 			request("https://www.googleapis.com/analytics/v3/management/accounts/" + account.id + "/webproperties/" + webproperty.id + "/profiles?access_token=" + user.access_token + "&access_type_token=bearer", function (error, response, body) {
-				var profiles = JSON.parse(body).items;
-				profiles.save(profiles, function (err, profiles) {
+				var ga_profiles = JSON.parse(body).items;
+				profiles.save(ga_profiles, function (err, results) {
 					console.log("Profiles saved to database.");
+					grabReferrers(user, webproperty, ga_profiles, callback2);
 				});
-				grabReferrers(user, webproperty, profiles, callback2);
 			})
 		}, function (err, results) {
 			callback1(err,results)
@@ -301,19 +306,19 @@ function grabProfiles (user, account, webproperties, callback1) {
 	)
 }
 
-function grabReferrers (user, webproperty, profiles, callback2) {
-	async.mapSeries(profiles, 
+function grabReferrers (user, webproperty, ga_profiles, callback2) {
+	async.mapSeries(ga_profiles, 
 		function (profile, callback3) {
 			var today = new Date();
 			request("https://www.googleapis.com/analytics/v3/data/ga?ids=ga%3A" + profile.id + "&dimensions=ga%3AfullReferrer%2Cga%3AdateHour&metrics=ga%3Avisits&filters=ga%3Asource%3D%3Dt.co&start-date=2013-11-06&end-date=" + today.getFullYear() + "-" + nf(today.getMonth() + 1,2) + "-" + nf(today.getDate(),2) + "&access_token=" + user.access_token, function (error, response, body) {
 				var body = JSON.parse(body);
-				var referrers = [];
+				var ga_referrers = [];
 				if (body.hasOwnProperty("rows")) {
 					var rows = body.rows;
-					referrers = reformatReferrers(rows);
+					ga_referrers = reformatReferrers(rows);
 				}
-				referrers = uu.map(referrers, function (d) {d.profileId = profile.id;});
-				grabTweets(profile, referrers, callback3);
+				ga_referrers = uu.map(ga_referrers, function (d) {d.profileId = profile.id; return d;});
+				grabTweets(profile, ga_referrers, callback3);
 			})
 		}, function (err, results) {
 			callback2(err,results);
@@ -321,8 +326,8 @@ function grabReferrers (user, webproperty, profiles, callback2) {
 	)
 }
 
-function grabTweets (profile, referrers, callback3) {
-	async.mapSeries(referrers, 
+function grabTweets (profile, ga_referrers, callback3) {
+	async.mapSeries(ga_referrers, 
 		function (referrer, callback4) {
 			twitter.search({
 					q: "http://" + referrer.fullreferrer
@@ -358,8 +363,8 @@ function grabTweets (profile, referrers, callback3) {
 		function (err, results) {
 			referrers.save(results, function (err, referrers) {
 				console.log("Referrers saved to database.");
+				callback3(err,results);
 			});
-			callback3(err,results);
 		}
 	)
 }
