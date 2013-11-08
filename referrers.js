@@ -20,12 +20,12 @@ Referrers.prototype.getCollection = function (callback) {
 	});
 };
 
-Referrers.prototype.findAll = function (user_id, callback) {
+Referrers.prototype.findAll = function (profileId, callback) {
 	this.getCollection(function (error, referrers) {
 		if (error) {
 			callback(error);
 		} else {
-			referrers.find(/*{user_id: user_id}*/).toArray(function (error, results) {
+			referrers.find({profileId: profileId}).toArray(function (error, results) {
 				if (error) {
 					callback(error);
 				} else {

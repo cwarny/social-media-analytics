@@ -35,6 +35,16 @@ App.Account.reopenClass({
 			}
 		});
 	}
+	// find: function (id) {
+	// 	return $.get("/accounts/" + id).then(function (res) {
+	// 		if (res.success) {
+	// 			return App.Account.create(res.account);
+	// 		} else {
+	// 			alert("You must log in");
+	// 			window.open("http://localhost:3000/login", "_self");
+	// 		}
+	// 	});
+	// }
 });
 
 App.ExploreRoute = Ember.Route.extend({
@@ -49,7 +59,27 @@ App.ExploreRoute = Ember.Route.extend({
 	}
 });
 
+App.Webproperty = Ember.Object.extend();
+
+App.Webproperty.reopenClass({
+	findAll: function (accountId) {
+		return $.get("/webproperties" + accountId).then(function (res) {
+			if (res.success) {
+				return res.webproperties.map(function (w) {
+					return App.Webproperty.create(w);
+				});
+			} else {
+				alert("You must log in");
+				window.open("http://localhost:3000/login", "_self");
+			}
+		});
+	}
+});
+
 App.AccountRoute = Ember.Route.extend({
+	model: function (params) {
+		return App.Webproperty.findAll(params.account_id);
+	},
 	renderTemplate: function () {
 		this.render({
 			into: "explore",
@@ -58,7 +88,27 @@ App.AccountRoute = Ember.Route.extend({
 	}
 });
 
+App.Profile = Ember.Object.extend();
+
+App.Profile.reopenClass({
+	findAll: function (webpropertyId) {
+		return $.get("/profiles/" + webpropertyId).then(function (res) {
+			if (res.success) {
+				return res.profiles.map(function (p) {
+					return App.Profile.create(p);
+				});
+			} else {
+				alert("You must log in");
+				window.open("http://localhost:3000/login", "_self");
+			}
+		});
+	}
+});
+
 App.WebpropertyRoute = Ember.Route.extend({
+	model: function (params) {
+		return App.Profile.findAll(params.webproperty_id);
+	},
 	renderTemplate: function () {
 		this.render({
 			into: "account",
@@ -67,7 +117,27 @@ App.WebpropertyRoute = Ember.Route.extend({
 	}
 });
 
+App.Referrer = Ember.Object.extend();
+
+App.Referrer.reopenClass({
+	findAll: function (profileId) {
+		return $.get("/referrers/" + profileId).then(function (res) {
+			if (res.success) {
+				return res.referrers.map(function (r) {
+					return App.Referrer.create(r);
+				});
+			} else {
+				alert("You must log in");
+				window.open("http://localhost:3000/login", "_self");
+			}
+		});
+	}
+});
+
 App.ProfileRoute = Ember.Route.extend({
+	model: function (params) {
+		return App.Referrer.findAll(params.profile_id);
+	},
 	renderTemplate: function () {
 		this.render({
 			into: "explore",
@@ -89,41 +159,6 @@ App.ReferrerRoute = Ember.Route.extend({
 		this.render({
 			into: "profile",
 			outlet: "referrer"
-		});
-	}
-});
-
-App.TreeBranchView = Ember.View.extend({
-	tagName: "ul",
-	templateName: "tree-branch",
-	classNames: ["tree-branch"],
-});
-
-App.TreeNodeController = Ember.ObjectController.extend({
-	isExpanded: false,
-	actions: {
-		toggle: function () {
-			this.set("isExpanded", !this.get("isExpanded"));
-		},
-		click: function () {
-			console.log(this);
-		}
-	}
-});
-
-App.TreeNodeView = Ember.View.extend({
-	templateName: "tree-node",
-	classNames: ["tree-node"],
-	didInsertElement: function () {
-		var id = "#" + this.get("controller").get("model").id;
-		$("li" + id + " > span[rel=popover]").popover({ 
-			html : true, 
-			content: function () {
-				console.log($("li" + id + " > div"));
-				return $("li" + id + " > div").html();
-			},
-			trigger: "hover",
-			placement: "auto top"
 		});
 	}
 });
@@ -154,6 +189,41 @@ App.BarChartComponent = Ember.Component.extend({
 		}
 	}.observes("data")
 });
+
+// App.TreeBranchView = Ember.View.extend({
+// 	tagName: "ul",
+// 	templateName: "tree-branch",
+// 	classNames: ["tree-branch"],
+// });
+
+// App.TreeNodeController = Ember.ObjectController.extend({
+// 	isExpanded: false,
+// 	actions: {
+// 		toggle: function () {
+// 			this.set("isExpanded", !this.get("isExpanded"));
+// 		},
+// 		click: function () {
+// 			console.log(this);
+// 		}
+// 	}
+// });
+
+// App.TreeNodeView = Ember.View.extend({
+// 	templateName: "tree-node",
+// 	classNames: ["tree-node"],
+// 	didInsertElement: function () {
+// 		var id = "#" + this.get("controller").get("model").id;
+// 		$("li" + id + " > span[rel=popover]").popover({ 
+// 			html : true, 
+// 			content: function () {
+// 				console.log($("li" + id + " > div"));
+// 				return $("li" + id + " > div").html();
+// 			},
+// 			trigger: "hover",
+// 			placement: "auto top"
+// 		});
+// 	}
+// });
 
 // Ensures tweetbox scrolls
 // $(document).ready(function () {
