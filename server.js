@@ -172,12 +172,28 @@ app.get("/auth/google/callback",
 	}
 );
 
-app.get("/accounts", function (req, res) {
+app.get("/users", function (req, res) {
 	if (req.isAuthenticated()) {
-		accounts.findAll(req.user.id, function (error, a) {
+		users.find(req.user.id, function (error, u) {
 			res.json({
 				success: true,
-				accounts: a
+				user: u[0]
+			});
+		});
+	} else {
+		res.json({
+			success: false,
+			message: "Not authenticated"
+		});
+	}
+});
+
+app.get("/accounts/:id", function (req, res) {
+	if (req.isAuthenticated()) {
+		accounts.find(req.params.id, function (error, a) {
+			res.json({
+				success: true,
+				account: a
 			});
 		});
 	} else {
@@ -190,10 +206,10 @@ app.get("/accounts", function (req, res) {
 
 app.get("/webproperties/:id", function (req, res) {
 	if (req.isAuthenticated()) {
-		webproperties.findAll(req.params.id, function (error,r) {
+		webproperties.find(req.params.id, function (error, w) {
 			res.json({
 				success: true,
-				webproperty: r
+				webproperty: w
 			});
 		});
 	} else {
@@ -206,10 +222,10 @@ app.get("/webproperties/:id", function (req, res) {
 
 app.get("/profiles/:id", function (req, res) {
 	if (req.isAuthenticated()) {
-		profiles.findAll(req.params.id, function (error,r) {
+		profiles.find(req.params.id, function (error, p) {
 			res.json({
 				success: true,
-				profile: r
+				profile: p
 			});
 		});
 	} else {
@@ -222,10 +238,10 @@ app.get("/profiles/:id", function (req, res) {
 
 app.get("/referrers/:id", function (req, res) {
 	if (req.isAuthenticated()) {
-		referrers.findAll(req.params.id, function (error,r) {
+		referrers.find(parseInt(req.params.id), function (error, r) {
 			res.json({
 				success: true,
-				referrer: r[0]
+				referrer: r
 			});
 		});
 	} else {
@@ -263,9 +279,9 @@ function processNewUser (accessToken, refreshToken, user, done) {
 	user.refresh_token = refreshToken;
 	request("https://www.googleapis.com/analytics/v3/management/accounts?access_token=" + accessToken + "&access_type_token=bearer", function (error, response, body) {
 		var ga_accounts = JSON.parse(body).items;
-		ga_accounts = uu.map(ga_accounts, function (d) {d.userId = user.id; return d;});
-		accounts.save(ga_accounts, function (err, accounts) {
-			console.log("Accounts saved to database.");
+		user.accounts = ga_accounts;
+		users.save(user, function (err, result) {
+			console.log("User saved to database.");
 			grabWebproperties(user, ga_accounts, done);
 		});
 	})
@@ -276,16 +292,14 @@ function grabWebproperties (user, ga_accounts, done) {
 		function (account, callback1) {
 			request("https://www.googleapis.com/analytics/v3/management/accounts/" + account.id + "/webproperties?access_token=" + user.access_token + "&access_type_token=bearer", function (error, response, body) {
 				var ga_webproperties = JSON.parse(body).items;
-				webproperties.save(ga_webproperties, function (err, results) {
-					console.log("Webproperties saved to database.");
+				account.webproperties = ga_webproperties;
+				accounts.save(account, function (err, result) {
+					console.log("Account " + account.id + " saved to database.");
 					grabProfiles(user, account, ga_webproperties, callback1);
-				});
-			})
-		}, function (err, results) {
-			users.save(user, function (err, user) {
-				console.log("User saved to database.");
-				done(err,user[0]);
+				})
 			});
+		}, function (err, results) {
+			done(err,user);
 		}
 	)
 }
@@ -295,13 +309,14 @@ function grabProfiles (user, account, ga_webproperties, callback1) {
 		function (webproperty, callback2) {
 			request("https://www.googleapis.com/analytics/v3/management/accounts/" + account.id + "/webproperties/" + webproperty.id + "/profiles?access_token=" + user.access_token + "&access_type_token=bearer", function (error, response, body) {
 				var ga_profiles = JSON.parse(body).items;
-				profiles.save(ga_profiles, function (err, results) {
-					console.log("Profiles saved to database.");
+				webproperty.profiles = ga_profiles;
+				webproperties.save(webproperty, function (err, result) {
+					console.log("Webproperty " + webproperty.id + " saved to database.");
 					grabReferrers(user, webproperty, ga_profiles, callback2);
 				});
 			})
 		}, function (err, results) {
-			callback1(err,results)
+			callback1(err,results);
 		}
 	)
 }
@@ -318,7 +333,7 @@ function grabReferrers (user, webproperty, ga_profiles, callback2) {
 					ga_referrers = reformatReferrers(rows);
 				}
 				ga_referrers = uu.map(ga_referrers, function (d) {d.profileId = profile.id; return d;});
-				grabTweets(profile, ga_referrers, callback3);
+				grabTweet(profile, ga_referrers, callback3);
 			})
 		}, function (err, results) {
 			callback2(err,results);
@@ -326,7 +341,7 @@ function grabReferrers (user, webproperty, ga_profiles, callback2) {
 	)
 }
 
-function grabTweets (profile, ga_referrers, callback3) {
+function grabTweet (profile, ga_referrers, callback3) {
 	async.mapSeries(ga_referrers, 
 		function (referrer, callback4) {
 			twitter.search({
@@ -343,7 +358,7 @@ function grabTweets (profile, ga_referrers, callback3) {
 							consumerKey: credentials[n].consumer_key,
 							consumerSecret: credentials[n].consumer_secret
 						});
-						grabTweets(profile,referrers,callback3);
+						grabTweet(profile,referrers,callback3);
 					} else {
 						if (data && data.statuses !== undefined && data.statuses.length > 0) {
 							var tweet =  data.statuses[0];
@@ -351,18 +366,26 @@ function grabTweets (profile, ga_referrers, callback3) {
 							if (tweet.retweet_count > 0) {
 								get_retweets(referrer, tweet, callback4);
 							} else {
-								callback4(err,uu.extend(referrer,tweet));
+								referrer = uu.extend(referrer,tweet);
+								referrers.save(referrer, function (err, result) {
+									console.log("Referrer " + referrer.id + " saved to database.");
+									callback4(err,referrer);
+								});
 							}
 						} else {
-							callback4(err,referrer);
+							referrers.save(referrer, function (err, result) {
+								console.log("Anonymous referrer saved to database.");
+								callback4(err,referrer);
+							});
 						}
 					}
 				}
 			)
 		}, 
 		function (err, results) {
-			referrers.save(results, function (err, referrers) {
-				console.log("Referrers saved to database.");
+			profile.referrers = results;
+			profiles.save(profile, function (err, result) {
+				console.log("Profile " + profile.id + " saved to database.");
 				callback3(err,results);
 			});
 		}
@@ -378,7 +401,11 @@ function get_retweets (referrer, tweet, callback4) {
 		credentials[n].access_token_secret,
 		function (err, data, response) {
 			if (data instanceof Array) tweet.retweets = data;
-			callback4(err,uu.extend(referrer,tweet));
+			referrer = uu.extend(referrer,tweet);
+			referrers.save(referrer, function (err, result) {
+				console.log("Referrer " + referrer.id + " saved to database.");
+				callback4(err,referrer);
+			});
 		}
 	);
 }

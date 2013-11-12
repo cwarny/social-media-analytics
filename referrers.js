@@ -36,7 +36,7 @@ Referrers.prototype.findAll = function (profileId, callback) {
 	});
 };
 
-Referrers.prototype.find = function(id, callback) {
+Referrers.prototype.find = function (id, callback) {
 	this.getCollection(function (error, referrers) {
 		if (error) {
 			callback(error);
@@ -45,7 +45,7 @@ Referrers.prototype.find = function(id, callback) {
 				if (error) {
 					callback(error);
 				} else {
-					callback(null, results);
+					callback(null, results[0]);
 				}
 			});
 		}

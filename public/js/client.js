@@ -20,36 +20,24 @@ App.ApplicationRoute = Ember.Route.extend({
 	}
 });
 
-App.Account = Ember.Object.extend();
+App.User = Ember.Object.extend();
 
-App.Account.reopenClass({
-	findAll: function () {
-		return $.get("/accounts").then(function (res) {
+App.User.reopenClass({
+	find: function () {
+		return $.get("/users").then(function (res) {
 			if (res.success) {
-				return res.accounts.map(function (a) {
-					return App.Account.create(a);
-				});
+				return App.User.create(res.user);
 			} else {
 				alert("You must log in");
 				window.open("http://localhost:3000/login", "_self");
 			}
 		});
 	}
-	// find: function (id) {
-	// 	return $.get("/accounts/" + id).then(function (res) {
-	// 		if (res.success) {
-	// 			return App.Account.create(res.account);
-	// 		} else {
-	// 			alert("You must log in");
-	// 			window.open("http://localhost:3000/login", "_self");
-	// 		}
-	// 	});
-	// }
 });
 
 App.ExploreRoute = Ember.Route.extend({
 	model: function () {
-		return App.Account.findAll();
+		return App.User.find();
 	},
 	renderTemplate: function () {
 		this.render({
@@ -59,15 +47,13 @@ App.ExploreRoute = Ember.Route.extend({
 	}
 });
 
-App.Webproperty = Ember.Object.extend();
+App.Account = Ember.Object.extend();
 
-App.Webproperty.reopenClass({
-	findAll: function (accountId) {
-		return $.get("/webproperties" + accountId).then(function (res) {
+App.Account.reopenClass({
+	find: function (accountId) {
+		return $.get("/accounts/" + accountId).then(function (res) {
 			if (res.success) {
-				return res.webproperties.map(function (w) {
-					return App.Webproperty.create(w);
-				});
+				return App.Webproperty.create(res.account);
 			} else {
 				alert("You must log in");
 				window.open("http://localhost:3000/login", "_self");
@@ -77,8 +63,10 @@ App.Webproperty.reopenClass({
 });
 
 App.AccountRoute = Ember.Route.extend({
-	model: function (params) {
-		return App.Webproperty.findAll(params.account_id);
+	setupController: function (controller, model) {
+		App.Account.find(model.id).then(function (data) {
+			controller.set("model", data);
+		});
 	},
 	renderTemplate: function () {
 		this.render({
@@ -88,15 +76,13 @@ App.AccountRoute = Ember.Route.extend({
 	}
 });
 
-App.Profile = Ember.Object.extend();
+App.Webproperty = Ember.Object.extend();
 
-App.Profile.reopenClass({
-	findAll: function (webpropertyId) {
-		return $.get("/profiles/" + webpropertyId).then(function (res) {
+App.Webproperty.reopenClass({
+	find: function (webpropertyId) {
+		return $.get("/webproperties/" + webpropertyId).then(function (res) {
 			if (res.success) {
-				return res.profiles.map(function (p) {
-					return App.Profile.create(p);
-				});
+				return App.Webproperty.create(res.webproperty);
 			} else {
 				alert("You must log in");
 				window.open("http://localhost:3000/login", "_self");
@@ -106,8 +92,10 @@ App.Profile.reopenClass({
 });
 
 App.WebpropertyRoute = Ember.Route.extend({
-	model: function (params) {
-		return App.Profile.findAll(params.webproperty_id);
+	setupController: function (controller, model) {
+		App.Webproperty.find(model.id).then(function (data) {
+			controller.set("model", data);
+		});
 	},
 	renderTemplate: function () {
 		this.render({
@@ -117,15 +105,13 @@ App.WebpropertyRoute = Ember.Route.extend({
 	}
 });
 
-App.Referrer = Ember.Object.extend();
+App.Profile = Ember.Object.extend();
 
-App.Referrer.reopenClass({
-	findAll: function (profileId) {
-		return $.get("/referrers/" + profileId).then(function (res) {
+App.Profile.reopenClass({
+	find: function (profileId) {
+		return $.get("/profiles/" + profileId).then(function (res) {
 			if (res.success) {
-				return res.referrers.map(function (r) {
-					return App.Referrer.create(r);
-				});
+				return App.Profile.create(res.profile);
 			} else {
 				alert("You must log in");
 				window.open("http://localhost:3000/login", "_self");
@@ -135,8 +121,10 @@ App.Referrer.reopenClass({
 });
 
 App.ProfileRoute = Ember.Route.extend({
-	model: function (params) {
-		return App.Referrer.findAll(params.profile_id);
+	setupController: function (controller, model) {
+		App.Profile.find(model.id).then(function (data) {
+			controller.set("model", data);
+		});
 	},
 	renderTemplate: function () {
 		this.render({
@@ -154,7 +142,27 @@ App.ProfileView = Ember.View.extend({
 	}
 });
 
+App.Referrer = Ember.Object.extend();
+
+App.Referrer.reopenClass({
+	find: function (referrerId) {
+		return $.get("/referrers/" + referrerId).then(function (res) {
+			if (res.success) {
+				return App.Referrer.create(res.referrer);
+			} else {
+				alert("You must log in");
+				window.open("http://localhost:3000/login", "_self");
+			}
+		});
+	}
+});
+
 App.ReferrerRoute = Ember.Route.extend({
+	setupController: function (controller, model) {
+		App.Referrer.find(model.id).then(function (data) {
+			controller.set("model", data);
+		});
+	},
 	renderTemplate: function () {
 		this.render({
 			into: "profile",
