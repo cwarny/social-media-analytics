@@ -1,7 +1,7 @@
 function BarChart() {
 
 	var margin = {left: 40, top: 20, bottom: 30, right: 20},
-		xScale = d3.scale.ordinal(),
+		xScale = d3.time.scale(),
 		yScale = d3.scale.linear(),
 		xAxis = d3.svg.axis().scale(xScale).orient("bottom"),
 		duration = 500;
@@ -13,8 +13,10 @@ function BarChart() {
 			var w = width - margin.left - margin.right;
 			var h = height - margin.top - margin.bottom;
 
+			data.forEach(function (d) {d.created_at = new Date(d.created_at.slice(0,4) + "-" + d.created_at.slice(4,6) + "-" + d.created_at.slice(6,8) + " " + d.created_at.slice(8,10) + ":00")});
+
 			xScale.domain(data.map(function(d) { return d.created_at; }))
-					.rangeRoundBands([0, w], .1);
+					.range([0, w]);
 
 			var xAxis = d3.svg.axis()
 							.scale(xScale)
@@ -64,7 +66,7 @@ function BarChart() {
 				.duration(duration)
 				.attr({
 					"x": function(d) { return xScale(d.created_at); },
-					"width": xScale.rangeBand(),
+					"width": 10,
 					"y": function(d) { return yScale(d3.max([0, d.count])); },
 					"height": function(d) { return h - yScale(d.count); }
 				});

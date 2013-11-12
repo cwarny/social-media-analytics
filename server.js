@@ -410,13 +410,17 @@ function get_retweets (referrer, tweet, callback4) {
 	);
 }
 
+function transformDate (d) {
+	return d.slice(0,4) + "-" + d.slice(4,6) + "-" + d.slice(6,8) + " " + d.slice(8,10) + ":00"
+}
+
 function reformatReferrers (rows) {
 	var referrers = {};
 	for (var i=0; i<rows.length; i++) {
 		if (referrers.hasOwnProperty(rows[i][0])) {
 			referrers[rows[i][0]].push({created_at: rows[i][1], count: rows[i][2]});
 		} else {
-			referrers[rows[i][0]] = [{created_at: rows[i][1], count: rows[i][2]}];
+			referrers[rows[i][0]] = [{created_at: new Date(transformDate(rows[i][1])), count: rows[i][2]}];
 		}
 	}
 	return uu.map(uu.pairs(referrers), function (pair) {
