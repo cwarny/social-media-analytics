@@ -1,7 +1,7 @@
-App.Click = DS.Model.extend({
-	created_at: DS.attr("string"),
-	count: DS.attr("number")
-});
+// App.Click = DS.Model.extend({
+// 	created_at: DS.attr("string"),
+// 	count: DS.attr("number")
+// });
 
 App.User = DS.Model.extend({
 	profile_image_url: DS.attr("string"),
@@ -10,23 +10,24 @@ App.User = DS.Model.extend({
 
 App.Referrer = DS.Model.extend({
 	fullreferrer: DS.attr("string"),
-	clicks: DS.hasMany("click",{async:true}),
+	clicks: DS.attr(),
 	text: DS.attr("string"),
 	user: DS.belongsTo("user"),
-	created_at: DS.attr("string")
+	created_at: DS.attr("string"),
+	totalClicks: DS.attr("number")
 });
 
 App.Account = DS.Model.extend({
-	webproperties: DS.hasMany("webproperty",{async:true}),
+	webproperties: DS.hasMany("webproperty"),
 	name: DS.attr("string"),
 });
 
 App.Webproperty = DS.Model.extend({
-	profiles: DS.hasMany("profile",{async:true}),
+	profiles: DS.hasMany("profile"),
 	name: DS.attr("string")
 });
 
 App.Profile = DS.Model.extend({
-	referrers: DS.hasMany("referrer",{async:true}),
+	referrers: DS.hasMany("referrer"),
 	name: DS.attr("string")
 });

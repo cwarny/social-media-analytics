@@ -7,38 +7,46 @@ App.AccountSerializer = DS.RESTSerializer.extend({
 		var profiles = [];
 		var referrers = [];
 		var users = [];
-		var clicks = [];
+		// var clicks = [];
 		accounts.forEach(function (account) {
+			var webpropertyIds = [];
 			account.webproperties.forEach(function (webproperty) {
+				var profileIds = [];
 				webproperty.profiles.forEach(function (profile) {
 					if (profile.hasOwnProperty("referrers")) {
+						var referrerIds = [];
 						profile.referrers.forEach(function (referrer) {
 							if (referrer.hasOwnProperty("user")) {
 								users.push(referrer.user);
 								referrer.user = referrer.user.id;
 								if (referrer.hasOwnProperty("clicks")) {
-									var c = 0;
-									referrer.clicks.forEach(function (click) {
-										c++;
-										click.id = referrer.id + c;
-										clicks.push(click);
-									});
-									referrer.clicks = clicks.mapProperty("id");
+									// var clickIds = [];
+									// var c = 0;
+									// referrer.clicks.forEach(function (click) {
+										// c++;
+										// click.id = referrer.id + c;
+										// clicks.push(click);
+										// clickIds.push(click.id);
+									// });
+									// referrer.clicks = clickIds;
 									referrers.push(referrer);
+									referrerIds.push(referrer.id);
 								}
 							}
 						});
-						profile.referrers = referrers.mapProperty("id");
+						profile.referrers = referrerIds;
 					}
 					profiles.push(profile);
+					profileIds.push(profile.id);
 				});
-				webproperty.profiles = profiles.mapProperty("id");
+				webproperty.profiles = profileIds;
 				webproperties.push(webproperty);
+				webpropertyIds.push(webproperty.id);
 			});
-			account.webproperties = webproperties.mapProperty("id");
+			account.webproperties = webpropertyIds;
 		});
 
-		payload = { clicks: clicks, users: users, referrers: referrers, profiles: profiles, webproperties: webproperties, accounts: accounts };
+		payload = { /*clicks: clicks,*/ users: users, referrers: referrers, profiles: profiles, webproperties: webproperties, accounts: accounts };
 
 		return this._super(store, type, payload, id, requestType);
 	}
