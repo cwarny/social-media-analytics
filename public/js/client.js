@@ -7,7 +7,6 @@ App.AccountSerializer = DS.RESTSerializer.extend({
 		var profiles = [];
 		var referrers = [];
 		var users = [];
-		// var clicks = [];
 		accounts.forEach(function (account) {
 			var webpropertyIds = [];
 			account.webproperties.forEach(function (webproperty) {
@@ -20,15 +19,6 @@ App.AccountSerializer = DS.RESTSerializer.extend({
 								users.push(referrer.user);
 								referrer.user = referrer.user.id;
 								if (referrer.hasOwnProperty("clicks")) {
-									// var clickIds = [];
-									// var c = 0;
-									// referrer.clicks.forEach(function (click) {
-										// c++;
-										// click.id = referrer.id + c;
-										// clicks.push(click);
-										// clickIds.push(click.id);
-									// });
-									// referrer.clicks = clickIds;
 									referrers.push(referrer);
 									referrerIds.push(referrer.id);
 								}
@@ -46,7 +36,7 @@ App.AccountSerializer = DS.RESTSerializer.extend({
 			account.webproperties = webpropertyIds;
 		});
 
-		payload = { /*clicks: clicks,*/ users: users, referrers: referrers, profiles: profiles, webproperties: webproperties, accounts: accounts };
+		payload = { users: users, referrers: referrers, profiles: profiles, webproperties: webproperties, accounts: accounts };
 
 		return this._super(store, type, payload, id, requestType);
 	}
@@ -81,6 +71,12 @@ App.AccountsRoute = Ember.Route.extend({
 			into: "application",
 			outlet: "accounts"
 		});
+	},
+	actions: {
+		error: function (reason) {
+			alert("You must log in");
+			window.open("http://localhost:3000/login", "_self");
+		}
 	}
 });
 
@@ -120,6 +116,12 @@ App.ProfileRoute = Ember.Route.extend({
 	}
 });
 
+App.ProfileController = Ember.Controller.extend({
+	referrers: function () {
+		return this.get("model.referrers").content.sort(function (a,b) {return b._data.totalClicks - a._data.totalClicks;});
+	}.property("model.referrers")
+});
+
 App.ProfileView = Ember.View.extend({
 	didInsertElement: function () {
 		$("html, body").animate({
@@ -151,9 +153,6 @@ App.TreeNodeController = Ember.ObjectController.extend({
 	actions: {
 		toggle: function () {
 			this.set("isExpanded", !this.get("isExpanded"));
-		},
-		click: function () {
-			console.log(this);
 		}
 	}
 });
@@ -166,7 +165,6 @@ App.TreeNodeView = Ember.View.extend({
 		$("li" + id + " > span[rel=popover]").popover({ 
 			html : true, 
 			content: function () {
-				console.log($("li" + id + " > div"));
 				return $("li" + id + " > div").html();
 			},
 			trigger: "hover",

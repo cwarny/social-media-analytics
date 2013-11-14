@@ -146,14 +146,13 @@ app.get("/auth/google/callback",
 );
 
 app.get("/accounts", function (req, res) {
-	if (true/*req.isAuthenticated()*/) {
+	if (req.isAuthenticated()) {
 		accounts.findAll(req.user.id, function (error, a) {
 			res.json({accounts: a});
 		});
 	} else {
 		res.json({
-			success: false,
-			message: "Not authenticated"
+			success: false
 		});
 	}
 });
@@ -426,10 +425,7 @@ function reformatReferrers (rows) {
 	return uu.map(uu.pairs(referrers), function (pair) {
 		return {
 			fullreferrer: pair[0], 
-			clicks: pair[1], 
-			totalClicks: uu.reduce(pair[1], function (memo, d) {
-				return memo + parseInt(d.count);
-			}, 0)
+			clicks: pair[1]
 		}
 	})
 }
