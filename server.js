@@ -9,8 +9,7 @@ var express = require("express"),
 	uu = require("underscore"),
 	util = require("util"),
 	twitterAPI = require("node-twitter-api"),
-	Referrers = require("./referrers").Referrers,
-	Users = require("./users").Users;
+	Users = require("./users").Users,
 	Accounts = require("./accounts").Accounts;
 
 var credentials = [
@@ -47,8 +46,7 @@ var twitter = new twitterAPI({
 	consumerSecret: credentials[n].consumer_secret
 });
 
-var referrers = new Referrers('localhost', 27017),
-	users = new Users('localhost', 27017),
+var users = new Users('localhost', 27017),
 	accounts = new Accounts('localhost', 27017);
 
 app.configure(function () {
@@ -104,7 +102,6 @@ passport.deserializeUser(function (id, done) {
 });
 
 app.get("/", function (req, res) {
-	// res.render("layout", {user: req.user});
 	res.sendfile("index.html");
 });
 
@@ -167,38 +164,6 @@ app.get("/analytics/google/reporting/:id", function (req, res) {
 			res.json(rows);
 		}
 	});
-});
-
-app.get("/referrers", function (req, res) {
-	if (req.isAuthenticated()) {
-		referrers.findAll(req.user.id, function (error, r) {
-			res.json({
-				success: true,
-				referrers: r
-			});
-		});
-	} else {
-		res.json({
-			success: false,
-			message: "Not authenticated"
-		});
-	}
-});
-
-app.get("/referrers/:id", function (req, res) {
-	if (req.isAuthenticated()) {
-		referrers.find(req.user.id, parseInt(req.params.id), function (error,r) {
-			res.json({
-				success: true,
-				referrer: r[0]
-			});
-		});
-	} else {
-		res.json({
-			success: false,
-			message: "Not authenticated"
-		});
-	}
 });
 
 var server = app.listen(process.env.PORT || 3000);
