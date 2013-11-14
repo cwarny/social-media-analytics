@@ -29680,7 +29680,6 @@ define("router",
       Creates, begins, and returns a Transition.
      */
     function performTransition(router, recogHandlers, providedModelsArray, params, data) {
-
       var matchPointResults = getMatchPoint(router, recogHandlers, providedModelsArray, params),
           targetName = recogHandlers[recogHandlers.length - 1].handler,
           wasTransitioning = false,

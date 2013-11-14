@@ -141,17 +141,14 @@ app.get("/auth/google",
 app.get("/auth/google/callback", 
 	passport.authenticate("google", { failureRedirect: "/login" }),
 	function (req, res) {
-		res.redirect("/#/explore");
+		res.redirect("/#/accounts");
 	}
 );
 
 app.get("/accounts", function (req, res) {
-	if (req.isAuthenticated()) {
+	if (true/*req.isAuthenticated()*/) {
 		accounts.findAll(req.user.id, function (error, a) {
-			res.json({
-				success: true,
-				accounts: a
-			});
+			res.json({accounts: a});
 		});
 	} else {
 		res.json({
@@ -266,7 +263,7 @@ function grabReferrers (user, webproperty, profiles, callback2) {
 		function (profile, callback3) {
 			console.log("Profile: " + profile.name);
 			var today = new Date();
-			request("https://www.googleapis.com/analytics/v3/data/ga?ids=ga%3A" + profile.id + "&dimensions=ga%3AfullReferrer%2Cga%3AdateHour&metrics=ga%3Avisits&filters=ga%3Asource%3D%3Dt.co&start-date=2013-11-05&end-date=" + today.getFullYear() + "-" + nf(today.getMonth() + 1,2) + "-" + nf(today.getDate(),2) + "&access_token=" + user.access_token, function (error, response, body) {
+			request("https://www.googleapis.com/analytics/v3/data/ga?ids=ga%3A" + profile.id + "&dimensions=ga%3AfullReferrer%2Cga%3AdateHour&metrics=ga%3Avisits&filters=ga%3Asource%3D%3Dt.co&start-date=2013-11-11&end-date=" + today.getFullYear() + "-" + nf(today.getMonth() + 1,2) + "-" + nf(today.getDate(),2) + "&access_token=" + user.access_token, function (error, response, body) {
 				var body = JSON.parse(body);
 				var referrers = [];
 				if (body.hasOwnProperty("rows")) {

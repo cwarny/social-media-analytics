@@ -1,7 +1,51 @@
 var App = Ember.Application.create();
 
+App.AccountSerializer = DS.RESTSerializer.extend({
+	extractArray: function(store, type, payload, id, requestType) {
+		var accounts = payload.accounts;
+		var webproperties = [];
+		var profiles = [];
+		var referrers = [];
+		var users = [];
+		var clicks = [];
+		accounts.forEach(function (account) {
+			account.webproperties.forEach(function (webproperty) {
+				webproperty.profiles.forEach(function (profile) {
+					if (profile.hasOwnProperty("referrers")) {
+						profile.referrers.forEach(function (referrer) {
+							if (referrer.hasOwnProperty("user")) {
+								users.push(referrer.user);
+								referrer.user = referrer.user.id;
+								if (referrer.hasOwnProperty("clicks")) {
+									var c = 0;
+									referrer.clicks.forEach(function (click) {
+										c++;
+										click.id = referrer.id + c;
+										clicks.push(click);
+									});
+									referrer.clicks = clicks.mapProperty("id");
+									referrers.push(referrer);
+								}
+							}
+						});
+						profile.referrers = referrers.mapProperty("id");
+					}
+					profiles.push(profile);
+				});
+				webproperty.profiles = profiles.mapProperty("id");
+				webproperties.push(webproperty);
+			});
+			account.webproperties = webproperties.mapProperty("id");
+		});
+
+		payload = { clicks: clicks, users: users, referrers: referrers, profiles: profiles, webproperties: webproperties, accounts: accounts };
+
+		return this._super(store, type, payload, id, requestType);
+	}
+});
+
 App.Router.map(function() {
-	this.resource("explore", function () {
+	this.resource("accounts", function () {
 		this.resource("account", {path: "account/:account_id"}, function () {
 			this.resource("webproperty", {path: "webproperty/:webproperty_id"}, function () {
 				this.resource("profile", {path: "profile/:profile_id"}, function () {
@@ -20,26 +64,9 @@ App.ApplicationRoute = Ember.Route.extend({
 	}
 });
 
-App.Account = Ember.Object.extend();
-
-App.Account.reopenClass({
-	findAll: function () {
-		return $.get("/accounts").then(function (res) {
-			if (res.success) {
-				return res.accounts.map(function (a) {
-					return App.Account.create(a);
-				});
-			} else {
-				alert("You must log in");
-				window.open("http://localhost:3000/login", "_self");
-			}
-		});
-	}
-});
-
-App.ExploreRoute = Ember.Route.extend({
+App.AccountsRoute = Ember.Route.extend({
 	model: function () {
-		return App.Account.findAll();
+		return this.store.find("account");
 	},
 	renderTemplate: function () {
 		this.render({
@@ -50,15 +77,21 @@ App.ExploreRoute = Ember.Route.extend({
 });
 
 App.AccountRoute = Ember.Route.extend({
+	model: function (params) {
+		return this.store.find("account", params.account_id);
+	},
 	renderTemplate: function () {
 		this.render({
-			into: "explore",
+			into: "accounts",
 			outlet: "account"
 		});
 	}
 });
 
 App.WebpropertyRoute = Ember.Route.extend({
+	model: function (params) {
+		return this.store.find("webproperty", params.webproperty_id);
+	},
 	renderTemplate: function () {
 		this.render({
 			into: "account",
@@ -68,9 +101,12 @@ App.WebpropertyRoute = Ember.Route.extend({
 });
 
 App.ProfileRoute = Ember.Route.extend({
+	model: function (params) {
+		return this.store.find("profile", params.profile_id);
+	},
 	renderTemplate: function () {
 		this.render({
-			into: "explore",
+			into: "accounts",
 			outlet: "profile"
 		});
 	}
@@ -85,6 +121,9 @@ App.ProfileView = Ember.View.extend({
 });
 
 App.ReferrerRoute = Ember.Route.extend({
+	model: function (params) {
+		return this.store.find("referrer", params.referrer_id);
+	},
 	renderTemplate: function () {
 		this.render({
 			into: "profile",
@@ -154,14 +193,3 @@ App.BarChartComponent = Ember.Component.extend({
 		}
 	}.observes("data")
 });
-
-// Ensures tweetbox scrolls
-// $(document).ready(function () {
-// 	$(window).bind("scroll", function (e) { 
-// 		if ($(this).scrollTop() > 300 ) { 
-// 			$(".tweetbox").css({position: "fixed", top: "25px"}); 
-// 		} else {
-// 			$(".tweetbox").css({position: "absolute", top: "0px"}); 
-// 		}
-// 	});
-// });

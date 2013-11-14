@@ -2,7 +2,7 @@
 	<div class="col-md-4">
 		<dl class="faq">
 			<dt class="one">Select account</dt>
-			{{#each content}}
+			{{#each model}}
 				{{#linkTo "account" this tagName="dd" href=false}}
 					<a {{bindAttr href="view.href"}}>{{name}}</a>
 				{{/linkTo}}
