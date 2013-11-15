@@ -175,12 +175,13 @@ App.TreeNodeView = Ember.View.extend({
 
 App.BarChartComponent = Ember.Component.extend({
 	classNames: ["chart"],
-	chart: BarChart()
-			.width(400)
-			.height(200),
 
 	didInsertElement: function () {
 		Ember.run.once(this, "updateChart");
+	},
+
+	width: function () {
+		return $('.tweetbox').width();
 	},
 
 	updateChart: function () {
@@ -191,11 +192,17 @@ App.BarChartComponent = Ember.Component.extend({
 		if (this.get("data")) {
 			d3.select(this.$()[0])
 				.data([this.get("data")])
-				.call(this.get("chart"));
+				.call(BarChart()
+					.width($(".tweetbox").width()-30)
+					.height(200)
+				);
 		} else {
 			d3.select(this.$()[0])
 				.data([[]])
-				.call(this.get("chart"));
+				.call(BarChart()
+					.width($(".tweetbox").width()-30)
+					.height(200)
+				);
 		}
 	}.observes("data")
 });

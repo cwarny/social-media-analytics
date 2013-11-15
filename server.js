@@ -36,6 +36,30 @@ var credentials = [
 		consumer_secret:"TeQFAvud0InVJkD3hHVki1zY3bxqhlEqF3UTuQc",
 		access_token: "347348265-mM3OgkDKe6K2OoHSqHJMUvefKQsSvQ9gZfzQLK34",
 		access_token_secret: "v91qeIMKebcOqNMAAszy6YadiGAf57bWaX0wys4Ox4"
+	},
+	{
+		consumer_key:"1j38Lof7ffvBor64utpEdQ",
+		consumer_secret:"d8m0ceCV3LVR1wtMf2j8AvkKActmkjnG8llNerwl6aI",
+		access_token: "347348265-Sz2pziQsQvUmJYAPu9At24BZPndR07Z5qsWJmTtG",
+		access_token_secret: "MymTefV8vFEUmHe23pKU0QTdMwLI70LGckHIJJnmA9D2y"
+	},
+	{
+		consumer_key:"krs1M635qyXe2wARwiZGA",
+		consumer_secret:"MUBnfK3Zw8TiiVgtFF3sgtheQgULwh88AF9fLFeUncw",
+		access_token: "347348265-ZS3yz4yO4cggQwboDLH4MzETCNdMUkQtmOeANkQb",
+		access_token_secret: "VYJ1QoNoHbqgVR4ASUGgo9y5iOywqwiRXrtl57NrLbBYH"
+	},
+	{
+		consumer_key:"7Dx0GLiOZ6c2wITdayZTw",
+		consumer_secret:"OjBc9rZBB3gIQLYvyAHp4mIwxKuDmvRa95UPXewrer8",
+		access_token: "347348265-dAmHs4jSr3IaKcOx0LmTh1Lfi04WmAgY2AvFBf5H",
+		access_token_secret: "D55dYJNxFkrvILjPVyd1zFzXLScYvPbbae43CgnLxwGAU"
+	},
+	{
+		consumer_key:"OZEQHrFcMmtUTuApDUFEA",
+		consumer_secret:"gPyymP4FQNrCMmE6dBJmq62GtgXTQO7q2rL9oPF6alU",
+		access_token: "347348265-cZ4JYFLeYb2k0HIGbMk90JoWJwqM2sZuqlSKYf5t",
+		access_token_secret: "uhkBU1XMamP3h04ZShIOw9sFkJrGuxMnbWFbs4c8XoCuj"
 	}
 ];
 
