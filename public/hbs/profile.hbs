@@ -9,6 +9,13 @@
 				{{/each}}
 			</ul>
 		</div>
-		{{outlet referrer}}
+		<div class="col-md-8">
+			<div class="input-daterange" id="datepicker">
+				{{input type="text" class="input-small" name="start" value=startDate}}
+				<span class="add-on">to</span>
+				{{input type="text" class="input-small" name="end" value=endDate}}
+			</div>
+			{{outlet referrer}}
+		</div>
 	</div>
 </div>

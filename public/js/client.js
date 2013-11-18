@@ -118,8 +118,15 @@ App.ProfileRoute = Ember.Route.extend({
 
 App.ProfileController = Ember.Controller.extend({
 	referrers: function () {
-		return this.get("model.referrers").content.sort(function (a,b) {return b._data.totalClicks - a._data.totalClicks;});
-	}.property("model.referrers")
+		var self = this;
+		var referrers = this.get("model.referrers").content.filter(function (d) {
+			return new Date(self.get("startDate")) < new Date(d._data.created_at) && new Date(self.get("endDate")) > new Date(d._data.created_at);
+		});
+		console.log(referrers.length);
+		return referrers.sort(function (a,b) {return b._data.totalClicks - a._data.totalClicks;});
+	}.property("model.referrers", "startDate", "endDate"),
+	startDate: "11/11/2013",
+	endDate: "11/13/2013"
 });
 
 App.ProfileView = Ember.View.extend({
@@ -127,6 +134,7 @@ App.ProfileView = Ember.View.extend({
 		$("html, body").animate({
 	        scrollTop: $("div.profile").offset().top
 	    }, 500);
+		$("#datepicker").datepicker();
 	}
 });
 
@@ -140,6 +148,27 @@ App.ReferrerRoute = Ember.Route.extend({
 			outlet: "referrer"
 		});
 	}
+});
+
+App.ReferrerController = Ember.Controller.extend({
+	needs: ["profile"],
+	// clicks: function () {
+	// 	var startDate = this.get("controllers.profile.startDate");
+	// 	var endDate = this.get("controllers.profile.endDate");
+	// 	var clicks = this.get("model.clicks").filter(function (d) {
+	// 		if (typeof d.created_at !== "object") {
+	// 			var created_at = new Date(d.created_at.slice(0,4) + "-" + d.created_at.slice(4,6) + "-" + d.created_at.slice(6,8) + " " + d.created_at.slice(8,10) + ":00")
+	// 		} else {
+	// 			var created_at = d.created_at;
+	// 		}
+	// 		return new Date(startDate) < new Date(created_at) && new Date(endDate) > new Date(created_at);
+	// 	});
+	// 	if (clicks.length === 0) {
+	// 		console.log("hello");
+	// 		this.transitionToRoute("accounts");
+	// 	}
+	// 	return clicks;
+	// }.property("model.clicks","controllers.profile.startDate","controllers.profile.endDate")
 });
 
 App.TreeBranchView = Ember.View.extend({
@@ -181,7 +210,7 @@ App.BarChartComponent = Ember.Component.extend({
 	},
 
 	width: function () {
-		return $('.tweetbox').width();
+		return $(".tweetbox").width();
 	},
 
 	updateChart: function () {
@@ -192,7 +221,7 @@ App.BarChartComponent = Ember.Component.extend({
 		if (this.get("data")) {
 			d3.select(this.$()[0])
 				.data([this.get("data")])
-				.call(BarChart()
+				.call(BarChart(this.get("startDate"),this.get("endDate"))
 					.width($(".tweetbox").width()-30)
 					.height(200)
 				);
