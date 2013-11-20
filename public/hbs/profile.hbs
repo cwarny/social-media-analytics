@@ -1,21 +1,24 @@
 <div class="container">
 	<div class="row">
+		<div class="col-md-6 col-md-offset-3">
+			<form class="form-inline" role="form">
+				<div class="input-daterange row" id="datepicker">
+					<div class="form-group">
+						{{input class="form-control" type="text" name="start" value=startDate}}
+					</div>
+					<label>to</label>
+					<div class="form-group">
+						{{input class="form-control" type="text" name="end" value=endDate}}
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+	<br>
+	<div class="row">
 		<div class="col-md-3">
-			<ul class="nav nav-pills nav-stacked">
-				{{#each referrers}}
-					{{#if text}}
-						<li>{{#linkTo "referrer" this}}{{user.screen_name}}<span class="badge">{{totalClicks}}</span>{{/linkTo}}</li>
-					{{/if}}
-				{{/each}}
-			</ul>
+			{{render "referrers"}}
 		</div>
-		<div class="col-md-8">
-			<div class="input-daterange" id="datepicker">
-				{{input type="text" class="input-small" name="start" value=startDate}}
-				<span class="add-on">to</span>
-				{{input type="text" class="input-small" name="end" value=endDate}}
-			</div>
-			{{outlet referrer}}
-		</div>
+		{{outlet referrer}}
 	</div>
 </div>

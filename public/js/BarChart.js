@@ -1,4 +1,4 @@
-function BarChart (startDate, endDate) {
+function BarChart (startDate, endDate, self) {
 
 	var xScale = d3.time.scale(),
 		yScale = d3.scale.linear(),
@@ -8,115 +8,110 @@ function BarChart (startDate, endDate) {
 
 		selection.each(function (data) {
 
-			// Transform date string into Date object
-			if (typeof data[0].created_at !== "object") {
-				data.forEach(function (d) {
-					d.created_at = new Date(d.created_at.slice(0,4) + "-" + d.created_at.slice(4,6) + "-" + d.created_at.slice(6,8) + " " + d.created_at.slice(8,10) + ":00")
-					d.count = parseInt(d.count);
-				});
-			}
-
 			data = data.filter(function (d) {
-				return new Date(startDate) < new Date(d.created_at) && new Date(endDate) > new Date(d.created_at);
+				return new Date(startDate) < d.created_at && new Date(endDate) > d.created_at;
 			});
 
-			var minDate = d3.min(data,function (d) { return d.created_at; });
-			var maxDate = d3.max(data,function (d) { return d.created_at; });
-			var timeSpan = (maxDate - minDate) / (1000 * 60 * 60);
-			if (timeSpan === 0) timeSpan = 1;
+			if (data.length === 0) {
+				self.sendAction("transition");
+			} else {
+				var minDate = d3.min(data,function (d) { return d.created_at; });
+				var maxDate = d3.max(data,function (d) { return d.created_at; });
+				var timeSpan = (maxDate - minDate) / (1000 * 60 * 60);
+				if (timeSpan === 0) timeSpan = 1;
 
-			var margin = {left: 50, top: 20, bottom: 30, right: (50+(timeSpan === 1 ? 0:width/timeSpan))};
-			
-			var w = width - margin.left - margin.right;
-			var h = height - margin.top - margin.bottom;
+				var margin = {left: 50, top: 20, bottom: 30, right: (50+(timeSpan === 1 ? 0:width/timeSpan))};
+				
+				var w = width - margin.left - margin.right;
+				var h = height - margin.top - margin.bottom;
 
-			var barWidth = w/timeSpan - 3;
+				var barWidth = w/timeSpan - 3;
 
-			xScale.domain([minDate,maxDate])
-				.range([0, w]);
+				xScale.domain([minDate,maxDate])
+					.range([0, w]);
 
-			var xAxis = d3.svg.axis()
-				.scale(xScale)
-				.orient("bottom")
-				.ticks(d3.time.hour, timeSpan > 15 ? 3:1);
+				var xAxis = d3.svg.axis()
+					.scale(xScale)
+					.orient("bottom")
+					.ticks(d3.time.hour, timeSpan > 15 ? 3:1);
 
-			yScale.domain([0, d3.max(data, function(d) { return d.count; })])
-				.range([h, 0]);
+				yScale.domain([0, d3.max(data, function(d) { return parseInt(d.count); })])
+					.range([h, 0]);
 
-			var yAxis = d3.svg.axis()
-				.scale(yScale)
-				.orient("left")
-				.tickFormat(d3.format("d"));
+				var yAxis = d3.svg.axis()
+					.scale(yScale)
+					.orient("left")
+					.tickFormat(d3.format("d"));
 
-			// Select the svg element, if it exists
-			var svg = selection.selectAll("svg")
-				.attr("width", w + margin.left + margin.right)
-				.attr("height", h + margin.top + margin.bottom)
-				.data([data]);
-												
-			// Otherwise, create the skeletal chart.
-			var gEnter = svg.enter()
-				.append("svg")
-				.attr("width", w + margin.left + margin.right)
-				.attr("height", h + margin.top + margin.bottom)
-				.append("g")
-				.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+				// Select the svg element, if it exists
+				var svg = selection.selectAll("svg")
+					.attr("width", w + margin.left + margin.right)
+					.attr("height", h + margin.top + margin.bottom)
+					.data([data]);
+													
+				// Otherwise, create the skeletal chart.
+				var gEnter = svg.enter()
+					.append("svg")
+					.attr("width", w + margin.left + margin.right)
+					.attr("height", h + margin.top + margin.bottom)
+					.append("g")
+					.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-			gEnter.append("g")
-				.attr("class", "x axis")
-				.attr("transform", "translate(" + barWidth/2 + "," + h + ")")
-				.call(xAxis);
+				gEnter.append("g")
+					.attr("class", "x axis")
+					.attr("transform", "translate(" + barWidth/2 + "," + h + ")")
+					.call(xAxis);
 
-			gEnter.append("g")
-				.attr("class", "y axis")
-				.attr("transform", "translate(-3,0)")
-				.call(yAxis);
+				gEnter.append("g")
+					.attr("class", "y axis")
+					.attr("transform", "translate(-3,0)")
+					.call(yAxis);
 
-			svg.attr("width", w + margin.left + margin.right)
-				.attr("height", h + margin.top + margin.bottom)
-								
-			var g = svg.select("g")                                
-				.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+				svg.attr("width", w + margin.left + margin.right)
+					.attr("height", h + margin.top + margin.bottom)
+									
+				var g = svg.select("g")                                
+					.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-			g.select(".x.axis")
-				.attr("transform", "translate(" + barWidth/2 + "," + yScale(0) + ")") // transform to 0 baseline (in case of neg values)
-				.transition()
-				.duration(duration)
-				.call(xAxis);
+				g.select(".x.axis")
+					.attr("transform", "translate(" + barWidth/2 + "," + yScale(0) + ")") // transform to 0 baseline (in case of neg values)
+					.transition()
+					.duration(duration)
+					.call(xAxis);
 
-			g.select(".y.axis")
-				.attr("transform", "translate(-3,0)") // transform to 0 baseline (in case of neg values)
-				.transition()
-				.duration(duration)
-				.call(yAxis);
+				g.select(".y.axis")
+					.attr("transform", "translate(-3,0)") // transform to 0 baseline (in case of neg values)
+					.transition()
+					.duration(duration)
+					.call(yAxis);
 
-			var bars = g.selectAll(".bar")
-				.remove();
+				var bars = g.selectAll(".bar")
+					.remove();
 
-			var bars = g.selectAll(".bar")
-				.data(function(d) {return d;});
+				var bars = g.selectAll(".bar")
+					.data(function(d) {return d;});
 
-			bars.enter()
-				.append("rect")
-				.attr("class","bar")
-				.attr("height", 0)
-				.attr("y", yScale(0))
-				.transition()
-				.duration(duration)
-				.attr({
-					"x": function(d) { return xScale(d.created_at); },
-					"width": barWidth,
-					"y": function(d) { return yScale(d3.max([0, d.count])); },
-					"height": function(d) { return h - yScale(d.count); }
-				});
+				bars.enter()
+					.append("rect")
+					.attr("class","bar")
+					.attr("height", 0)
+					.attr("y", yScale(0))
+					.transition()
+					.duration(duration)
+					.attr({
+						"x": function(d) { return xScale(d.created_at); },
+						"width": barWidth,
+						"y": function(d) { return yScale(d3.max([0, d.count])); },
+						"height": function(d) { return h - yScale(d.count); }
+					});
 
-			// bars.exit()
-			// 	.transition()
-			// 	.duration(duration)
-			// 	.attr("y", h)
-			// 	.attr("height", 0)
-			// 	.remove();
-
+				// bars.exit()
+				// 	.transition()
+				// 	.duration(duration)
+				// 	.attr("y", h)
+				// 	.attr("height", 0)
+				// 	.remove();
+			}
 		});
 	}
 

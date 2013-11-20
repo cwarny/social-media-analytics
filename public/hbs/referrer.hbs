@@ -1,14 +1,16 @@
-<div class="well row tweetbox">
-	<div class="col-md-1">
-		<img {{bindAttr src=model.user.profile_image_url}} alt="Profile picture">
+<div class="col-md-8">
+	<div class="well row tweetbox">
+		<div class="col-md-1">
+			<img {{bindAttr src=model.user.profile_image_url}} alt="Profile picture">
+		</div>
+		<div class="col-md-11">
+			<blockquote>
+				<p>{{model.text}}</p>
+				<small>{{model.user.name}} (@{{model.user.screen_name}})</small>
+			</blockquote>
+		</div>
+		{{bar-chart data=clicks startDate=controllers.profile.startDate endDate=controllers.profile.endDate transition="transition"}}
+		</br>
+		{{view App.TreeBranchView}}
 	</div>
-	<div class="col-md-11">
-		<blockquote>
-			<p>{{model.text}}</p>
-			<small>{{model.user.name}} (@{{model.user.screen_name}})</small>
-		</blockquote>
-	</div>
-	{{bar-chart data=model.clicks startDate=controllers.profile.startDate endDate=controllers.profile.endDate}}
-	</br>
-	{{view App.TreeBranchView}}
 </div>
