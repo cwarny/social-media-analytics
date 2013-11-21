@@ -184,7 +184,7 @@ app.get("/accounts", function (req, res) {
 app.get("/data", function (req, res) {
 	if (req.isAuthenticated()) {
 		fetchData(req.user, function (err, a) {
-			res.json({accounts: a});
+			res.redirect("/#/accounts");
 		});
 	} else {
 		res.json({
@@ -198,7 +198,6 @@ app.get("/analytics/google/reporting/:id", function (req, res) {
 	var today = new Date();
 	request("https://www.googleapis.com/analytics/v3/data/ga?ids=ga%3A" + req.params.id + "&dimensions=ga%3AfullReferrer%2Cga%3AdateHour&metrics=ga%3Avisits&filters=ga%3Asource%3D%3Dt.co&start-date=2013-01-01&end-date=" + today.getFullYear() + "-" + nf(today.getMonth() + 1,2) + "-" + nf(today.getDate() + 1) + "&access_token=" + accessToken, function (error, response, body) {
 		if (!error && response.statusCode == 200) {
-			console.log(body);
 			var rows = JSON.parse(body).rows;
 			res.json(rows);
 		}
@@ -218,18 +217,16 @@ function nf (num,dec) {
 // Fetching data
 
 function fetchData (user, cb) {
-	request("https://www.googleapis.com/analytics/v3/management/accounts?access_token=" + accessToken + "&access_type_token=bearer", function (error, response, body) {
+	request("https://www.googleapis.com/analytics/v3/management/accounts?access_token=" + user.access_token_google + "&access_type_token=bearer", function (error, response, body) {
 		var ga_accounts = JSON.parse(body).items;
 		grabWebproperties(user, ga_accounts, cb);
 	})
 }
 
 function grabWebproperties (user, ga_accounts, cb) {
-	console.log("Step 1");
 	async.mapSeries(ga_accounts, 
 		function (account, callback1) {
-			console.log("Account: " + account.name);
-			request("https://www.googleapis.com/analytics/v3/management/accounts/" + account.id + "/webproperties?access_token=" + user.access_token + "&access_type_token=bearer", function (error, response, body) {
+			request("https://www.googleapis.com/analytics/v3/management/accounts/" + account.id + "/webproperties?access_token=" + user.access_token_google + "&access_type_token=bearer", function (error, response, body) {
 				var webproperties = JSON.parse(body).items;
 				grabProfiles(user, account, webproperties, callback1);
 			})
@@ -244,11 +241,9 @@ function grabWebproperties (user, ga_accounts, cb) {
 }
 
 function grabProfiles (user, account, webproperties, callback1) {
-	console.log("Step 2");
 	async.mapSeries(webproperties, 
 		function (webproperty, callback2) {
-			console.log("Webproperty: " + webproperty.name);
-			request("https://www.googleapis.com/analytics/v3/management/accounts/" + account.id + "/webproperties/" + webproperty.id + "/profiles?access_token=" + user.access_token + "&access_type_token=bearer", function (error, response, body) {
+			request("https://www.googleapis.com/analytics/v3/management/accounts/" + account.id + "/webproperties/" + webproperty.id + "/profiles?access_token=" + user.access_token_google + "&access_type_token=bearer", function (error, response, body) {
 				var profiles = JSON.parse(body).items;
 				grabReferrers(user, webproperty, profiles, callback2);
 			})
@@ -261,14 +256,12 @@ function grabProfiles (user, account, webproperties, callback1) {
 }
 
 function grabReferrers (user, webproperty, profiles, callback2) {
-	console.log("Step 3");
 	async.mapSeries(profiles, 
 		function (profile, callback3) {
-			console.log("Profile: " + profile.name);
 			var today = new Date();
 			var yesterday = new Date();
 			yesterday.setDate(today.getDate()-1);
-			request("https://www.googleapis.com/analytics/v3/data/ga?ids=ga%3A" + profile.id + "&dimensions=ga%3AfullReferrer%2Cga%3AdateHour&metrics=ga%3Avisits&filters=ga%3Asource%3D%3Dt.co&start-date=" + yersterday.getFullYear() + "-" + nf(yersterday.getMonth() + 1,2) + "-" + nf(yersterday.getDate(),2) + "&end-date=" + today.getFullYear() + "-" + nf(today.getMonth() + 1,2) + "-" + nf(today.getDate(),2) + "&access_token=" + user.access_token, function (error, response, body) {
+			request("https://www.googleapis.com/analytics/v3/data/ga?ids=ga%3A" + profile.id + "&dimensions=ga%3AfullReferrer%2Cga%3AdateHour&metrics=ga%3Avisits&filters=ga%3Asource%3D%3Dt.co&start-date=" + yesterday.getFullYear() + "-" + nf(yesterday.getMonth() + 1,2) + "-" + nf(yesterday.getDate(),2) + "&end-date=" + today.getFullYear() + "-" + nf(today.getMonth() + 1,2) + "-" + nf(today.getDate(),2) + "&access_token=" + user.access_token_google, function (error, response, body) {
 				var body = JSON.parse(body);
 				var referrers = [];
 				if (body.hasOwnProperty("rows")) {
@@ -285,7 +278,6 @@ function grabReferrers (user, webproperty, profiles, callback2) {
 }
 
 function grabTweets (profile, referrers, callback3) {
-	console.log("Step 4");
 	async.mapSeries(referrers,
 		function (referrer, callback4) {
 			twitter.search({

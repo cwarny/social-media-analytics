@@ -37,6 +37,16 @@ App.Webproperty = DS.Model.extend({
 App.Profile = DS.Model.extend({
 	referrers: DS.hasMany("referrer"),
 	name: DS.attr("string"),
-	startDate: "11/11/2013",
-	endDate: "11/13/2013"
+	startDate: function () {
+		var d = new Date();
+		d.setDate(d.getDate()-3);
+		var format = d3.time.format("%m/%d/%Y");
+		return format(d);
+	}.property(),
+	endDate: function () {
+		var d = new Date();
+		d.setDate(d.getDate()+1);
+		var format = d3.time.format("%m/%d/%Y");
+		return format(d);
+	}.property()
 });

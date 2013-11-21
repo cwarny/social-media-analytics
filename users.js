@@ -59,8 +59,7 @@ Users.prototype.update = function (id, callback) {
 		if (error) {
 			callback(error);
 		} else {
-			profile.new = true;
-			users.update({id: id}, {safe: true}, {$set: {new: false}}, function (error) {
+			users.update({id: id}, {$set: {new: false}}, function (error) {
 				callback(error)
 			});
 		}
