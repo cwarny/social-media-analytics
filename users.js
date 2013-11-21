@@ -42,12 +42,26 @@ Users.prototype.save = function (profile, callback) {
 		if (error) {
 			callback(error);
 		} else {
+			profile.new = true;
 			users.insert(profile, {safe: true}, function (error, results) {
 				if (error) {
 					callback(error)
 				} else {
 					callback(null, results);
 				}
+			});
+		}
+	});
+};
+
+Users.prototype.update = function (id, callback) {
+	this.getCollection(function (error, users) {
+		if (error) {
+			callback(error);
+		} else {
+			profile.new = true;
+			users.update({id: id}, {safe: true}, {$set: {new: false}}, function (error) {
+				callback(error)
 			});
 		}
 	});

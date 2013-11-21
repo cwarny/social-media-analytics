@@ -107,8 +107,11 @@ passport.use(new GoogleStrategy({
 				if (user.length > 0) {
 					done(err, user[0]);
 				} else {
-					console.log("Processing new user.");
-					processNewUser(accessToken, refreshToken, profile, done);
+					profile.access_token_google = accessToken;
+					profile.refresh_token_google = refreshToken;
+					users.save(profile, function (err, user) {
+						done(err,user[0]);
+					});
 				}
 			});
 		});
@@ -178,6 +181,18 @@ app.get("/accounts", function (req, res) {
 	}
 });
 
+app.get("/data", function (req, res) {
+	if (req.isAuthenticated()) {
+		fetchData(req.user, function (err, a) {
+			res.json({accounts: a});
+		});
+	} else {
+		res.json({
+			success: false
+		});
+	}
+});
+
 app.get("/analytics/google/reporting/:id", function (req, res) {
 	var accessToken = req.user.access_token;
 	var today = new Date();
@@ -200,16 +215,16 @@ function nf (num,dec) {
 	return ("0" + num).slice(-dec);
 }
 
-function processNewUser (accessToken, refreshToken, user, done) {
-	user.access_token = accessToken;
-	user.refresh_token = refreshToken;
+// Fetching data
+
+function fetchData (user, cb) {
 	request("https://www.googleapis.com/analytics/v3/management/accounts?access_token=" + accessToken + "&access_type_token=bearer", function (error, response, body) {
 		var ga_accounts = JSON.parse(body).items;
-		grabWebproperties(user, ga_accounts, done);
+		grabWebproperties(user, ga_accounts, cb);
 	})
 }
 
-function grabWebproperties (user, ga_accounts, done) {
+function grabWebproperties (user, ga_accounts, cb) {
 	console.log("Step 1");
 	async.mapSeries(ga_accounts, 
 		function (account, callback1) {
@@ -219,10 +234,10 @@ function grabWebproperties (user, ga_accounts, done) {
 				grabProfiles(user, account, webproperties, callback1);
 			})
 		}, function (err, results) {
-			accounts.save(results, function (err, accounts) {
-				users.save(user, function (err, user) {
-					done(err,user[0]);
-				})
+			accounts.save(results, function (err, a) {
+				users.update(user.id, function (error) {
+					cb(err, a);
+				});
 			});
 		}
 	)
@@ -251,7 +266,9 @@ function grabReferrers (user, webproperty, profiles, callback2) {
 		function (profile, callback3) {
 			console.log("Profile: " + profile.name);
 			var today = new Date();
-			request("https://www.googleapis.com/analytics/v3/data/ga?ids=ga%3A" + profile.id + "&dimensions=ga%3AfullReferrer%2Cga%3AdateHour&metrics=ga%3Avisits&filters=ga%3Asource%3D%3Dt.co&start-date=2013-11-11&end-date=" + today.getFullYear() + "-" + nf(today.getMonth() + 1,2) + "-" + nf(today.getDate(),2) + "&access_token=" + user.access_token, function (error, response, body) {
+			var yesterday = new Date();
+			yesterday.setDate(today.getDate()-1);
+			request("https://www.googleapis.com/analytics/v3/data/ga?ids=ga%3A" + profile.id + "&dimensions=ga%3AfullReferrer%2Cga%3AdateHour&metrics=ga%3Avisits&filters=ga%3Asource%3D%3Dt.co&start-date=" + yersterday.getFullYear() + "-" + nf(yersterday.getMonth() + 1,2) + "-" + nf(yersterday.getDate(),2) + "&end-date=" + today.getFullYear() + "-" + nf(today.getMonth() + 1,2) + "-" + nf(today.getDate(),2) + "&access_token=" + user.access_token, function (error, response, body) {
 				var body = JSON.parse(body);
 				var referrers = [];
 				if (body.hasOwnProperty("rows")) {
@@ -267,43 +284,41 @@ function grabReferrers (user, webproperty, profiles, callback2) {
 	)
 }
 
-var theTweet;
-
 function grabTweets (profile, referrers, callback3) {
 	console.log("Step 4");
-	async.mapSeries(referrers, 
+	async.mapSeries(referrers,
 		function (referrer, callback4) {
-			console.log(referrer.fullreferrer);
 			twitter.search({
-					q: "http://" + referrer.fullreferrer
-				},
-				credentials[n].access_token,
-				credentials[n].access_token_secret,
-				function (err, data, response) {
-					if (err) {
-						n++;
-						if (n === credentials.length) n = 0;
-						console.log("SWITCHING CREDENTIALS: " + n);
-						twitter = new twitterAPI({
-							consumerKey: credentials[n].consumer_key,
-							consumerSecret: credentials[n].consumer_secret
-						});
-						grabTweets(profile,referrers,callback3);
-					} else {
-						if (data && data.statuses !== undefined && data.statuses.length > 0) {
-							theTweet =  data.statuses[0];
-							if (theTweet.hasOwnProperty("retweeted_status")) theTweet = theTweet.retweeted_status;
-							theTweet = [theTweet];
-							// referrer = uu.extend(referrer,tweet);
-							// callback4(err,referrer);
-							build_tweet_tree(referrer, theTweet, 0, callback4);
+				q: "http://" + referrer.fullreferrer
+			},
+			credentials[n].access_token,
+			credentials[n].access_token_secret,
+			function (err, data, response) {
+				if (err) {
+					n++;
+					if (n === credentials.length) n = 0;
+					console.log("SWITCHING CREDENTIALS: " + n);
+					twitter = new twitterAPI({
+						consumerKey: credentials[n].consumer_key,
+						consumerSecret: credentials[n].consumer_secret
+					});
+					grabTweets(profile,referrers,callback3);
+				} else {
+					if (data && data.statuses !== undefined && data.statuses.length > 0) {
+						var tweet =  data.statuses[0];
+						if (tweet.hasOwnProperty("retweeted_status")) tweet = tweet.retweeted_status;
+						if (tweet.retweet_count > 0) {
+							get_retweets(referrer, tweet, callback4);
 						} else {
-							callback4(err,referrer);
+							callback4(err,uu.extend(referrer,tweet));
 						}
+					} else {
+						callback4(err,referrer);
 					}
 				}
+			}
 			)
-		}, 
+		},
 		function (err, results) {
 			profile.referrers = results;
 			callback3(err,profile);
@@ -311,93 +326,16 @@ function grabTweets (profile, referrers, callback3) {
 	)
 }
 
-function build_tweet_tree (referrer, tweets, depth, callback4) {
-	console.log("Step 5");
-	depth++;
-	console.log(depth);
-	async.mapSeries(tweets, 
-		function (tweet, callback) {
-			findChildren(referrer, tweet, depth, callback4, callback)
-		},
-		function (err, results) {
-			callback4(err,uu.extend(referrer,theTweet[0]));
-		}
-	);
-}
-
-function findChildren (referrer, tweet, depth, callback4, callback) {
-	console.log("id: " + tweet.id_str);
-	async.series([
-			function (cb) {
-				get_retweets(tweet,cb);
-			},
-			function (cb) {
-				get_replies(tweet,cb);
-			}
-		],
-		function (err, results) {
-			if (err) {
-				n++;
-				if (n === credentials.length) n = 0;
-				console.log("SWITCHING CREDENTIALS: " + n);
-				twitter = new twitterAPI({
-					consumerKey: credentials[n].consumer_key,
-					consumerSecret: credentials[n].consumer_secret
-				});
-				findChildren(referrer,tweet,depth,callback4,callback);
-			} else {
-				tweet.children = uu.flatten(results);
-				if (depth < 3) {
-					build_tweet_tree(referrer, tweet.children, depth, callback4);
-				} else {
-					callback(err,tweet.children);
-				}
-			}
-		}
-	);
-}
-
-function get_retweets (tweet,cb) {
-	if (tweet.retweet_count > 0) {
-		twitter.statuses("retweets",
-			{
-				id: tweet.id_str
-			},
-			credentials[n].access_token,
-			credentials[n].access_token_secret,
-			function (err, data, response) {
-				if (data instanceof Array) {
-					console.log("RETWEETS: " + data.length);
-					console.log(data);
-					cb(err,data);
-				} else {
-					cb(err,[]);
-				}
-			}
-		);
-	} else {
-		cb(null,[]);
-	}
-}
-
-function get_replies (tweet,cb) {
-	var q = util.format("@%s", tweet.user.screen_name);
-	twitter.search({
-			q: q
+function get_retweets (referrer, tweet, callback4) {
+	twitter.statuses("retweets",
+		{
+			id: tweet.id_str
 		},
 		credentials[n].access_token,
 		credentials[n].access_token_secret,
 		function (err, data, response) {
-			if (data && data.statuses !== undefined && data.statuses.length > 0) {
-				var statuses = data.statuses.filter(function (d) {
-					return d.in_reply_to_status_id_str == tweet.id_str;
-				});
-				console.log("REPLIES: " + statuses.length);
-				console.log(statuses);
-				cb(err, statuses);
-			} else {
-				cb(err, []);
-			}
+			if (data instanceof Array) tweet.retweets = data;
+			callback4(err,uu.extend(referrer,tweet));
 		}
 	);
 }

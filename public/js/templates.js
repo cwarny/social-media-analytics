@@ -160,6 +160,16 @@ function program6(depth0,data) {
   
 });
 
+Ember.TEMPLATES['data'] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
+this.compilerInfo = [4,'>= 1.0.0'];
+helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
+  
+
+
+  data.buffer.push("<p>Download your Google Analytics data</p>\n<a href=\"http://localhost:3000/data\" type=\"button\" class=\"btn btn-primary\">Fetch data</a>");
+  
+});
+
 Ember.TEMPLATES['home'] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
 this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
@@ -188,7 +198,7 @@ helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
   
 
 
-  data.buffer.push("<p>You need a Google account to log into Socialr</p>\n<a href=\"http://localhost:3000/auth/google\" type=\"button\" class=\"btn btn-primary\">Log In</a>\n			");
+  data.buffer.push("<p>You need a Google account to log into Socialr</p>\n<a href=\"http://localhost:3000/auth/google\" type=\"button\" class=\"btn btn-primary\">Log In with Google</a>\n			");
   
 });
 

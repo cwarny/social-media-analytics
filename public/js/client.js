@@ -66,8 +66,10 @@ App.ApplicationRoute = Ember.Route.extend({
 	},
 	afterModel: function (model, transition) {
 		if (model.user) {
-			if (transition.targetName === "index") {
-				this.transitionTo("accounts");	
+			if (model.user.new) {
+				this.transitionTo("data");
+			} else if (transition.targetName === "index") {
+				this.transitionTo("accounts");
 			} else {
 				this.transitionTo(transition.targetName);
 			}
