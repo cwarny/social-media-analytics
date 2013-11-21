@@ -11,26 +11,16 @@
 		</div>
 		<div class="collapse navbar-collapse navbar-ex1-collapse">
 			<ul class="nav navbar-nav pull-right">
-				<li><a href="/#/accounts">Explore</a></li>
+				<li>{{#linkTo "accounts"}}Explore{{/linkTo}}</li>
 				{{#if user}}
 					<li><a href="/logout">Logout</a></li>
 				{{else}}
-					<li><a href="/login">Login</a></li>
+					<li>{{#linkTo "login"}}Login{{/linkTo}}</li>
 				{{/if}}
 			</ul>
 		</div>
 	</nav>
-	{{#unless user}}
-		<div class="jumbotron">
-			<div class="container">
-				<h1>Hi there</h1>
-				<p>Socialr enables you to analyze who talks about your content, how influential they are and what online social conversations they spawn</p>
-				<a href="http://localhost:3000/login" type="button" class="btn btn-primary">Log In</a>
-				</form>
-			</div>
-		</div>
-	{{/unless}}
 	<div class="container">
-		{{outlet accounts}}
+		{{outlet}}
 	</div>
 </div>

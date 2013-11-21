@@ -20,7 +20,7 @@ function BarChart (startDate, endDate, self) {
 				var timeSpan = (maxDate - minDate) / (1000 * 60 * 60);
 				if (timeSpan === 0) timeSpan = 1;
 
-				var margin = {left: 50, top: 20, bottom: 30, right: (50+(timeSpan === 1 ? 0:width/timeSpan))};
+				var margin = {left: 50, top: 20, bottom: 30, right: (50 + (timeSpan === 1 ? 0 : width/timeSpan))};
 				
 				var w = width - margin.left - margin.right;
 				var h = height - margin.top - margin.bottom;
@@ -33,7 +33,7 @@ function BarChart (startDate, endDate, self) {
 				var xAxis = d3.svg.axis()
 					.scale(xScale)
 					.orient("bottom")
-					.ticks(d3.time.hour, timeSpan > 15 ? 3:1);
+					.ticks(d3.time.hour, timeSpan > 15 ? 3 : 1);
 
 				yScale.domain([0, d3.max(data, function(d) { return parseInt(d.count); })])
 					.range([h, 0]);

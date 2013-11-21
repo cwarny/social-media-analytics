@@ -45,21 +45,35 @@ App.AccountSerializer = DS.RESTSerializer.extend({
 
 App.Router.map(function() {
 	this.resource("accounts", function () {
-		this.resource("account", {path: "account/:account_id"}, function () {
+		this.resource("account", {path: "/:account_id"}, function () {
 			this.resource("webproperty", {path: "webproperty/:webproperty_id"}, function () {
 				this.resource("profile", {path: "profile/:profile_id"}, function () {
 					this.resource("referrer", {path: "referrer/:referrer_id"});
 				})
 			})
 		})
-	})
+	}),
+	this.resource("login"),
+	this.resource("home"),
+	this.resource("data")
 });
 
 App.ApplicationRoute = Ember.Route.extend({
 	model: function () {
 		return $.get("/user").then(function (res) {
 			return {user: res.user};
-		})
+		});
+	},
+	afterModel: function (model, transition) {
+		if (model.user) {
+			if (transition.targetName === "index") {
+				this.transitionTo("accounts");	
+			} else {
+				this.transitionTo(transition.targetName);
+			}
+		} else {
+			this.transitionTo("home");
+		}
 	}
 });
 
@@ -67,16 +81,10 @@ App.AccountsRoute = Ember.Route.extend({
 	model: function () {
 		return this.store.find("account");
 	},
-	renderTemplate: function () {
-		this.render({
-			into: "application",
-			outlet: "accounts"
-		});
-	},
 	actions: {
-		error: function (reason) {
+		error: function (reason, transition) {
 			alert("You must log in");
-			window.open("http://localhost:3000/login", "_self");
+			this.transitionTo("login");
 		}
 	}
 });
@@ -117,24 +125,6 @@ App.ProfileRoute = Ember.Route.extend({
 	}
 });
 
-// App.ProfileController = Ember.Controller.extend({
-// 	// referrers: function () {
-// 	// 	var self = this;
-// 	// 	var referrers = this.get("model.referrers").filter(function (d) {
-// 	// 		console.log(d.get("totalClicks"));
-// 	// 		return _.any(d.get("clicks"), function (c) {
-// 	// 			var date = c.created_at.slice(0,4) + "-" + c.created_at.slice(4,6) + "-" + c.created_at.slice(6,8) + " " + c.created_at.slice(8,10) + ":00";
-// 	// 			return new Date(self.get("startDate")) < new Date(date) && new Date(self.get("endDate")) > new Date(date);
-// 	// 		});
-// 	// 	});
-// 	// 	return referrers.sort(function (a,b) {
-// 	// 		return b._data.totalClicks - a._data.totalClicks;
-// 	// 	});
-// 	// }.property("model.referrers", "startDate", "endDate"),
-// 	// startDate: "11/11/2013",
-// 	// endDate: "11/13/2013"
-// });
-
 App.ProfileView = Ember.View.extend({
 	didInsertElement: function () {
 		$("html, body").animate({
@@ -146,6 +136,7 @@ App.ProfileView = Ember.View.extend({
 
 App.ReferrersController = Ember.ArrayController.extend({
 	needs: ["profile"],
+
 	content: function () {
 		var startDate = this.get("controllers.profile.model.startDate");
 		var endDate = this.get("controllers.profile.model.endDate");
@@ -156,8 +147,24 @@ App.ReferrersController = Ember.ArrayController.extend({
 			});
 		});
 	}.property("controllers.profile.model.referrers","controllers.profile.model.statDate","controllers.profile.model.endDate"),
-	sortProperties: ["totalClicks"],
-	sortAscending: false
+
+	sortProperties: function () {
+		return [this.get("sortingProperty")];
+	}.property("sortingProperty"),
+	sortAscending: false,
+	sortingProperty: "totalClicks",
+	sortingPropertyIsTotalClicks: function () {
+		return this.get("sortingProperty") === "totalClicks";
+	}.property("sortingProperty"),
+	sortingPropertyIsFollowersCount: function () {
+		return this.get("sortingProperty") === "user.followers_count";
+	}.property("sortingProperty"),
+
+	actions: {
+		setSortingProperty: function (p) {
+			this.set("sortingProperty",p);
+		}
+	}
 });
 
 App.ReferrerRoute = Ember.Route.extend({
@@ -173,7 +180,7 @@ App.ReferrerRoute = Ember.Route.extend({
 });
 
 App.ReferrerController = Ember.Controller.extend({
-	needs: ["profile"],
+	needs: ["profile","referrers"],
 	clicks: function () {
 		return this.get("model.clicks").map(function (d) {
 			var date = d.created_at.slice(0,4) + "-" + d.created_at.slice(4,6) + "-" + d.created_at.slice(6,8) + " " + d.created_at.slice(8,10) + ":00";
@@ -182,17 +189,10 @@ App.ReferrerController = Ember.Controller.extend({
 	}.property("model.clicks"),
 
 	created_at: function () {
-		return new Date(this.get("model.created_at"));
+		var d = new Date(this.get("model.created_at"));
+		var format = d3.time.format("%a %b %d %H:%M");
+		return format(d);
 	}.property("model.created_at"),
-
-	// totalClicks: function () {
-	// 	var startDate = this.get("controllers.profile.startDate");
-	// 	var endDate = this.get("controllers.profile.endDate");
-	// 	var clicks = this.get("clicks").filter(function (d) {
-	// 		return new Date(startDate) < d.created_at && new Date(endDate) > d.created_at;
-	// 	});
-	// 	return d3.sum(clicks, function (d) {return d.count;});
-	// }.property("clicks", "controllers.profile.startDate", "controllers.profile.endDate"),
 
 	actions: {
 		transition: function () {

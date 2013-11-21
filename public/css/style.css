@@ -3,6 +3,10 @@ img {
 	margin-right: 10px;
 }
 
+li {
+	cursor: pointer;
+}
+
 .axis path,
 .axis line {
 	fill: none;

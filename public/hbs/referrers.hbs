@@ -1,7 +1,25 @@
+<label>Sort by</label>
+<div class="btn-group">
+	<button {{action setSortingProperty "totalClicks"}} type="button" class="btn btn-default">Clicks</button>
+	<button {{action setSortingProperty "user.followers_count"}} type="button" class="btn btn-default">Followers</button>
+	<button {{action setSortingProperty "created_at"}} type="button" class="btn btn-default">Date</button>
+</div>
+<br>
+<br>
 <ul class="nav nav-pills nav-stacked">
 	{{#each arrangedContent itemController="referrer"}}
 		{{#if model.text}}
-			<li>{{#linkTo "referrer" this}}{{model.user.screen_name}}<span class="badge">{{model.totalClicks}}</span>{{/linkTo}}</li>
+			{{#linkTo "referrer" this tagName="li"}}
+				{{#if controllers.referrers.sortingPropertyIsTotalClicks}}
+					<a {{bindAttr href="#"}}>{{model.user.screen_name}}<span class="badge">{{model.totalClicks}}</span></a>
+				{{else}}
+					{{#if controllers.referrers.sortingPropertyIsFollowersCount}}
+						<a {{bindAttr href="#"}}>{{model.user.screen_name}}<span class="badge">{{model.user.followers_count}}</span></a>
+					{{else}}
+						<a {{bindAttr href="#"}}>{{model.user.screen_name}}<span class="badge">{{created_at}}</span></a>
+					{{/if}}
+				{{/if}}
+			{{/linkTo}}
 		{{/if}}
 	{{/each}}
 </ul>

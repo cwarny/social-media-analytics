@@ -1,24 +1,33 @@
 <div class="container">
 	<div class="row">
-		<div class="col-md-6 col-md-offset-3">
-			<form class="form-inline" role="form">
-				<div class="input-daterange row" id="datepicker">
-					<div class="form-group">
-						{{input class="form-control" type="text" name="start" value=startDate}}
-					</div>
-					<label>to</label>
-					<div class="form-group">
-						{{input class="form-control" type="text" name="end" value=endDate}}
-					</div>
-				</div>
-			</form>
-		</div>
-	</div>
-	<br>
-	<div class="row">
 		<div class="col-md-3">
 			{{render "referrers"}}
 		</div>
-		{{outlet referrer}}
+		<div class="col-md-8">
+			<div class="row">
+				<div class="col-md-7">
+					<br>
+					<form class="form-inline" role="form">
+						<div class="input-daterange row" id="datepicker">
+							<label>From</label>
+							<div class="form-group">
+								{{input class="form-control" type="text" name="start" value=startDate}}
+							</div>
+							<label>to</label>
+							<div class="form-group">
+								{{input class="form-control" type="text" name="end" value=endDate}}
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+			<br>
+			<br>
+			<div class="row">
+				<div class="col-md-12">
+					{{outlet referrer}}
+				</div>
+			</div>
+		</div>
 	</div>
 </div>

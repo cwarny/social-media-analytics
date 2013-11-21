@@ -1,11 +1,13 @@
 <div class="col-md-4">
 	<dl class="faq">
 		<dt class="two">Select property</dt>
+	</dl>
+	<ul class="nav nav-pills nav-stacked">
 		{{#each webproperties}}
-			{{#linkTo "webproperty" this tagName="dd" href=false}}
-				<a {{bindAttr href="view.href"}}>{{name}}</a>
+			{{#linkTo "webproperty" this tagName="li"}}
+				<a {{bindAttr href="#"}}>{{name}}</a>
 			{{/linkTo}}
 		{{/each}}
-	</dl>
+	</ul>
 </div>
 {{outlet webproperty}}

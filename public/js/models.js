@@ -1,6 +1,7 @@
 App.User = DS.Model.extend({
 	profile_image_url: DS.attr("string"),
-	screen_name: DS.attr("string")
+	screen_name: DS.attr("string"),
+	followers_count: DS.attr("number")
 });
 
 App.Referrer = DS.Model.extend({

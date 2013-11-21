@@ -1,10 +1,12 @@
 <div class="col-md-4">
 	<dl class="faq">
 		<dt class="three">Select profile</dt>
+	</dl>
+	<ul class="nav nav-pills nav-stacked">
 		{{#each profiles}}
-			{{#linkTo "profile" this tagName="dd" href=false}}
-				<a {{bindAttr href="view.href"}}>{{name}}</a>
+			{{#linkTo "profile" this tagName="li"}}
+				<a {{bindAttr href="#"}}>{{name}}</a>
 			{{/linkTo}}
 		{{/each}}
-	</dl>
+	</ul>
 </div>

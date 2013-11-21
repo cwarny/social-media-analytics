@@ -2,28 +2,30 @@
 	<div class="col-md-4">
 		<dl class="faq">
 			<dt class="one">Select account</dt>
-			{{#each model}}
-				{{#linkTo "account" this tagName="dd" href=false}}
-					<a {{bindAttr href="view.href"}}>{{name}}</a>
+		</dl>
+		<ul class="nav nav-pills nav-stacked">
+			{{#each content}}
+				{{#linkTo "account" this tagName="li"}}
+					<a {{bindAttr href="#"}}>{{name}}</a>
 				{{/linkTo}}
 			{{/each}}
-		</dl>
+		</ul>
 	</div>
 	{{outlet account}}
 </div>
-</br>
-</br>
-</br>
+<br>
+<br>
+<br>
 <div class="container profile">
 	{{outlet profile}}
 </div>
-</br>
-</br>
-</br>
-</br>
-</br>
-</br>
-</br>
-</br>
-</br>
-</br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
