@@ -1,0 +1,17 @@
+<ul class="nav nav-pills nav-stacked">
+	{{#each arrangedContent itemController="tweet"}}
+		{{#linkTo "tweet" model tagName="li"}}
+			<a href="#">
+				{{#if controllers.referrers.sortingPropertyIsTotalClicks}}
+					{{model.referrer.screen_name}}<span class="badge">{{model.totalClicks}}</span>
+				{{else}}
+					{{#if controllers.referrers.sortingPropertyIsFollowersCount}}
+						{{model.referrer.screen_name}}<span class="badge">{{model.referrer.followers_count}}</span>
+					{{else}}
+						{{model.referrer.screen_name}}<span class="badge">{{date}}</span>
+					{{/if}}
+				{{/if}}
+			</a>
+		{{/linkTo}}
+	{{/each}}
+</ul>

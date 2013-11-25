@@ -1,25 +1,57 @@
 <label>Sort by</label>
 <div class="btn-group">
 	<button {{action setSortingProperty "totalClicks"}} type="button" class="btn btn-default">Clicks</button>
-	<button {{action setSortingProperty "user.followers_count"}} type="button" class="btn btn-default">Followers</button>
-	<button {{action setSortingProperty "created_at"}} type="button" class="btn btn-default">Date</button>
+	<button {{action setSortingProperty "followers_count"}} type="button" class="btn btn-default">Followers</button>
+	<button {{action setSortingProperty "date_last_tweet"}} type="button" class="btn btn-default">Date</button>
 </div>
 <br>
 <br>
 <ul class="nav nav-pills nav-stacked">
 	{{#each arrangedContent itemController="referrer"}}
-		{{#if model.text}}
-			{{#linkTo "referrer" this tagName="li"}}
-				{{#if controllers.referrers.sortingPropertyIsTotalClicks}}
-					<a {{bindAttr href="#"}}>{{model.user.screen_name}}<span class="badge">{{model.totalClicks}}</span></a>
-				{{else}}
-					{{#if controllers.referrers.sortingPropertyIsFollowersCount}}
-						<a {{bindAttr href="#"}}>{{model.user.screen_name}}<span class="badge">{{model.user.followers_count}}</span></a>
-					{{else}}
-						<a {{bindAttr href="#"}}>{{model.user.screen_name}}<span class="badge">{{created_at}}</span></a>
-					{{/if}}
-				{{/if}}
+		{{#if model.onlyOneTweet}}
+			{{#linkTo "tweet" model.tweets.firstObject tagName="li"}}
+				<a href="#">
+					{{model.screen_name}}
+					<span class="badge">
+						{{#if controllers.referrers.sortingPropertyIsTotalClicks}}
+							{{model.tweets.firstObject.totalClicks}}
+						{{else}}
+							{{#if controllers.referrers.sortingPropertyIsFollowersCount}}
+								{{model.tweets.firstObject.referrer.followers_count}}
+							{{else}}
+								{{date_last_tweet}}
+							{{/if}}
+						{{/if}}
+					</span>
+				</a>
 			{{/linkTo}}
+		{{else}}
+			<li {{action toggle}}>
+				<a href="#">
+					<span>
+						{{#if model.isExpanded}}
+							&#x25BC;
+						{{else}}
+							&#x25B6;
+						{{/if}}
+					</span>
+					{{model.screen_name}}
+					<span class="badge">
+						{{#if controllers.referrers.sortingPropertyIsTotalClicks}}
+							{{model.totalClicks}}
+						{{else}}
+							{{#if controllers.referrers.sortingPropertyIsFollowersCount}}
+								{{model.followers_count}}
+							{{else}}
+								{{date_last_tweet}}
+							{{/if}}
+						{{/if}}
+					</span>
+				</a>
+			</li>
+			{{#if model.isExpanded}}
+				{{render "tweets" model.tweets}}
+			{{/if}}
 		{{/if}}
 	{{/each}}
 </ul>

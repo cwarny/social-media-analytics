@@ -5,27 +5,48 @@ App.AccountSerializer = DS.RESTSerializer.extend({
 		var accounts = payload.accounts;
 		var webproperties = [];
 		var profiles = [];
+		var tweets = [];
 		var referrers = [];
-		var users = [];
 		accounts.forEach(function (account) {
 			var webpropertyIds = [];
 			account.webproperties.forEach(function (webproperty) {
 				var profileIds = [];
 				webproperty.profiles.forEach(function (profile) {
 					if (profile.hasOwnProperty("referrers")) {
-						var referrerIds = [];
-						profile.referrers.forEach(function (referrer) {
-							if (referrer.hasOwnProperty("user")) {
-								users.push(referrer.user);
-								referrer.user = referrer.user.id;
-								referrer.profile = profile.id;
-								if (referrer.hasOwnProperty("clicks")) {
-									referrers.push(referrer);
-									referrerIds.push(referrer.id);
-								}
+						var cache = {};
+						var maxDate = new Date("01/01/2013");
+						profile.referrers.forEach(function (tweet) {
+							if (tweet.hasOwnProperty("user") && tweet.hasOwnProperty("clicks")) {
+								tweet.clicks.forEach(function (c) {
+									var date = new Date(c.created_at.slice(0,4) + "-" + c.created_at.slice(4,6) + "-" + c.created_at.slice(6,8) + " " + c.created_at.slice(8,10) + ":00");
+									if (date > maxDate) maxDate = new Date(date.getTime());
+									c.created_at = date;
+								});
+								tweet.created_at = new Date(tweet.created_at);
+								var temp = {};
+								temp[tweet.user.id] = [];
+								_.defaults(cache, temp);
+								cache[tweet.user.id].push(tweet);
 							}
 						});
-						profile.referrers = referrerIds;
+						for (var prop in cache) {
+							var referrer = cache[prop][0].user;
+							cache[prop].forEach(function (tweet) {
+								tweet.referrer = tweet.user.id;
+								tweets.push(tweet);
+							});
+							referrer.tweets = _.pluck(cache[prop],"id");
+							referrer.profile = profile.id;
+							referrers.push(referrer);
+						}
+						profile.referrers = _.pluck(referrers,"id");
+						var format = d3.time.format("%m/%d/%Y");
+						var d = new Date(maxDate.getTime());
+						d.setDate(d.getDate()+1);
+						profile.endDate = format(d);
+						var d = new Date(maxDate.getTime());
+						d.setDate(d.getDate()-3);
+						profile.startDate = format(d);			
 					}
 					profiles.push(profile);
 					profileIds.push(profile.id);
@@ -37,7 +58,7 @@ App.AccountSerializer = DS.RESTSerializer.extend({
 			account.webproperties = webpropertyIds;
 		});
 
-		payload = { users: users, referrers: referrers, profiles: profiles, webproperties: webproperties, accounts: accounts };
+		payload = { tweets: tweets, referrers: referrers, profiles: profiles, webproperties: webproperties, accounts: accounts };
 
 		return this._super(store, type, payload, id, requestType);
 	}
@@ -48,7 +69,7 @@ App.Router.map(function() {
 		this.resource("account", {path: "/:account_id"}, function () {
 			this.resource("webproperty", {path: "webproperty/:webproperty_id"}, function () {
 				this.resource("profile", {path: "profile/:profile_id"}, function () {
-					this.resource("referrer", {path: "referrer/:referrer_id"});
+					this.resource("tweet", {path: "tweet/:tweet_id"});
 				})
 			})
 		})
@@ -142,13 +163,14 @@ App.ReferrersController = Ember.ArrayController.extend({
 	content: function () {
 		var startDate = this.get("controllers.profile.model.startDate");
 		var endDate = this.get("controllers.profile.model.endDate");
-		return this.get("controllers.profile.model.referrers").filter(function (d) {
-			return _.any(d.get("clicks"), function (c) {
-				var date = c.created_at.slice(0,4) + "-" + c.created_at.slice(4,6) + "-" + c.created_at.slice(6,8) + " " + c.created_at.slice(8,10) + ":00";
-				return new Date(startDate) < new Date(date) && new Date(endDate) > new Date(date);
-			});
+		return this.get("controllers.profile.model.referrers").filter(function (r) {
+			return _.any(r.get("tweets").content, function (t) {
+				return _.any(t.get("clicks"), function (c) {
+					return new Date(startDate) < c.created_at && new Date(endDate) > c.created_at;
+				});
+			})
 		});
-	}.property("controllers.profile.model.referrers","controllers.profile.model.statDate","controllers.profile.model.endDate"),
+	}.property("controllers.profile.model.referrers","controllers.profile.model.startDate","controllers.profile.model.endDate"),
 
 	sortProperties: function () {
 		return [this.get("sortingProperty")];
@@ -159,79 +181,75 @@ App.ReferrersController = Ember.ArrayController.extend({
 		return this.get("sortingProperty") === "totalClicks";
 	}.property("sortingProperty"),
 	sortingPropertyIsFollowersCount: function () {
-		return this.get("sortingProperty") === "user.followers_count";
+		return this.get("sortingProperty") === "followers_count";
 	}.property("sortingProperty"),
 
 	actions: {
 		setSortingProperty: function (p) {
+			console.log(p);
 			this.set("sortingProperty",p);
 		}
 	}
 });
 
-App.ReferrerRoute = Ember.Route.extend({
-	model: function (params) {
-		return this.store.find("referrer", params.referrer_id);
+App.ReferrerController = Ember.Controller.extend({
+	needs: ["profile","referrers"],
+
+	actions: {
+		toggle: function () {
+			this.set("isExpanded",true)
+		}
 	},
+
+	date_last_tweet: function () {
+		var format = d3.time.format("%b %d %H:%M");
+		return format(this.get("model.date_last_tweet"));
+	}.property("model.date_last_tweet"),
+
+	actions: {
+		toggle: function () {
+			this.set("model.isExpanded", !this.get("model.isExpanded"));
+		}
+	}
+});
+
+App.TweetRoute = Ember.Route.extend({
+	model: function (params) {
+		return this.store.find("tweet", params.tweet_id);
+	},
+
 	renderTemplate: function () {
 		this.render({
 			into: "profile",
-			outlet: "referrer"
+			outlet: "tweet"
 		});
 	}
 });
 
-App.ReferrerController = Ember.Controller.extend({
-	needs: ["profile","referrers"],
-	clicks: function () {
-		return this.get("model.clicks").map(function (d) {
-			var date = d.created_at.slice(0,4) + "-" + d.created_at.slice(4,6) + "-" + d.created_at.slice(6,8) + " " + d.created_at.slice(8,10) + ":00";
-			return {created_at: new Date(date), count: d.count};
-		});
-	}.property("model.clicks"),
+App.TweetsController = Ember.ArrayController.extend({
+	needs: ["referrers","referrer","profile"],
 
-	created_at: function () {
-		var d = new Date(this.get("model.created_at"));
-		var format = d3.time.format("%a %b %d %H:%M");
-		return format(d);
-	}.property("model.created_at"),
+	sortProperties: function () {
+		var sp = this.get("controllers.referrers.sortingProperty");
+		if (sp === "date_last_tweet") return ["date"];
+		return [sp];
+	}.property("controllers.referrers.sortingProperty"),
+	sortAscending: false
+});
+
+App.TweetController = Ember.Controller.extend({
+	needs: ["referrers","profile"],
 
 	actions: {
 		transition: function () {
 			this.transitionToRoute("profile");
 		}
-	}
-});
+	},
 
-App.TreeBranchView = Ember.View.extend({
-	tagName: "ul",
-	templateName: "tree-branch",
-	classNames: ["tree-branch"],
-});
-
-App.TreeNodeController = Ember.ObjectController.extend({
-	isExpanded: false,
-	actions: {
-		toggle: function () {
-			this.set("isExpanded", !this.get("isExpanded"));
-		}
-	}
-});
-
-App.TreeNodeView = Ember.View.extend({
-	templateName: "tree-node",
-	classNames: ["tree-node"],
-	didInsertElement: function () {
-		var id = "#" + this.get("controller").get("model").id;
-		$("li" + id + " > span[rel=popover]").popover({ 
-			html : true, 
-			content: function () {
-				return $("li" + id + " > div").html();
-			},
-			trigger: "hover",
-			placement: "auto top"
-		});
-	}
+	date: function () {
+		var format = d3.time.format("%b %d %H:%M");
+		return format(this.get("model.date"));
+	}.property("model.date")
 });
 
 App.BarChartComponent = Ember.Component.extend({

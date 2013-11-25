@@ -9,7 +9,7 @@ function BarChart (startDate, endDate, self) {
 		selection.each(function (data) {
 
 			data = data.filter(function (d) {
-				return new Date(startDate) < d.created_at && new Date(endDate) > d.created_at;
+				return new Date(startDate) < new Date(d.created_at) && new Date(endDate) > new Date(d.created_at);
 			});
 
 			if (data.length === 0) {

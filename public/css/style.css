@@ -102,3 +102,7 @@ ul.tree-branch ul {
 	-moz-background-clip: padding;
 	background-clip: padding-box;
 }
+
+.nav-stacked ul {
+	margin-left: 20px;
+}
