@@ -98,8 +98,7 @@ var GOOGLE_CLIENT_ID = "898266335618-fhhc3qu7ad057j5a70m1mr3ikttud14k.apps.googl
 passport.use(new GoogleStrategy({
 	clientID: GOOGLE_CLIENT_ID,
 	clientSecret: GOOGLE_CLIENT_SECRET,
-	callbackURL: GOOGLE_REDIRECT_URL,
-	access_type: "offline"
+	callbackURL: GOOGLE_REDIRECT_URL
 	},
 	function (accessToken, refreshToken, profile, done) {
 		process.nextTick(function () {
@@ -156,7 +155,10 @@ app.get("/logout", function (req, res){
 });
 
 app.get("/auth/google", 
-	passport.authenticate("google", { scope: ["https://www.googleapis.com/auth/userinfo.profile","https://www.googleapis.com/auth/userinfo.email","https://www.googleapis.com/auth/analytics.readonly"] }),
+	passport.authenticate("google", { 
+		scope: ["https://www.googleapis.com/auth/userinfo.profile","https://www.googleapis.com/auth/userinfo.email","https://www.googleapis.com/auth/analytics.readonly"],
+		accessType: "offline"
+	}),
 	function (req, res) {
 
 	}

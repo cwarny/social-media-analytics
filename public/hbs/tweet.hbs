@@ -9,7 +9,7 @@
 				<small>{{model.referrer.name}} (@{{model.referrer.screen_name}})</small>
 			</blockquote>
 		</div>
-		{{bar-chart data=model.clicks startDate=controllers.profile.startDate endDate=controllers.profile.endDate transition="transition"}}
+		{{bar-chart clicks=clicks retweets=model.retweets startDate=controllers.profile.startDate endDate=controllers.profile.endDate transition="transition"}}
 		</br>
 	</div>
 {{else}}
@@ -24,7 +24,7 @@
 					<small>{{model.referrer.name}} (@{{model.referrer.screen_name}})</small>
 				</blockquote>
 			</div>
-			{{bar-chart data=model.clicks startDate=controllers.profile.startDate endDate=controllers.profile.endDate transition="transition"}}
+			{{bar-chart clicks=clicks retweets=model.retweets startDate=controllers.profile.startDate endDate=controllers.profile.endDate transition="transition"}}
 			</br>
 		</div>
 	{{/if}}

@@ -249,7 +249,13 @@ App.TweetController = Ember.Controller.extend({
 	date: function () {
 		var format = d3.time.format("%b %d %H:%M");
 		return format(this.get("model.date"));
-	}.property("model.date")
+	}.property("model.date"),
+
+	clicks: function () {
+		return this.get("model.clicks").map(function (d) {
+			return {created_at: new Date(d.created_at), count: d.count};
+		});
+	}.property("model.clicks"),
 });
 
 App.BarChartComponent = Ember.Component.extend({
@@ -268,9 +274,26 @@ App.BarChartComponent = Ember.Component.extend({
 			scrollTop: $("div.profile").offset().top
 		}, 500);
 
-		if (this.get("data")) {
+		if (this.get("clicks")) {
+			var retweets = _.pluck(this.get("retweets"),"created_at");
+			retweets = retweets.map(function (d) {
+				return d3.time.hour.round(new Date(d));
+			});
+			retweets = _.map(_.pairs(_.groupBy(retweets)), function (d) {return {name: "retweet", created_at: d[0], count: d[1].length};});
+
+			var data = _.map(_.pairs(_.groupBy(_.union(retweets,_.map(this.get("clicks"), function (d) {
+				return _.extend(d,{name:"click"});
+			})), function (d) {
+				return d.created_at;
+			})), function (d) {
+				return {
+					created_at: new Date(d[0]), 
+					datum: d[1]
+				};
+			});
+
 			d3.select(this.$()[0])
-				.data([this.get("data")])
+				.data([data])
 				.call(BarChart(this.get("startDate"),this.get("endDate"),this)
 					.width($(".tweetbox").width()-30)
 					.height(200)
@@ -283,5 +306,5 @@ App.BarChartComponent = Ember.Component.extend({
 					.height(200)
 				);
 		}
-	}.observes("data","startDate","endDate")
+	}.observes("clicks","retweets","startDate","endDate")
 });

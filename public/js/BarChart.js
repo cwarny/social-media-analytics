@@ -1,15 +1,12 @@
 function BarChart (startDate, endDate, self) {
 
-	var xScale = d3.time.scale(),
-		yScale = d3.scale.linear(),
-		duration = 500;
+	var duration = 500;
 
 	function chart (selection) {
 
 		selection.each(function (data) {
-
 			data = data.filter(function (d) {
-				return new Date(startDate) < new Date(d.created_at) && new Date(endDate) > new Date(d.created_at);
+				return new Date(startDate) < d.created_at && new Date(endDate) > d.created_at;
 			});
 
 			if (data.length === 0) {
@@ -27,19 +24,23 @@ function BarChart (startDate, endDate, self) {
 
 				var barWidth = w/timeSpan - 3;
 
-				xScale.domain([minDate,maxDate])
-					.range([0, w]);
+				var x0 = d3.time.scale().domain([minDate,maxDate]).range([0, w]);
+				
+				var x1 = d3.scale.ordinal().domain(["retweet","click"]).rangeRoundBands([0, w/timeSpan]);
+
+				var y = d3.scale.linear()
+					.domain([0, d3.max(data, function (d) { return d3.max(d.datum, function (d) { return parseInt(d.count) }); })])
+					.range([h, 0]);
+
+				var color = d3.scale.ordinal().domain(["retweet","click"]).range(["#DE2D26", "#3182BD"]);
 
 				var xAxis = d3.svg.axis()
-					.scale(xScale)
+					.scale(x0)
 					.orient("bottom")
 					.ticks(d3.time.hour, timeSpan > 15 ? 3 : 1);
 
-				yScale.domain([0, d3.max(data, function(d) { return parseInt(d.count); })])
-					.range([h, 0]);
-
 				var yAxis = d3.svg.axis()
-					.scale(yScale)
+					.scale(y)
 					.orient("left")
 					.tickFormat(d3.format("d"));
 
@@ -60,7 +61,7 @@ function BarChart (startDate, endDate, self) {
 				gEnter.append("g")
 					.attr("class", "x axis")
 					.attr("transform", "translate(" + barWidth/2 + "," + h + ")")
-					.call(xAxis);
+					.call(xAxis);		
 
 				gEnter.append("g")
 					.attr("class", "y axis")
@@ -74,7 +75,7 @@ function BarChart (startDate, endDate, self) {
 					.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 				g.select(".x.axis")
-					.attr("transform", "translate(" + barWidth/2 + "," + yScale(0) + ")") // transform to 0 baseline (in case of neg values)
+					.attr("transform", "translate(" + barWidth/2 + "," + y(0) + ")") // transform to 0 baseline (in case of neg values)
 					.transition()
 					.duration(duration)
 					.call(xAxis);
@@ -85,32 +86,32 @@ function BarChart (startDate, endDate, self) {
 					.duration(duration)
 					.call(yAxis);
 
-				var bars = g.selectAll(".bar")
-					.remove();
+      			var datum = g.selectAll(".datum").remove();
+      			var bars = d3.selectAll(".bar").remove();
 
-				var bars = g.selectAll(".bar")
-					.data(function(d) {return d;});
+				var datum = g.selectAll(".datum")
+					.data(function (d) {return d;});
 
+				datum.enter()
+					.append("g")
+					.attr("class","g")
+					.attr("transform", function (d) { return "translate(" + x0(d.created_at) + ",0)"; });
+
+				var bars = datum.selectAll(".bar")
+					.data(function (d) {return d.datum;});
+					
 				bars.enter()
 					.append("rect")
 					.attr("class","bar")
 					.attr("height", 0)
-					.attr("y", yScale(0))
+					.attr("y", y(0))
 					.transition()
 					.duration(duration)
-					.attr({
-						"x": function(d) { return xScale(d.created_at); },
-						"width": barWidth,
-						"y": function(d) { return yScale(d3.max([0, d.count])); },
-						"height": function(d) { return h - yScale(d.count); }
-					});
-
-				// bars.exit()
-				// 	.transition()
-				// 	.duration(duration)
-				// 	.attr("y", h)
-				// 	.attr("height", 0)
-				// 	.remove();
+					.attr("width", x1.rangeBand())
+					.attr("x", function (d) { return x1(d.name); })
+					.attr("y", function (d) { return y(d.count); })
+					.attr("height", function (d) { return h - y(d.count); })
+					.style("fill", function (d) { return color(d.name); });
 			}
 		});
 	}

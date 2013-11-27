@@ -469,10 +469,11 @@ function program1(depth0,data) {
   hashContexts = {};
   data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "model.referrer.screen_name", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
   data.buffer.push(")</small>\n			</blockquote>\n		</div>\n		");
-  hashContexts = {'data': depth0,'startDate': depth0,'endDate': depth0,'transition': depth0};
-  hashTypes = {'data': "ID",'startDate': "ID",'endDate': "ID",'transition': "STRING"};
+  hashContexts = {'clicks': depth0,'retweets': depth0,'startDate': depth0,'endDate': depth0,'transition': depth0};
+  hashTypes = {'clicks': "ID",'retweets': "ID",'startDate': "ID",'endDate': "ID",'transition': "STRING"};
   options = {hash:{
-    'data': ("model.clicks"),
+    'clicks': ("clicks"),
+    'retweets': ("model.retweets"),
     'startDate': ("controllers.profile.startDate"),
     'endDate': ("controllers.profile.endDate"),
     'transition': ("transition")
@@ -515,10 +516,11 @@ function program4(depth0,data) {
   hashContexts = {};
   data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "model.referrer.screen_name", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
   data.buffer.push(")</small>\n				</blockquote>\n			</div>\n			");
-  hashContexts = {'data': depth0,'startDate': depth0,'endDate': depth0,'transition': depth0};
-  hashTypes = {'data': "ID",'startDate': "ID",'endDate': "ID",'transition': "STRING"};
+  hashContexts = {'clicks': depth0,'retweets': depth0,'startDate': depth0,'endDate': depth0,'transition': depth0};
+  hashTypes = {'clicks': "ID",'retweets': "ID",'startDate': "ID",'endDate': "ID",'transition': "STRING"};
   options = {hash:{
-    'data': ("model.clicks"),
+    'clicks': ("clicks"),
+    'retweets': ("model.retweets"),
     'startDate': ("controllers.profile.startDate"),
     'endDate': ("controllers.profile.endDate"),
     'transition': ("transition")

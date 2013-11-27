@@ -14,7 +14,6 @@ App.Referrer = DS.Model.extend({
 	}.property("tweets.@each.created_at"),
 	isExpanded: false,
 	onlyOneTweet: function () {
-		console.log(this.get("tweets.length"));
 		return this.get("tweets.length") === 1;
 	}.property("tweets.@each")
 });
@@ -28,7 +27,7 @@ App.Tweet = DS.Model.extend({
 	date: function () {
 		return new Date(this.get("created_at"));
 	}.property("created_at"),
-	children: DS.attr(),
+	retweets: DS.attr(),
 	totalClicks: function () {
 		var startDate = this.get("referrer.profile.startDate");
 		var endDate = this.get("referrer.profile.endDate");
