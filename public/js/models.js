@@ -14,7 +14,6 @@ App.Referrer = DS.Model.extend({
 	}.property("tweets.@each.created_at"),
 	isExpanded: false,
 	onlyOneTweet: function () {
-		console.log(this.get("tweets.length"));
 		return this.get("tweets.length") === 1;
 	}.property("tweets.@each")
 });
@@ -25,10 +24,17 @@ App.Tweet = DS.Model.extend({
 	text: DS.attr("string"),
 	referrer: DS.belongsTo("referrer"),
 	created_at: DS.attr("string"),
+	id_str: DS.attr("string"),
+	entities: DS.attr(),
+
+	conversation_url: function () {
+		return "https://twitter.com/" + this.get("referrer.screen_name") + "/status/" + this.get("id_str");
+	}.property("referrer.screen_name","id_str"),
+
 	date: function () {
 		return new Date(this.get("created_at"));
 	}.property("created_at"),
-	children: DS.attr(),
+
 	totalClicks: function () {
 		var startDate = this.get("referrer.profile.startDate");
 		var endDate = this.get("referrer.profile.endDate");

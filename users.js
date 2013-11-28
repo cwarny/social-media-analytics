@@ -21,6 +21,22 @@ Users.prototype.getCollection = function (callback) {
 	});
 };
 
+Users.prototype.findAll = function (callback) {
+	this.getCollection(function (error, users) {
+		if (error) {
+			callback(error);
+		} else {
+			users.find().toArray(function (error, results) {
+				if (error) {
+					callback(error);
+				} else {
+					callback(null,results);
+				}
+			});
+		}
+	});
+}
+
 Users.prototype.find = function (id, callback) {
 	this.getCollection(function (error, users) {
 		if (error) {

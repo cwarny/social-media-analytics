@@ -10,7 +10,9 @@ var express = require("express"),
 	util = require("util"),
 	twitterAPI = require("node-twitter-api"),
 	Users = require("./users").Users,
-	Accounts = require("./accounts").Accounts;
+	Accounts = require("./accounts").Accounts,
+	refresh = require("google-refresh-token")
+	schedule = require("node-schedule");
 
 var credentials = [
 	{
@@ -156,7 +158,11 @@ app.get("/logout", function (req, res){
 });
 
 app.get("/auth/google", 
-	passport.authenticate("google", { scope: ["https://www.googleapis.com/auth/userinfo.profile","https://www.googleapis.com/auth/userinfo.email","https://www.googleapis.com/auth/analytics.readonly"] }),
+	passport.authenticate("google", 
+		{ 
+			scope: ["https://www.googleapis.com/auth/userinfo.profile","https://www.googleapis.com/auth/userinfo.email","https://www.googleapis.com/auth/analytics.readonly"],
+			access_type: "offline"
+		}),
 	function (req, res) {
 
 	}
@@ -183,8 +189,12 @@ app.get("/accounts", function (req, res) {
 
 app.get("/data", function (req, res) {
 	if (req.isAuthenticated()) {
-		fetchData(req.user, function (err, a) {
-			res.redirect("/#/accounts");
+		fetchData(req.user, function (err, results) {
+			accounts.save(results, function (err, a) {
+				users.update(user.id, function (error) {
+					res.redirect("/#/accounts");
+				});
+			});
 		});
 	} else {
 		res.json({
@@ -206,6 +216,48 @@ app.get("/analytics/google/reporting/:id", function (req, res) {
 
 var server = app.listen(process.env.PORT || 3000);
 console.log("Express server started on port %s", server.address().port);
+
+// Every day, update user data
+
+var j = schedule.scheduleJob({hour: 11, minute: 11}, function() {
+	users.findAll(function (error, data) {
+		async.each(data, function (user) {
+			refresh(user.refresh_token_google, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, function (err, json, res) {
+				if (!err & !json.error) {
+					user.access_token_google = json.accessToken;
+					fetchData(user, function (err, results) {
+						results.forEach(function (account) {
+							console.log("Account id: " + account.id);
+							accounts.find(account.id, function (error, res) {
+								console.log(error);
+								if (!error) {
+									account.webproperties.forEach(function (webproperty) {
+										console.log("Webproperty id: " + webproperty.id);
+										webproperty.profiles.forEach(function (profile) {
+											console.log("Profile id: " + profile.id);
+											// profile.referrers.forEach(function(r){
+											// 	if (r.hasOwnProperty("user")) console.log(r.user.screen_name);
+											// });
+											// accounts.update(profile, function (error, res) {
+											// 	console.log("Accounts updated.");
+											// });
+										});
+									});
+								} else {
+									accounts.save(a, function (error, res) {
+										console.log("New accounts saved.");
+									});
+								}
+							});
+						});
+					});
+				}
+			});
+		}, function () {
+			
+		});
+	});
+});
 
 
 // Utility functions
@@ -231,11 +283,7 @@ function grabWebproperties (user, ga_accounts, cb) {
 				grabProfiles(user, account, webproperties, callback1);
 			})
 		}, function (err, results) {
-			accounts.save(results, function (err, a) {
-				users.update(user.id, function (error) {
-					cb(err, a);
-				});
-			});
+			cb(err,results);
 		}
 	)
 }
@@ -346,5 +394,5 @@ function reformatReferrers (rows) {
 			fullreferrer: pair[0], 
 			clicks: pair[1]
 		}
-	})
+	});
 }

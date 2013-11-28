@@ -186,7 +186,6 @@ App.ReferrersController = Ember.ArrayController.extend({
 
 	actions: {
 		setSortingProperty: function (p) {
-			console.log(p);
 			this.set("sortingProperty",p);
 		}
 	}
@@ -249,7 +248,21 @@ App.TweetController = Ember.Controller.extend({
 	date: function () {
 		var format = d3.time.format("%b %d %H:%M");
 		return format(this.get("model.date"));
-	}.property("model.date")
+	}.property("model.date"),
+
+	chunks: function () {
+		console.log(this.get("model.entities"));
+		var text = this.get("model.text");
+		var chunks = [];
+		var i = 0;
+		this.get("model.entities.urls").forEach(function (url) {
+			var j = text.indexOf(url.url);
+			chunks.push({str: text.slice(i,j), url: url.url});
+			i = (j + url.url.length);
+		});
+		chunks.push({str: text.slice(i,text.length)});
+		return chunks;
+	}.property("model.text","model.entities")
 });
 
 App.BarChartComponent = Ember.Component.extend({

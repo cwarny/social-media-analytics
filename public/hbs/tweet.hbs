@@ -5,10 +5,15 @@
 		</div>
 		<div class="col-md-11">
 			<blockquote>
-				<p>{{model.text}}</p>
+				<p>
+					{{#each chunks}}
+						{{str}}<a {{bind-attr href=url}} target="_blank">{{url}}</a>
+					{{/each}}
+				</p>
 				<small>{{model.referrer.name}} (@{{model.referrer.screen_name}})</small>
 			</blockquote>
 		</div>
+		<a {{bind-attr href=model.conversation_url}} role="button" class="btn btn-info pull-right" target="_blank">See tweet</a>
 		{{bar-chart data=model.clicks startDate=controllers.profile.startDate endDate=controllers.profile.endDate transition="transition"}}
 		</br>
 	</div>
@@ -20,10 +25,15 @@
 			</div>
 			<div class="col-md-11">
 				<blockquote>
-					<p>{{model.text}}</p>
+					<p>
+						{{#each chunks}}
+							{{str}}<a {{bind-attr href=url}} target="_blank">{{url}}</a>
+						{{/each}}
+					</p>
 					<small>{{model.referrer.name}} (@{{model.referrer.screen_name}})</small>
 				</blockquote>
 			</div>
+			<a {{bind-attr href=model.conversation_url}} role="button" class="btn btn-info pull-right" target="_blank">See tweet</a>
 			{{bar-chart data=model.clicks startDate=controllers.profile.startDate endDate=controllers.profile.endDate transition="transition"}}
 			</br>
 		</div>

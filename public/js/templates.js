@@ -456,11 +456,12 @@ function program1(depth0,data) {
   data.buffer.push(escapeExpression(helpers.bindAttr.call(depth0, {hash:{
     'src': ("model.referrer.profile_image_url")
   },contexts:[],types:[],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-  data.buffer.push(" alt=\"Profile picture\">\n		</div>\n		<div class=\"col-md-11\">\n			<blockquote>\n				<p>");
+  data.buffer.push(" alt=\"Profile picture\">\n		</div>\n		<div class=\"col-md-11\">\n			<blockquote>\n				<p>\n					");
   hashTypes = {};
   hashContexts = {};
-  data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "model.text", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-  data.buffer.push("</p>\n				<small>");
+  stack1 = helpers.each.call(depth0, "chunks", {hash:{},inverse:self.noop,fn:self.program(2, program2, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+  if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
+  data.buffer.push("\n				</p>\n				<small>");
   hashTypes = {};
   hashContexts = {};
   data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "model.referrer.name", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
@@ -468,7 +469,14 @@ function program1(depth0,data) {
   hashTypes = {};
   hashContexts = {};
   data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "model.referrer.screen_name", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-  data.buffer.push(")</small>\n			</blockquote>\n		</div>\n		");
+  data.buffer.push(")</small>\n			</blockquote>\n		</div>\n		<a ");
+  hashContexts = {'href': depth0};
+  hashTypes = {'href': "ID"};
+  options = {hash:{
+    'href': ("model.conversation_url")
+  },contexts:[],types:[],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
+  data.buffer.push(escapeExpression(((stack1 = helpers['bind-attr'] || depth0['bind-attr']),stack1 ? stack1.call(depth0, options) : helperMissing.call(depth0, "bind-attr", options))));
+  data.buffer.push(" role=\"button\" class=\"btn btn-info pull-right\" target=\"_blank\">See tweet</a>\n		");
   hashContexts = {'data': depth0,'startDate': depth0,'endDate': depth0,'transition': depth0};
   hashTypes = {'data': "ID",'startDate': "ID",'endDate': "ID",'transition': "STRING"};
   options = {hash:{
@@ -481,19 +489,40 @@ function program1(depth0,data) {
   data.buffer.push("\n		</br>\n	</div>\n");
   return buffer;
   }
+function program2(depth0,data) {
+  
+  var buffer = '', stack1, hashTypes, hashContexts, options;
+  data.buffer.push("\n						");
+  hashTypes = {};
+  hashContexts = {};
+  data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "str", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+  data.buffer.push("<a ");
+  hashContexts = {'href': depth0};
+  hashTypes = {'href': "ID"};
+  options = {hash:{
+    'href': ("url")
+  },contexts:[],types:[],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
+  data.buffer.push(escapeExpression(((stack1 = helpers['bind-attr'] || depth0['bind-attr']),stack1 ? stack1.call(depth0, options) : helperMissing.call(depth0, "bind-attr", options))));
+  data.buffer.push(" target=\"_blank\">");
+  hashTypes = {};
+  hashContexts = {};
+  data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "url", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+  data.buffer.push("</a>\n					");
+  return buffer;
+  }
 
-function program3(depth0,data) {
+function program4(depth0,data) {
   
   var buffer = '', stack1, hashTypes, hashContexts;
   data.buffer.push("\n	");
   hashTypes = {};
   hashContexts = {};
-  stack1 = helpers['if'].call(depth0, "model.referrer.onlyOneTweet", {hash:{},inverse:self.noop,fn:self.program(4, program4, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+  stack1 = helpers['if'].call(depth0, "model.referrer.onlyOneTweet", {hash:{},inverse:self.noop,fn:self.program(5, program5, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
   data.buffer.push("\n");
   return buffer;
   }
-function program4(depth0,data) {
+function program5(depth0,data) {
   
   var buffer = '', stack1, hashContexts, hashTypes, options;
   data.buffer.push("\n		<div class=\"well row tweetbox\">\n			<div class=\"col-md-1\">\n				<img ");
@@ -502,11 +531,12 @@ function program4(depth0,data) {
   data.buffer.push(escapeExpression(helpers.bindAttr.call(depth0, {hash:{
     'src': ("model.referrer.profile_image_url")
   },contexts:[],types:[],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-  data.buffer.push(" alt=\"Profile picture\">\n			</div>\n			<div class=\"col-md-11\">\n				<blockquote>\n					<p>");
+  data.buffer.push(" alt=\"Profile picture\">\n			</div>\n			<div class=\"col-md-11\">\n				<blockquote>\n					<p>\n						");
   hashTypes = {};
   hashContexts = {};
-  data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "model.text", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-  data.buffer.push("</p>\n					<small>");
+  stack1 = helpers.each.call(depth0, "chunks", {hash:{},inverse:self.noop,fn:self.program(6, program6, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+  if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
+  data.buffer.push("\n					</p>\n					<small>");
   hashTypes = {};
   hashContexts = {};
   data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "model.referrer.name", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
@@ -514,7 +544,14 @@ function program4(depth0,data) {
   hashTypes = {};
   hashContexts = {};
   data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "model.referrer.screen_name", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-  data.buffer.push(")</small>\n				</blockquote>\n			</div>\n			");
+  data.buffer.push(")</small>\n				</blockquote>\n			</div>\n			<a ");
+  hashContexts = {'href': depth0};
+  hashTypes = {'href': "ID"};
+  options = {hash:{
+    'href': ("model.conversation_url")
+  },contexts:[],types:[],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
+  data.buffer.push(escapeExpression(((stack1 = helpers['bind-attr'] || depth0['bind-attr']),stack1 ? stack1.call(depth0, options) : helperMissing.call(depth0, "bind-attr", options))));
+  data.buffer.push(" role=\"button\" class=\"btn btn-info pull-right\" target=\"_blank\">See tweet</a>\n			");
   hashContexts = {'data': depth0,'startDate': depth0,'endDate': depth0,'transition': depth0};
   hashTypes = {'data': "ID",'startDate': "ID",'endDate': "ID",'transition': "STRING"};
   options = {hash:{
@@ -527,10 +564,31 @@ function program4(depth0,data) {
   data.buffer.push("\n			</br>\n		</div>\n	");
   return buffer;
   }
+function program6(depth0,data) {
+  
+  var buffer = '', stack1, hashTypes, hashContexts, options;
+  data.buffer.push("\n							");
+  hashTypes = {};
+  hashContexts = {};
+  data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "str", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+  data.buffer.push("<a ");
+  hashContexts = {'href': depth0};
+  hashTypes = {'href': "ID"};
+  options = {hash:{
+    'href': ("url")
+  },contexts:[],types:[],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
+  data.buffer.push(escapeExpression(((stack1 = helpers['bind-attr'] || depth0['bind-attr']),stack1 ? stack1.call(depth0, options) : helperMissing.call(depth0, "bind-attr", options))));
+  data.buffer.push(" target=\"_blank\">");
+  hashTypes = {};
+  hashContexts = {};
+  data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "url", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
+  data.buffer.push("</a>\n						");
+  return buffer;
+  }
 
   hashTypes = {};
   hashContexts = {};
-  stack1 = helpers['if'].call(depth0, "model.referrer.isExpanded", {hash:{},inverse:self.program(3, program3, data),fn:self.program(1, program1, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+  stack1 = helpers['if'].call(depth0, "model.referrer.isExpanded", {hash:{},inverse:self.program(4, program4, data),fn:self.program(1, program1, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
   else { data.buffer.push(''); }
   

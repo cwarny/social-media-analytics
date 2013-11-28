@@ -21,6 +21,22 @@ Accounts.prototype.getCollection = function (callback) {
 	});
 };
 
+Accounts.prototype.find = function (accountId, callback) {
+	this.getCollection(function (error, accounts) {
+		if (error) {
+			callback(error);
+		} else {
+			accounts.find({id: accountId}).toArray(function (error, results) {
+				if (error) {
+					callback(error);
+				} else {
+					callback(null, results);
+				}
+			});
+		}
+	});
+};
+
 Accounts.prototype.findAll = function (userId, callback) {
 	this.getCollection(function (error, accounts) {
 		if (error) {
@@ -46,6 +62,22 @@ Accounts.prototype.save = function (items, callback) {
 				items = [items];
 			}
 			accounts.insert(items, {safe: true}, function (error, results) {
+				if (error) {
+					callback(error)
+				} else {
+					callback(null, results);
+				}
+			});
+		}
+	});
+};
+
+Accounts.prototype.update = function (profile, callback) {
+	this.getCollection(function (error, accounts) {
+		if (error) {
+			callback(error);
+		} else {
+			accounts.update({"webproperties.profiles.id":profile.id},{$push:{"webproperties.0.profiles.0.referrers": {$each: profile.referrers}}}, function (error, results) {
 				if (error) {
 					callback(error)
 				} else {
