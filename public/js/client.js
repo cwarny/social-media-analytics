@@ -76,6 +76,7 @@ App.Router.map(function() {
 	}),
 	this.resource("login"),
 	this.resource("home"),
+	this.resource("twitterconnect"),
 	this.resource("data")
 });
 
@@ -88,7 +89,8 @@ App.ApplicationRoute = Ember.Route.extend({
 	afterModel: function (model, transition) {
 		if (model.user) {
 			if (model.user.new) {
-				this.transitionTo("data");
+				if (model.user.twitter_tokens) this.transitionTo("data");
+				else this.transitionTo("twitterconnect");
 			} else if (transition.targetName === "index") {
 				this.transitionTo("accounts");
 			} else {
@@ -251,7 +253,6 @@ App.TweetController = Ember.Controller.extend({
 	}.property("model.date"),
 
 	chunks: function () {
-		console.log(this.get("model.entities"));
 		var text = this.get("model.text");
 		var chunks = [];
 		var i = 0;

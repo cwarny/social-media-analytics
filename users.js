@@ -76,7 +76,21 @@ Users.prototype.update = function (id, callback) {
 			callback(error);
 		} else {
 			users.update({id: id}, {$set: {new: false}}, function (error) {
-				callback(error)
+				if (error) callback(error);
+				else callback(null);
+			});
+		}
+	});
+};
+
+Users.prototype.saveTwitterTokens = function (id, tokens, callback) {
+	this.getCollection(function (error, users) {
+		if (error) {
+			callback(error);
+		} else {
+			users.update({id: id}, {$set: {twitter_tokens: tokens}}, function (error) {
+				if (error) callback(error);
+				else callback(null);
 			});
 		}
 	});

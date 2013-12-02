@@ -166,7 +166,7 @@ helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
   
 
 
-  data.buffer.push("<p>Download your Google Analytics data</p>\n<a href=\"http://localhost:3000/data\" type=\"button\" class=\"btn btn-primary\">Fetch data</a>");
+  data.buffer.push("<p>Download your Google Analytics data</p>\n<a href=\"http://localhost:3000/data\" type=\"button\" class=\"btn btn-primary\">Fetch Data</a>");
   
 });
 
@@ -689,6 +689,16 @@ function program8(depth0,data) {
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
   data.buffer.push("\n</ul>");
   return buffer;
+  
+});
+
+Ember.TEMPLATES['twitterconnect'] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
+this.compilerInfo = [4,'>= 1.0.0'];
+helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
+  
+
+
+  data.buffer.push("<p>Connect your Twitter account.</p>\n<a href=\"http://localhost:3000/connect/twitter\" type=\"button\" class=\"btn btn-primary\">Connect to Twitter</a>");
   
 });
 

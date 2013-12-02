@@ -72,12 +72,12 @@ Accounts.prototype.save = function (items, callback) {
 	});
 };
 
-Accounts.prototype.update = function (profile, callback) {
+Accounts.prototype.updateProfiles = function (webproperty, callback) {
 	this.getCollection(function (error, accounts) {
 		if (error) {
 			callback(error);
 		} else {
-			accounts.update({"webproperties.profiles.id":profile.id},{$push:{"webproperties.0.profiles.0.referrers": {$each: profile.referrers}}}, function (error, results) {
+			accounts.update({"webproperties.id":webproperty.id},{$set:{"webproperties.$.profiles": webproperty.profiles}}, function (error, results) {
 				if (error) {
 					callback(error)
 				} else {
