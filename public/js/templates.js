@@ -160,16 +160,6 @@ function program6(depth0,data) {
   
 });
 
-Ember.TEMPLATES['data'] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
-this.compilerInfo = [4,'>= 1.0.0'];
-helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
-  
-
-
-  data.buffer.push("<p>Download your Google Analytics data</p>\n<a href=\"http://localhost:3000/data\" type=\"button\" class=\"btn btn-primary\">Fetch Data</a>");
-  
-});
-
 Ember.TEMPLATES['home'] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
 this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
@@ -591,7 +581,7 @@ function program2(depth0,data) {
   hashContexts = {'href': depth0};
   hashTypes = {'href': "ID"};
   options = {hash:{
-    'href': ("url")
+    'href': ("expanded_url")
   },contexts:[],types:[],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
   data.buffer.push(escapeExpression(((stack1 = helpers['bind-attr'] || depth0['bind-attr']),stack1 ? stack1.call(depth0, options) : helperMissing.call(depth0, "bind-attr", options))));
   data.buffer.push(" target=\"_blank\">");
@@ -666,7 +656,7 @@ function program6(depth0,data) {
   hashContexts = {'href': depth0};
   hashTypes = {'href': "ID"};
   options = {hash:{
-    'href': ("url")
+    'href': ("expanded_url")
   },contexts:[],types:[],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
   data.buffer.push(escapeExpression(((stack1 = helpers['bind-attr'] || depth0['bind-attr']),stack1 ? stack1.call(depth0, options) : helperMissing.call(depth0, "bind-attr", options))));
   data.buffer.push(" target=\"_blank\">");
@@ -780,16 +770,6 @@ function program8(depth0,data) {
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
   data.buffer.push("\n</ul>");
   return buffer;
-  
-});
-
-Ember.TEMPLATES['twitterconnect'] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
-this.compilerInfo = [4,'>= 1.0.0'];
-helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
-  
-
-
-  data.buffer.push("<p>Connect your Twitter account.</p>\n<a href=\"http://localhost:3000/connect/twitter\" type=\"button\" class=\"btn btn-primary\">Connect to Twitter</a>");
   
 });
 

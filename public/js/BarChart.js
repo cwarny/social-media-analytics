@@ -19,7 +19,7 @@ function BarChart (startDate, endDate, self) {
 				var maxDate = d3.max(data,function (d) { return d.created_at; });
 				var timeSpan = (maxDate - minDate) / (1000 * 60 * 60) + 1;
 
-				var margin = {left: 50, top: 20, bottom: 30, right: (50 + (timeSpan === 1 ? 0 : width/timeSpan))};
+				var margin = {left: 50, top: 20, bottom: 30, right: (50 + (timeSpan === 1 ? width/2 : width/timeSpan))};
 				
 				var w = width - margin.left - margin.right;
 				var h = height - margin.top - margin.bottom;

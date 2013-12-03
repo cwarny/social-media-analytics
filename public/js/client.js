@@ -319,7 +319,7 @@ App.TweetController = Ember.Controller.extend({
 		var i = 0;
 		this.get("model.entities.urls").forEach(function (url) {
 			var j = text.indexOf(url.url);
-			chunks.push({str: text.slice(i,j), url: url.url});
+			chunks.push({str: text.slice(i,j), url: url.url, expanded_url: url.expanded_url});
 			i = (j + url.url.length);
 		});
 		chunks.push({str: text.slice(i,text.length)});

@@ -54,6 +54,7 @@ passport.use(new GoogleStrategy({
 		callbackURL: GOOGLE_REDIRECT_URL
 	},
 	function (accessToken, refreshToken, profile, done) {
+		console.log(refreshToken);
 		process.nextTick(function () {
 			users.find(profile.id, function (err, user) {
 				if (user.length > 0) {
@@ -62,6 +63,8 @@ passport.use(new GoogleStrategy({
 					profile.access_token_google = accessToken;
 					profile.refresh_token_google = refreshToken;
 					users.save(profile, function (err, user) {
+						var d = new Date();
+						sched(d.getHours(), d.getMinutes(), profile.id);
 						done(err,user[0]);
 					});
 				}
@@ -108,10 +111,6 @@ app.get("/user", function (req, res) {
 	}
 });
 
-app.get("/login", function (req, res) {
-	res.render("login");
-});
-
 app.get("/logout", function (req, res){
 	req.logout();
 	res.redirect("/");
@@ -130,9 +129,9 @@ app.get("/auth/google",
 );
 
 app.get("/auth/google/callback", 
-	passport.authenticate("google", { failureRedirect: "/login" }),
+	passport.authenticate("google", { failureRedirect: "/" }),
 	function (req, res) {
-		res.redirect("/#/");
+		res.redirect("/");
 	}
 );
 
@@ -188,15 +187,14 @@ console.log("Express server started on port %s", server.address().port);
 
 // Every day, update user data
 
-var j = schedule.scheduleJob({hour: 19, minute: 58}, function () {
-	console.log("Update starting...");
-	users.findAll(function (err, data) {
-		async.each(data, function (user, cb) {
-			refresh(user.refresh_token_google, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, function (err, json, res) {
+function sched(h, m, userId) {
+	schedule.scheduleJob({hour: h, minute: m}, function () {
+		console.log("Update for " + userId + " started...");
+		users.find(userId, function (err, data) {
+			refresh(data[0].refresh_token_google, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, function (err, json, res) {
 				if (!err & !json.error) {
 					user.access_token_google = json.accessToken;
 					fetchData(user, function (err, results) {
-						console.log(results.length);
 						async.each(results, function (account, cb) {
 							console.log("Account id: " + account.id);
 							accounts.find(account.id, function (err, res) {
@@ -204,23 +202,29 @@ var j = schedule.scheduleJob({hour: 19, minute: 58}, function () {
 									async.each(account.webproperties, function (webproperty, cb) {
 										if (uu.contains(uu.pluck(res[0].webproperties, "id"), webproperty.id)) {
 											console.log("Webproperty id: " + webproperty.id);
-											async.map(webproperty.profiles, function (profile) {
+											async.map(webproperty.profiles, function (profile, cb) {
 												if (uu.contains(uu.pluck(uu.findWhere(res[0].webproperties, {id: webproperty.id}).profiles, "id"), profile.id)) {
 													console.log("Profile id: " + profile.id);
-													var ref = uu.findWhere(uu.findWhere(res[0].webproperties, {id: webproperty.id}).profiles, {id: profile.id}).referrers;
-													profile.referrers = uu.map(profile.referrers, function (referrer) {
-														var r = uu.findWhere(ref, {fullreferrer: referrer.fullreferrer});
+													var old_referrers = uu.findWhere(uu.findWhere(res[0].webproperties, {id: webproperty.id}).profiles, {id: profile.id}).referrers;
+													var new_referrers = profile.referrers;
+													var new_clicks_count = 0;
+													new_referrers = new_referrers.filter(function (referrer) {
+														var r = uu.findWhere(old_referrers, {fullreferrer: referrer.fullreferrer});
 														if (r) {
 															referrer.clicks.forEach(function (c) {
 																if (!uu.contains(uu.pluck(r.clicks, "created_at"), c.created_at)) {
+																	new_clicks_count++;
 																	r.clicks.push(c);
 																}
 															});
-															return r;
+															return false;
 														} else {
-															return referrer;
+															return true;
 														}
 													});
+													console.log("Number of new referrers: " + new_referrers.length);
+													console.log("Number of new clicks: " + new_clicks_count);
+													profile.referrers = uu.union(old_referrers,new_referrers);
 												}
 												cb(null, profile);
 											}, function (err, profiles) {
@@ -247,16 +251,14 @@ var j = schedule.scheduleJob({hour: 19, minute: 58}, function () {
 								}
 							});
 						}, function (err) {
-							cb(err);
+							console.log("Done updating.");
 						});
 					});
 				}
 			});
-		}, function (err) {
-			console.log("Done updating.");
 		});
 	});
-});
+}
 
 
 // Utility functions

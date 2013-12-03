@@ -7,7 +7,7 @@
 			<blockquote>
 				<p>
 					{{#each chunks}}
-						{{str}}<a {{bind-attr href=url}} target="_blank">{{url}}</a>
+						{{str}}<a {{bind-attr href=expanded_url}} target="_blank">{{url}}</a>
 					{{/each}}
 				</p>
 				<small>{{model.referrer.name}} (@{{model.referrer.screen_name}})</small>
@@ -27,7 +27,7 @@
 				<blockquote>
 					<p>
 						{{#each chunks}}
-							{{str}}<a {{bind-attr href=url}} target="_blank">{{url}}</a>
+							{{str}}<a {{bind-attr href=expanded_url}} target="_blank">{{url}}</a>
 						{{/each}}
 					</p>
 					<small>{{model.referrer.name}} (@{{model.referrer.screen_name}})</small>
