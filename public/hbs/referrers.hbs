@@ -2,7 +2,7 @@
 <div class="btn-group">
 	<button {{action setSortingProperty "totalClicks"}} type="button" class="btn btn-default">Clicks</button>
 	<button {{action setSortingProperty "followers_count"}} type="button" class="btn btn-default">Followers</button>
-	<button {{action setSortingProperty "date_last_tweet"}} type="button" class="btn btn-default">Date</button>
+	<button {{action setSortingProperty "retweet_count"}} type="button" class="btn btn-default">Retweets</button>
 </div>
 <br>
 <br>
@@ -19,7 +19,7 @@
 							{{#if controllers.referrers.sortingPropertyIsFollowersCount}}
 								{{model.tweets.firstObject.referrer.followers_count}}
 							{{else}}
-								{{date_last_tweet}}
+								{{model.retweet_count}}
 							{{/if}}
 						{{/if}}
 					</span>
@@ -43,7 +43,7 @@
 							{{#if controllers.referrers.sortingPropertyIsFollowersCount}}
 								{{model.followers_count}}
 							{{else}}
-								{{date_last_tweet}}
+								{{model.retweet_count}}
 							{{/if}}
 						{{/if}}
 					</span>

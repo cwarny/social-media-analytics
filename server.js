@@ -49,10 +49,9 @@ var GOOGLE_CLIENT_ID = "898266335618-fhhc3qu7ad057j5a70m1mr3ikttud14k.apps.googl
 	GOOGLE_REDIRECT_URL = "http://localhost:3000/auth/google/callback";
 
 passport.use(new GoogleStrategy({
-	clientID: GOOGLE_CLIENT_ID,
-	clientSecret: GOOGLE_CLIENT_SECRET,
-	callbackURL: GOOGLE_REDIRECT_URL,
-	access_type: "offline"
+		clientID: GOOGLE_CLIENT_ID,
+		clientSecret: GOOGLE_CLIENT_SECRET,
+		callbackURL: GOOGLE_REDIRECT_URL
 	},
 	function (accessToken, refreshToken, profile, done) {
 		process.nextTick(function () {
@@ -72,9 +71,9 @@ passport.use(new GoogleStrategy({
 ));
 
 passport.use("twitter-authz", new TwitterStrategy({
-	consumerKey: TWITTER_CONSUMER_KEY,
-	consumerSecret: TWITTER_CONSUMER_SECRET,
-	callbackURL: "http://localhost:3000/connect/twitter/callback"
+		consumerKey: TWITTER_CONSUMER_KEY,
+		consumerSecret: TWITTER_CONSUMER_SECRET,
+		callbackURL: "http://localhost:3000/connect/twitter/callback"
 	},
 	function (token, tokenSecret, profile, done) {
 		return done(null,{token: token, tokenSecret: tokenSecret});
@@ -122,7 +121,8 @@ app.get("/auth/google",
 	passport.authenticate("google", 
 		{ 
 			scope: ["https://www.googleapis.com/auth/userinfo.profile","https://www.googleapis.com/auth/userinfo.email","https://www.googleapis.com/auth/analytics.readonly"],
-			access_type: "offline"
+			accessType: "offline",
+			approvalPrompt: "force"
 		}),
 	function (req, res) {
 
@@ -172,7 +172,7 @@ app.get("/data", function (req, res) {
 		fetchData(req.user, function (err, results) {
 			accounts.save(results, function (err, a) {
 				users.update(req.user.id, function (error) {
-					res.redirect("/");
+					res.send();
 				});
 			});
 		});
@@ -188,13 +188,15 @@ console.log("Express server started on port %s", server.address().port);
 
 // Every day, update user data
 
-var j = schedule.scheduleJob({hour: 17, minute: 08}, function () {
+var j = schedule.scheduleJob({hour: 19, minute: 58}, function () {
+	console.log("Update starting...");
 	users.findAll(function (err, data) {
 		async.each(data, function (user, cb) {
 			refresh(user.refresh_token_google, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, function (err, json, res) {
 				if (!err & !json.error) {
 					user.access_token_google = json.accessToken;
 					fetchData(user, function (err, results) {
+						console.log(results.length);
 						async.each(results, function (account, cb) {
 							console.log("Account id: " + account.id);
 							accounts.find(account.id, function (err, res) {

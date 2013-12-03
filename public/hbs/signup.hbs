@@ -1,0 +1,26 @@
+{{#if downloading}}
+	<div class="centering">
+		<h3>Fetching data...</h3>
+		<br>
+		<img src="/img/loading.gif" alt="Loading" title="Loading" class="loading"/>
+	</div>
+{{else}}
+	<h1>Sign Up</h1>
+	<br>
+	<dl class="signup">
+		{{#view App.SignonView}}
+			Socialr needs access to your Google Analytics data. Please sign on with the Google account linked to your Analytics account.
+		{{/view}}
+		<dd>{{#view App.SignonButtonView}}Sign On{{/view}}</dd>
+
+		{{#view App.ConnectView}}
+			Socialr finds the tweets that led people to land on your website. You need to connect a Twitter account to your Socialr account.
+		{{/view}}
+		<dd>{{#view App.ConnectButtonView}}Connect{{/view}}</dd>
+
+		{{#view App.GetDataView}}
+			Mash up Google Analytics and Twitter. Download your data.
+		{{/view}}
+		<dd>{{#view App.GetDataButtonView}}Get Data{{/view}}</dd>
+	</dl>
+{{/if}}

@@ -106,3 +106,46 @@ ul.tree-branch ul {
 .nav-stacked ul {
 	margin-left: 20px;
 }
+
+
+.signup {
+	counter-reset: my-counter;
+}
+ 
+.signup dt {
+	position: relative;
+	font: bold 16px Georgia;
+	padding: 4px 0 10px 0;
+}
+
+.unactive {
+	color: #D8D8D8;
+}
+
+.signup dt:before {
+	content: counter(my-counter);
+	counter-increment: my-counter;
+	position: absolute;
+	left: 0;
+	top: 0;
+	font: bold 50px/1 Sans-Serif;
+}
+
+.signup dd {
+	margin: 0 0 50px 0;
+}
+
+.signup dt, .signup dd {
+	padding-left: 50px;
+}
+
+img.loading {
+	height: 32px;
+	width: 32px;
+}
+
+.centering {
+	text-align: center;
+	float:none;
+	margin:0 auto;
+}

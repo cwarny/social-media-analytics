@@ -6,16 +6,20 @@ App.Referrer = DS.Model.extend({
 	profile: DS.belongsTo("profile"),
 	startDate: Ember.computed.alias("profile.startDate"),
 	endDate: Ember.computed.alias("profile.endDate"),
-	totalClicks: function () {
-		return d3.sum(this.get("tweets").getEach("totalClicks"));
-	}.property("tweets.@each.totalClicks"),
-	date_last_tweet: function () {
-		return new Date(d3.max(this.get("tweets").getEach("created_at")));
-	}.property("tweets.@each.created_at"),
+
 	isExpanded: false,
+
 	onlyOneTweet: function () {
 		return this.get("tweets.length") === 1;
-	}.property("tweets.@each")
+	}.property("tweets.@each"),
+
+	retweet_count: function () {
+		return d3.sum(this.get("tweets").getEach("retweet_count"));
+	}.property("tweets.@each.retweet_count"),
+
+	totalClicks: function () {
+		return d3.sum(this.get("tweets").getEach("totalClicks"));
+	}.property("tweets.@each.totalClicks")
 });
 
 App.Tweet = DS.Model.extend({
@@ -26,6 +30,8 @@ App.Tweet = DS.Model.extend({
 	created_at: DS.attr("string"),
 	id_str: DS.attr("string"),
 	entities: DS.attr(),
+	retweet_count: DS.attr("number"),
+	
 
 	conversation_url: function () {
 		return "https://twitter.com/" + this.get("referrer.screen_name") + "/status/" + this.get("id_str");

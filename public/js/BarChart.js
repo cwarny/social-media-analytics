@@ -17,8 +17,7 @@ function BarChart (startDate, endDate, self) {
 			} else {
 				var minDate = d3.min(data,function (d) { return d.created_at; });
 				var maxDate = d3.max(data,function (d) { return d.created_at; });
-				var timeSpan = (maxDate - minDate) / (1000 * 60 * 60);
-				if (timeSpan === 0) timeSpan = 1;
+				var timeSpan = (maxDate - minDate) / (1000 * 60 * 60) + 1;
 
 				var margin = {left: 50, top: 20, bottom: 30, right: (50 + (timeSpan === 1 ? 0 : width/timeSpan))};
 				
@@ -30,12 +29,19 @@ function BarChart (startDate, endDate, self) {
 				xScale.domain([minDate,maxDate])
 					.range([0, w]);
 
-				var xAxis = d3.svg.axis()
-					.scale(xScale)
-					.orient("bottom")
-					.ticks(d3.time.hour, timeSpan > 15 ? 3 : 1);
+				if (timeSpan === 1) {
+					var xAxis = d3.svg.axis()
+						.scale(xScale)
+						.orient("bottom")
+						.ticks(d3.time.hour,1);
+				} else {
+					var xAxis = d3.svg.axis()
+						.scale(xScale)
+						.orient("bottom")
+						.ticks(d3.min([10, timeSpan]));
+				}
 
-				yScale.domain([0, d3.max(data, function(d) { return parseInt(d.count); })])
+				yScale.domain([0, d3.max(data, function (d) { return parseInt(d.count); })])
 					.range([h, 0]);
 
 				var yAxis = d3.svg.axis()
@@ -104,13 +110,6 @@ function BarChart (startDate, endDate, self) {
 						"y": function(d) { return yScale(d3.max([0, d.count])); },
 						"height": function(d) { return h - yScale(d.count); }
 					});
-
-				// bars.exit()
-				// 	.transition()
-				// 	.duration(duration)
-				// 	.attr("y", h)
-				// 	.attr("height", 0)
-				// 	.remove();
 			}
 		});
 	}

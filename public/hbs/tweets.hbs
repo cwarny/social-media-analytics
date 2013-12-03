@@ -8,7 +8,7 @@
 					{{#if controllers.referrers.sortingPropertyIsFollowersCount}}
 						{{model.referrer.screen_name}}<span class="badge">{{model.referrer.followers_count}}</span>
 					{{else}}
-						{{model.referrer.screen_name}}<span class="badge">{{date}}</span>
+						{{model.referrer.screen_name}}<span class="badge">{{model.retweet_count}}</span>
 					{{/if}}
 				{{/if}}
 			</a>

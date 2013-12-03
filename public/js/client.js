@@ -76,8 +76,7 @@ App.Router.map(function() {
 	}),
 	this.resource("login"),
 	this.resource("home"),
-	this.resource("twitterconnect"),
-	this.resource("data")
+	this.resource("signup")
 });
 
 App.ApplicationRoute = Ember.Route.extend({
@@ -88,17 +87,91 @@ App.ApplicationRoute = Ember.Route.extend({
 	},
 	afterModel: function (model, transition) {
 		if (model.user) {
-			if (model.user.new) {
-				if (model.user.twitter_tokens) this.transitionTo("data");
-				else this.transitionTo("twitterconnect");
-			} else if (transition.targetName === "index") {
-				this.transitionTo("accounts");
+			if (!model.user.new) {
+				if (transition.targetName === "index") {
+					this.transitionTo("accounts");
+				} else {
+					this.transitionTo(transition.targetName);
+				}
 			} else {
-				this.transitionTo(transition.targetName);
-			}
+				this.transitionTo("signup");
+			} 
 		} else {
 			this.transitionTo("home");
 		}
+	}
+});
+
+App.SignupController = Ember.Controller.extend({
+	needs: ["application"],
+	downloading: false
+});
+
+App.SignupStepView = Ember.View.extend({
+	tagName: "dt",
+	classNameBindings: ["isUnactive:unactive"],
+});
+
+App.ButtonView = Ember.View.extend({
+	tagName: "a",
+	classNames: ["btn"],
+	classNameBindings: ["isDisabled:btn-default:btn-primary"],
+	attributeBindings: ["isDisabled:disabled", "type", "href"],
+	type: "button",
+	disabled: "disabled"
+});
+
+App.SignonView = App.SignupStepView.extend({
+	isUnactive: function () {
+		if (this.get("controller.controllers.application.model.user")) return true;
+		else return false;
+	}.property("controller.controllers.application.model.user")
+});
+
+App.SignonButtonView = App.ButtonView.extend({
+	isDisabled: function () {
+		if (this.get("controller.controllers.application.model.user")) return true;
+		else return false;
+	}.property("controller.controllers.application.model.user"),
+
+	href: "http://localhost:3000/auth/google"
+});
+
+App.ConnectView = App.SignupStepView.extend({
+	isUnactive: function () {
+		if (!this.get("controller.controllers.application.model.user") || this.get("controller.controllers.application.model.user.twitter_tokens")) return true;
+		else return false;
+	}.property("controller.controllers.application.model.user")
+});
+
+App.ConnectButtonView = App.ButtonView.extend({
+	isDisabled: function () {
+		if (!this.get("controller.controllers.application.model.user") || this.get("controller.controllers.application.model.user.twitter_tokens")) return true;
+		else return false;
+	}.property("controller.controllers.application.model.user"),
+	
+	href: "http://localhost:3000/connect/twitter"
+});
+
+App.GetDataView = App.SignupStepView.extend({
+	isUnactive: function () {
+		if (!this.get("controller.controllers.application.model.user") || !this.get("controller.controllers.application.model.user.twitter_tokens") || !this.get("controller.controllers.application.model.user.new")) return true;
+		else return false;
+	}.property("controller.controllers.application.model.user")
+});
+
+App.GetDataButtonView = App.ButtonView.extend({
+	isDisabled: function () {
+		if (!this.get("controller.controllers.application.model.user") || !this.get("controller.controllers.application.model.user.twitter_tokens") || !this.get("controller.controllers.application.model.user.new")) return true;
+		else return false;
+	}.property("controller.controllers.application.model.user"),
+
+	click: function () {
+		this.set("controller.downloading",true);
+		var c = this.get("controller");
+		$.get("data").then(function (res) {
+			c.transitionToRoute("accounts");
+		});
 	}
 });
 
@@ -202,11 +275,6 @@ App.ReferrerController = Ember.Controller.extend({
 		}
 	},
 
-	date_last_tweet: function () {
-		var format = d3.time.format("%b %d %H:%M");
-		return format(this.get("model.date_last_tweet"));
-	}.property("model.date_last_tweet"),
-
 	actions: {
 		toggle: function () {
 			this.set("model.isExpanded", !this.get("model.isExpanded"));
@@ -231,9 +299,7 @@ App.TweetsController = Ember.ArrayController.extend({
 	needs: ["referrers","referrer","profile"],
 
 	sortProperties: function () {
-		var sp = this.get("controllers.referrers.sortingProperty");
-		if (sp === "date_last_tweet") return ["date"];
-		return [sp];
+		return [this.get("controllers.referrers.sortingProperty")];
 	}.property("controllers.referrers.sortingProperty"),
 	sortAscending: false
 });
@@ -246,11 +312,6 @@ App.TweetController = Ember.Controller.extend({
 			this.transitionToRoute("profile");
 		}
 	},
-
-	date: function () {
-		var format = d3.time.format("%b %d %H:%M");
-		return format(this.get("model.date"));
-	}.property("model.date"),
 
 	chunks: function () {
 		var text = this.get("model.text");
