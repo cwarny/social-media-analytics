@@ -22,8 +22,8 @@ var twitter = new twitterAPI({
 	consumerSecret: TWITTER_CONSUMER_SECRET
 });
 
-var users = new Users('localhost', 27017),
-	accounts = new Accounts('localhost', 27017);
+var users = new Users("localhost", 27017),
+	accounts = new Accounts("localhost", 27017);
 
 app.configure(function () {
 	app.set("port", process.env.PORT || 3000);
