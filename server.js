@@ -27,24 +27,20 @@ var users = new Users('localhost', 27017),
 
 app.configure(function () {
 	app.set("port", process.env.PORT || 3000);
-	app.set("views", __dirname + "/views");
-	app.set("view engine", "jade");
-	app.set("view options", {layout: false});
-	app.use(require("stylus").middleware(__dirname + "/public"));
 	app.use(express.static(path.join(__dirname, "public")));
 	app.use(express.favicon());
 	app.use(express.logger());
 	app.use(express.bodyParser());
 	app.use(express.cookieParser());
 	app.use(express.methodOverride());
-	app.use(express.session({secret: 'keyboard cat'}));
+	app.use(express.session({secret: "keyboard cat"}));
 	app.use(passport.initialize());
   	app.use(passport.session());
 	app.use(app.router);
 });
 
 var GOOGLE_CLIENT_ID = "898266335618-fhhc3qu7ad057j5a70m1mr3ikttud14k.apps.googleusercontent.com",
-	GOOGLE_CLIENT_SECRET = "ktNpbeUU1DBsRFkTm08nySaH",
+	GOOGLE_CLIENT_SECRET = "st_nsM_HJ-RSLce5eKg1vlD0",
 	GOOGLE_REDIRECT_URL = "http://localhost:3000/auth/google/callback";
 
 passport.use(new GoogleStrategy({
@@ -53,7 +49,6 @@ passport.use(new GoogleStrategy({
 		callbackURL: GOOGLE_REDIRECT_URL
 	},
 	function (accessToken, refreshToken, profile, done) {
-		console.log(refreshToken);
 		process.nextTick(function () {
 			users.find(profile.id, function (err, user) {
 				if (user.length > 0) {
@@ -119,8 +114,7 @@ app.get("/auth/google",
 	passport.authenticate("google", 
 		{ 
 			scope: ["https://www.googleapis.com/auth/userinfo.profile","https://www.googleapis.com/auth/userinfo.email","https://www.googleapis.com/auth/analytics.readonly"],
-			accessType: "offline",
-			approvalPrompt: "force"
+			accessType: "offline"
 		}),
 	function (req, res) {
 
