@@ -6,7 +6,7 @@ var MongoClient = require("mongodb").MongoClient,
 
 
 Users = function(host, port) {
-	var mongoClient = new MongoClient(new Server(host, port));
+	var mongoClient = new MongoClient(new Server('mongodb://localhost/mydb'/*host, port*/));
 	mongoClient.open(function (){});
 	this.db = mongoClient.db("sma");
 };
