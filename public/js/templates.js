@@ -188,7 +188,7 @@ helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
   
 
 
-  data.buffer.push("<p>You need a Google account to log into Socialr</p>\n<a href=\"http://localhost:3000/auth/google\" type=\"button\" class=\"btn btn-primary\">Log In with Google</a>\n			");
+  data.buffer.push("<p>You need a Google account to log into Socialr</p>\n<a href=\"http://socialr-s.herokuapp.com/auth/google\" type=\"button\" class=\"btn btn-primary\">Log In with Google</a>\n			");
   
 });
 
