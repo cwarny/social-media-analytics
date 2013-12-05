@@ -82,7 +82,6 @@ App.Router.map(function() {
 App.ApplicationRoute = Ember.Route.extend({
 	model: function () {
 		return $.get("/user").then(function (res) {
-			console.log(res.user);
 			return {user: res.user};
 		});
 	},
@@ -174,6 +173,21 @@ App.GetDataButtonView = App.ButtonView.extend({
 			c.transitionToRoute("accounts");
 		});
 	}
+});
+
+App.SortingButtonView = Ember.View.extend({
+	tagName: "button",
+	attributeBindings: ["type"],
+	classNames: ["btn", "btn-default"],
+	classNameBindings: ["isActive:active"],
+	type: "button",
+	isActive: function () {
+		if (this.get("property") === this.get("controller.sortingProperty")) return true;
+		else return false;
+	}.property("property","controller.sortingProperty"),
+	click: function () {
+		this.set("controller.sortingProperty", this.get("property"));
+	}.property("property","controller.sortingProperty"),
 });
 
 App.AccountsRoute = Ember.Route.extend({

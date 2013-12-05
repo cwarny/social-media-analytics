@@ -1,8 +1,8 @@
 <label>Sort by</label>
 <div class="btn-group">
-	<button {{action setSortingProperty "totalClicks"}} type="button" class="btn btn-default">Clicks</button>
-	<button {{action setSortingProperty "followers_count"}} type="button" class="btn btn-default">Followers</button>
-	<button {{action setSortingProperty "retweet_count"}} type="button" class="btn btn-default">Retweets</button>
+	{{#view App.SortingButtonView property="totalClicks"}}Clicks{{/view}}
+	{{#view App.SortingButtonView property="followers_count"}}Followers{{/view}}
+	{{#view App.SortingButtonView property="retweet_count"}}Retweets{{/view}}
 </div>
 <br>
 <br>
