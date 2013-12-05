@@ -24,7 +24,7 @@ var TWITTER_CONSUMER_KEY = "669NaQjJ3prRexOFBfoA",
 	TWITTER_CONSUMER_SECRET = "sCpxu93VDaMr2FdpJ6qvCC4IyZOjirA7LJ3KFt5E"
 	GOOGLE_CLIENT_ID = "898266335618-fhhc3qu7ad057j5a70m1mr3ikttud14k.apps.googleusercontent.com",
 	GOOGLE_CLIENT_SECRET = "st_nsM_HJ-RSLce5eKg1vlD0",
-	GOOGLE_REDIRECT_URL = "http://socialr-s.herokuapp.com/auth/google/callback";
+	GOOGLE_REDIRECT_URL = "http://socialr.herokuapp.com/auth/google/callback";
 
 // var users = new Users("localhost", 27017),
 // 	accounts = new Accounts("localhost", 27017);
@@ -85,7 +85,7 @@ passport.use(new GoogleStrategy({
 passport.use("twitter-authz", new TwitterStrategy({
 		consumerKey: TWITTER_CONSUMER_KEY,
 		consumerSecret: TWITTER_CONSUMER_SECRET,
-		callbackURL: "http://socialr-s.herokuapp.com/connect/twitter/callback"
+		callbackURL: "http://socialr.herokuapp.com/connect/twitter/callback"
 	},
 	function (token, tokenSecret, profile, done) {
 		return done(null,{token: token, tokenSecret: tokenSecret});

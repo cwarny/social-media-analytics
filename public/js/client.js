@@ -134,7 +134,7 @@ App.SignonButtonView = App.ButtonView.extend({
 		else return false;
 	}.property("controller.controllers.application.model.user"),
 
-	href: "http://socialr-s.herokuapp.com/auth/google"
+	href: "http://socialr.herokuapp.com/auth/google"
 });
 
 App.ConnectView = App.SignupStepView.extend({
@@ -150,7 +150,7 @@ App.ConnectButtonView = App.ButtonView.extend({
 		else return false;
 	}.property("controller.controllers.application.model.user"),
 	
-	href: "http://socialr-s.herokuapp.com/connect/twitter"
+	href: "http://socialr.herokuapp.com/connect/twitter"
 });
 
 App.GetDataView = App.SignupStepView.extend({
