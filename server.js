@@ -9,21 +9,25 @@ var express = require("express"),
 	uu = require("underscore"),
 	util = require("util"),
 	twitterAPI = require("node-twitter-api"),
-	Users = require("./users").Users,
-	Accounts = require("./accounts").Accounts,
+	// Users = require("./users").Users,
+	// Accounts = require("./accounts").Accounts,
 	refresh = require("google-refresh-token")
-	schedule = require("node-schedule");
+	schedule = require("node-schedule"),
+	mongodb = require("mongodb");
+
+var MONGODB_URI = process.env.MONGOLAB_URI || process.env.MONGOHQ_URL || "mongodb://localhost/",
+	db,
+	users,
+	accounts;
 
 var TWITTER_CONSUMER_KEY = "669NaQjJ3prRexOFBfoA",
-	TWITTER_CONSUMER_SECRET = "sCpxu93VDaMr2FdpJ6qvCC4IyZOjirA7LJ3KFt5E";
+	TWITTER_CONSUMER_SECRET = "sCpxu93VDaMr2FdpJ6qvCC4IyZOjirA7LJ3KFt5E"
+	GOOGLE_CLIENT_ID = "898266335618-fhhc3qu7ad057j5a70m1mr3ikttud14k.apps.googleusercontent.com",
+	GOOGLE_CLIENT_SECRET = "st_nsM_HJ-RSLce5eKg1vlD0",
+	GOOGLE_REDIRECT_URL = "http://localhost:3000/auth/google/callback";
 
-var twitter = new twitterAPI({
-	consumerKey: TWITTER_CONSUMER_KEY,
-	consumerSecret: TWITTER_CONSUMER_SECRET
-});
-
-var users = new Users("localhost", 27017),
-	accounts = new Accounts("localhost", 27017);
+// var users = new Users("localhost", 27017),
+// 	accounts = new Accounts("localhost", 27017);
 
 app.configure(function () {
 	app.set("port", process.env.PORT || 3000);
@@ -39,9 +43,19 @@ app.configure(function () {
 	app.use(app.router);
 });
 
-var GOOGLE_CLIENT_ID = "898266335618-fhhc3qu7ad057j5a70m1mr3ikttud14k.apps.googleusercontent.com",
-	GOOGLE_CLIENT_SECRET = "st_nsM_HJ-RSLce5eKg1vlD0",
-	GOOGLE_REDIRECT_URL = "http://socialr-s.herokuapp.com/auth/google/callback";
+mongodb.MongoClient.connect(MONGODB_URI, function (err, database) {
+	if (err) throw err;
+	db = database;
+	users = db.collection("users");
+	accounts = db.collection("accounts");
+	var server = app.listen(process.env.PORT || 3000);
+	console.log("Express server started on port %s", server.address().port);
+});
+
+var twitter = new twitterAPI({
+	consumerKey: TWITTER_CONSUMER_KEY,
+	consumerSecret: TWITTER_CONSUMER_SECRET
+});
 
 passport.use(new GoogleStrategy({
 		clientID: GOOGLE_CLIENT_ID,
@@ -50,13 +64,14 @@ passport.use(new GoogleStrategy({
 	},
 	function (accessToken, refreshToken, profile, done) {
 		process.nextTick(function () {
-			users.find(profile.id, function (err, user) {
-				if (user.length > 0) {
-					done(err, user[0]);
-				} else {
+			users.find({id: profile.id}).toArray(function (err, user) {
+				console.log(user);
+				if (user.length > 0) done(err, user[0]);
+				else {
 					profile.access_token_google = accessToken;
 					profile.refresh_token_google = refreshToken;
-					users.save(profile, function (err, user) {
+					profile.new = true;
+					users.insert(profile, {safe: true}, function (err, user) {
 						var d = new Date();
 						sched(d.getHours(), d.getMinutes(), profile.id);
 						done(err,user[0]);
@@ -70,7 +85,7 @@ passport.use(new GoogleStrategy({
 passport.use("twitter-authz", new TwitterStrategy({
 		consumerKey: TWITTER_CONSUMER_KEY,
 		consumerSecret: TWITTER_CONSUMER_SECRET,
-		callbackURL: "http://socialr-s.herokuapp.com/connect/twitter/callback"
+		callbackURL: "http://localhost:3000/connect/twitter/callback"
 	},
 	function (token, tokenSecret, profile, done) {
 		return done(null,{token: token, tokenSecret: tokenSecret});
@@ -82,7 +97,7 @@ passport.serializeUser(function (user, done) {
 });
 
 passport.deserializeUser(function (id, done) {
-	users.find(id, function (err, user) {
+	users.find({id: id}).toArray(function (err, user) {
 		done(err, user[0]);
 	});
 });
@@ -130,8 +145,8 @@ app.get("/auth/google/callback",
 
 app.get("/accounts", function (req, res) {
 	if (req.isAuthenticated()) {
-		accounts.findAll(req.user.id, function (error, a) {
-			res.json({accounts: a});
+		accounts.find({userId: req.user.id}).toArray(function (err, results) {
+			res.json({accounts: results});
 		});
 	} else {
 		res.json({
@@ -148,7 +163,7 @@ app.get("/connect/twitter/callback",
 	passport.authorize("twitter-authz", { failureRedirect: "/" }),
 	function (req, res) {
 		if (req.isAuthenticated()) {
-			users.saveTwitterTokens(req.user.id, req.account, function (error) {
+			users.update({id: req.user.id}, {$set: {twitter_tokens: tokens}}, function (err) {
 				res.redirect("/");
 			});
 		} else {
@@ -162,8 +177,9 @@ app.get("/connect/twitter/callback",
 app.get("/data", function (req, res) {
 	if (req.isAuthenticated()) {
 		fetchData(req.user, function (err, results) {
-			accounts.save(results, function (err, a) {
-				users.update(req.user.id, function (error) {
+			if (typeof(results.length) == "undefined") results = [results];
+			accounts.insert(results, {safe: true}, function (err, results) {
+				users.update({id: req.user.id}, {$set: {new: false}}, function (err) {
 					res.send();
 				});
 			});
@@ -175,30 +191,27 @@ app.get("/data", function (req, res) {
 	}
 });
 
-var server = app.listen(process.env.PORT || 3000);
-console.log("Express server started on port %s", server.address().port);
-
 // Every day, update user data
 
 function sched(h, m, userId) {
 	schedule.scheduleJob({hour: h, minute: m}, function () {
 		console.log("Update for " + userId + " started...");
-		users.find(userId, function (err, data) {
-			refresh(data[0].refresh_token_google, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, function (err, json, res) {
+		users.find({id: userId}).toArray(function (err, user) {
+			refresh(user[0].refresh_token_google, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, function (err, json, res) {
 				if (!err & !json.error) {
-					user.access_token_google = json.accessToken;
-					fetchData(user, function (err, results) {
+					user[0].access_token_google = json.accessToken;
+					fetchData(user[0], function (err, results) {
 						async.each(results, function (account, cb) {
 							console.log("Account id: " + account.id);
-							accounts.find(account.id, function (err, res) {
+							accounts.find({id: account.id}, function (err, results) {
 								if (!err) {
 									async.each(account.webproperties, function (webproperty, cb) {
-										if (uu.contains(uu.pluck(res[0].webproperties, "id"), webproperty.id)) {
+										if (uu.contains(uu.pluck(results[0].webproperties, "id"), webproperty.id)) {
 											console.log("Webproperty id: " + webproperty.id);
 											async.map(webproperty.profiles, function (profile, cb) {
-												if (uu.contains(uu.pluck(uu.findWhere(res[0].webproperties, {id: webproperty.id}).profiles, "id"), profile.id)) {
+												if (uu.contains(uu.pluck(uu.findWhere(results[0].webproperties, {id: webproperty.id}).profiles, "id"), profile.id)) {
 													console.log("Profile id: " + profile.id);
-													var old_referrers = uu.findWhere(uu.findWhere(res[0].webproperties, {id: webproperty.id}).profiles, {id: profile.id}).referrers;
+													var old_referrers = uu.findWhere(uu.findWhere(results[0].webproperties, {id: webproperty.id}).profiles, {id: profile.id}).referrers;
 													var new_referrers = profile.referrers;
 													var new_clicks_count = 0;
 													new_referrers = new_referrers.filter(function (referrer) {
@@ -221,14 +234,13 @@ function sched(h, m, userId) {
 												}
 												cb(null, profile);
 											}, function (err, profiles) {
-												webproperty.profiles = profiles;
-												accounts.updateProfiles(webproperty, function (err, res) {
+												accounts.update({"webproperties.id":webproperty.id},{$set:{"webproperties.$.profiles": profiles}}, function (err, results) {
 													console.log("Webproperty updated.");
 													cb(err);
 												});
 											});
 										} else {
-											accounts.saveWebproperty(webproperty, function (err, res) {
+											accounts.update({id: account.id}, {$push: {webproperties: webproperty}}, function (err, results) {
 												console.log("New webproperty saved.");
 												cb(err);
 											});
