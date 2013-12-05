@@ -15,7 +15,7 @@ var express = require("express"),
 	schedule = require("node-schedule"),
 	mongodb = require("mongodb");
 
-var MONGODB_URI = process.env.MONGOLAB_URI || process.env.MONGOHQ_URL || "mongodb://@ds053658.mongolab.com",
+var MONGODB_URI = process.env.MONGOLAB_URI || process.env.MONGOHQ_URL || "mongodb://@ds053658.mongolab.com:53658/heroku_app20069404",
 	db,
 	users,
 	accounts;
@@ -24,7 +24,7 @@ var TWITTER_CONSUMER_KEY = "669NaQjJ3prRexOFBfoA",
 	TWITTER_CONSUMER_SECRET = "sCpxu93VDaMr2FdpJ6qvCC4IyZOjirA7LJ3KFt5E"
 	GOOGLE_CLIENT_ID = "898266335618-fhhc3qu7ad057j5a70m1mr3ikttud14k.apps.googleusercontent.com",
 	GOOGLE_CLIENT_SECRET = "st_nsM_HJ-RSLce5eKg1vlD0",
-	GOOGLE_REDIRECT_URL = "http://localhost:3000/auth/google/callback";
+	GOOGLE_REDIRECT_URL = "http://socialr-s.herokuapp.com/auth/google/callback";
 
 // var users = new Users("localhost", 27017),
 // 	accounts = new Accounts("localhost", 27017);
@@ -85,7 +85,7 @@ passport.use(new GoogleStrategy({
 passport.use("twitter-authz", new TwitterStrategy({
 		consumerKey: TWITTER_CONSUMER_KEY,
 		consumerSecret: TWITTER_CONSUMER_SECRET,
-		callbackURL: "http://localhost:3000/connect/twitter/callback"
+		callbackURL: "http://socialr-s.herokuapp.com/connect/twitter/callback"
 	},
 	function (token, tokenSecret, profile, done) {
 		return done(null,{token: token, tokenSecret: tokenSecret});
