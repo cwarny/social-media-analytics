@@ -15,7 +15,7 @@ var express = require("express"),
 	schedule = require("node-schedule"),
 	mongodb = require("mongodb");
 
-var MONGODB_URI = process.env.MONGOLAB_URI || process.env.MONGOHQ_URL || "mongodb://localhost/",
+var MONGODB_URI = process.env.MONGOLAB_URI || process.env.MONGOHQ_URL || "mongodb://@ds053658.mongolab.com",
 	db,
 	users,
 	accounts;
