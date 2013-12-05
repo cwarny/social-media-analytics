@@ -163,7 +163,7 @@ app.get("/connect/twitter/callback",
 	passport.authorize("twitter-authz", { failureRedirect: "/" }),
 	function (req, res) {
 		if (req.isAuthenticated()) {
-			users.update({id: req.user.id}, {$set: {twitter_tokens: tokens}}, function (err) {
+			users.update({id: req.user.id}, {$set: {twitter_tokens: req.account}}, function (err) {
 				res.redirect("/");
 			});
 		} else {
