@@ -182,12 +182,12 @@ App.SortingButtonView = Ember.View.extend({
 	classNameBindings: ["isActive:active"],
 	type: "button",
 	isActive: function () {
-		console.log(this.get("controller.sortingProperty"));
-		console.log(this.get("property"));
-		console.log(this.get("property") === this.get("controller.sortingProperty"));
 		return this.get("property") === this.get("controller.sortingProperty");
 	}.property("property","controller.sortingProperty"),
 	click: function () {
+		console.log(this.get("controller.sortingProperty"));
+		console.log(this.get("property"));
+		console.log(this.get("property") === this.get("controller.sortingProperty"));
 		this.set("controller.sortingProperty", this.get("property"));
 	}.property("property","controller.sortingProperty"),
 });
