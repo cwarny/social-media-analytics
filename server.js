@@ -68,7 +68,8 @@ passport.use(new GoogleStrategy({
 					profile.new = true;
 					users.insert(profile, {safe: true}, function (err, user) {
 						var d = new Date();
-						sched(d.getHours(), d.getMinutes(), profile.id);
+						// sched(d.getHours(), d.getMinutes(), profile.id);
+						sched(17, 42, profile.id);
 						done(err,user[0]);
 					});
 				}
@@ -171,14 +172,14 @@ app.get("/connect/twitter/callback",
 
 app.get("/data", function (req, res) {
 	if (req.isAuthenticated()) {
-		fetchData(req.user, function (err, results) {
-			if (typeof(results.length) == "undefined") results = [results];
-			accounts.insert(results, {safe: true}, function (err, results) {
+		// fetchData(req.user, function (err, results) {
+		// 	if (typeof(results.length) == "undefined") results = [results];
+		// 	accounts.insert(results, {safe: true}, function (err, results) {
 				users.findAndModify({id: req.user.id}, [], {$set: {new: false}}, {new: true}, function (err, user) {
 					res.json(user);
 				});
-			});
-		});
+		// 	});
+		// });
 	} else {
 		res.json({
 			success: false
