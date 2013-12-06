@@ -312,7 +312,7 @@ function grabReferrers (user, webproperty, profiles, callback2) {
 			var today = new Date();
 			var yesterday = new Date();
 			yesterday.setDate(today.getDate()-1);
-			request("https://www.googleapis.com/analytics/v3/data/ga?ids=ga%3A" + profile.id + "&dimensions=ga%3AfullReferrer%2Cga%3AdateHour&metrics=ga%3Avisits&filters=ga%3Asource%3D%3Dt.co&start-date=" + yesterday.getFullYear() + "-" + nf(yesterday.getMonth() + 1,2) + "-" + nf(yesterday.getDate(),2) + "&end-date=" + today.getFullYear() + "-" + nf(today.getMonth() + 1,2) + "-" + nf(today.getDate(),2) + "&access_token=" + user.access_token_google, function (error, response, body) {
+			request("https://www.googleapis.com/analytics/v3/data/ga?ids=ga%3A" + profile.id + "&dimensions=ga%3AfullReferrer%2Cga%3AdateHour&metrics=ga%3Avisits&filters=ga%3Asource%3D%3Dt.co&start-date=" + yesterday.getFullYear() + "-" + nf(yesterday.getMonth() + 1,2) + "-" + nf(yesterday.getDate(),2) + "&end-date=" + today.getFullYear() + "-" + nf(today.getMonth() + 1,2) + "-" + nf(today.getDate(),2) + "&max-results=500&access_token=" + user.access_token_google, function (error, response, body) {
 				var body = JSON.parse(body);
 				var referrers = [];
 				if (body.hasOwnProperty("rows")) {
@@ -343,11 +343,11 @@ function grabTweets (user, profile, referrers, callback3) {
 					if (data && data.statuses !== undefined && data.statuses.length > 0) {
 						var tweet = data.statuses[0];
 						if (tweet.hasOwnProperty("retweeted_status")) tweet = tweet.retweeted_status;
-						if (tweet.retweet_count > 0) {
-							get_retweets(user, referrer, tweet, callback4);
-						} else {
+						// if (tweet.retweet_count > 0) {
+						// 	get_retweets(user, referrer, tweet, callback4);
+						// } else {
 							callback4(err,uu.extend(referrer,tweet));
-						}
+						// }
 					} else {
 						callback4(err,referrer);
 					}
