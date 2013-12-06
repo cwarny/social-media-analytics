@@ -5,6 +5,9 @@
 		<img src="/img/loading.gif" alt="Loading" title="Loading" class="loading"/>
 	</div>
 {{else}}
+	{{#if error}}
+		<div class="alert alert-danger">Please finish the signup process.</div>
+	{{/if}}
 	<h1>Sign Up</h1>
 	<br>
 	<dl class="signup">

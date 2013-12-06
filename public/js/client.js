@@ -88,19 +88,21 @@ App.ApplicationRoute = Ember.Route.extend({
 	afterModel: function (model, transition) {
 		if (model.user) {
 			if (!model.user.new) {
-				if (transition.targetName === "index") {
-					this.transitionTo("accounts");
-				} else {
-					this.transitionTo(transition.targetName);
-				}
+				if (transition.targetName === "index") this.transitionTo("accounts");
+				else this.transitionTo(transition.targetName);
 			} else {
 				this.transitionTo("signup");
 			} 
 		} else {
-			this.transitionTo("home");
+			if (transition.targetName === "login") this.transitionTo("login");
+			else this.transitionTo("home");
 		}
 	}
 });
+
+App.ApplicationController = Ember.Controller.extend();
+
+App.LoginController = Ember.Controller.extend();
 
 App.SignupController = Ember.Controller.extend({
 	needs: ["application"],
@@ -134,7 +136,7 @@ App.SignonButtonView = App.ButtonView.extend({
 		else return false;
 	}.property("controller.controllers.application.model.user"),
 
-	href: "http://socialr.herokuapp.com/auth/google"
+	href: "http://localhost:3000/auth/google"
 });
 
 App.ConnectView = App.SignupStepView.extend({
@@ -150,7 +152,7 @@ App.ConnectButtonView = App.ButtonView.extend({
 		else return false;
 	}.property("controller.controllers.application.model.user"),
 	
-	href: "http://socialr.herokuapp.com/connect/twitter"
+	href: "http://localhost:3000/connect/twitter"
 });
 
 App.GetDataView = App.SignupStepView.extend({
@@ -169,7 +171,8 @@ App.GetDataButtonView = App.ButtonView.extend({
 	click: function () {
 		this.set("controller.downloading",true);
 		var c = this.get("controller");
-		$.get("data").then(function (res) {
+		$.get("data").then(function (user) {
+			c.set("controllers.application.model.user", user);
 			c.transitionToRoute("accounts");
 		});
 	}
@@ -181,15 +184,14 @@ App.SortingButtonView = Ember.View.extend({
 	classNames: ["btn", "btn-default"],
 	classNameBindings: ["isActive:active"],
 	type: "button",
+
 	isActive: function () {
 		return this.get("property") === this.get("controller.sortingProperty");
 	}.property("property","controller.sortingProperty"),
+
 	click: function () {
-		console.log(this.get("controller.sortingProperty"));
-		console.log(this.get("property"));
-		console.log(this.get("property") === this.get("controller.sortingProperty"));
 		this.set("controller.sortingProperty", this.get("property"));
-	}.property("property","controller.sortingProperty"),
+	},
 });
 
 App.AccountsRoute = Ember.Route.extend({
@@ -198,8 +200,14 @@ App.AccountsRoute = Ember.Route.extend({
 	},
 	actions: {
 		error: function (reason, transition) {
-			alert("You must log in");
+			this.controllerFor("login").set("error","Not logged in.");
 			this.transitionTo("login");
+		}
+	},
+	afterModel: function (model, transition) {
+		if (this.controllerFor("application").get("model.user") && this.controllerFor("application").get("model.user.new")) {
+			this.controllerFor("signup").set("error","Signup process unfinished.");
+			this.transitionTo("signup"); 
 		}
 	}
 });

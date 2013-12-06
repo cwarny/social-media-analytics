@@ -113,43 +113,53 @@ helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
 function program1(depth0,data) {
   
   
-  data.buffer.push("Explore");
+  data.buffer.push("\n	<div class=\"addthis_toolbox addthis_floating_style addthis_32x32_style\" style=\"position:fixed; top:40%\">\n		<a class=\"addthis_button_preferred_1\"></a>\n		<a class=\"addthis_button_preferred_2\"></a>\n		<a class=\"addthis_button_preferred_3\"></a>\n		<a class=\"addthis_button_compact\"></a>\n	</div>\n	<script type=\"text/javascript\">var addthis_config = {\"data_track_addressbar\":true};</script>\n	<script type=\"text/javascript\" src=\"//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-51ff7b84368a3b9b\"></script>\n	<script type=\"text/javascript\">\n		$(document).ready(function () {\n			$(window).bind(\"scroll\", function (e) { \n				$(\".addthis_toolbox\").css({position: \"fixed\", top: \"40%\"});\n			});\n		});\n	</script>\n");
   }
 
 function program3(depth0,data) {
   
   
-  data.buffer.push("\n					<li><a href=\"/logout\">Logout</a></li>\n				");
+  data.buffer.push("Explore");
   }
 
 function program5(depth0,data) {
+  
+  
+  data.buffer.push("\n					<li><a href=\"/logout\">Logout</a></li>\n				");
+  }
+
+function program7(depth0,data) {
   
   var buffer = '', stack1, stack2, hashTypes, hashContexts, options;
   data.buffer.push("\n					<li>");
   hashTypes = {};
   hashContexts = {};
-  options = {hash:{},inverse:self.noop,fn:self.program(6, program6, data),contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
+  options = {hash:{},inverse:self.noop,fn:self.program(8, program8, data),contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
   stack2 = ((stack1 = helpers.linkTo || depth0.linkTo),stack1 ? stack1.call(depth0, "login", options) : helperMissing.call(depth0, "linkTo", "login", options));
   if(stack2 || stack2 === 0) { data.buffer.push(stack2); }
   data.buffer.push("</li>\n				");
   return buffer;
   }
-function program6(depth0,data) {
+function program8(depth0,data) {
   
   
   data.buffer.push("Login");
   }
 
-  data.buffer.push("<div class=\"container\">\n	<nav class=\"navbar navbar-default\" role=\"navigation\">\n		<div class=\"navbar-header\">\n			<button type=\"button\" class=\"navbar-toggle\" data-toggle=\"collapse\" data-target=\".navbar-ex1-collapse\">\n				<span class=\"sr-only\">Toggle navigation</span>\n				<span class=\"icon-bar\"></scan>\n				<span class=\"icon-bar\"></scan>\n				<span class=\"icon-bar\"></scan>\n			</button>\n			<a href=\"/\" class=\"navbar-brand\">Socialr</a>\n		</div>\n		<div class=\"collapse navbar-collapse navbar-ex1-collapse\">\n			<ul class=\"nav navbar-nav pull-right\">\n				<li>");
   hashTypes = {};
   hashContexts = {};
-  options = {hash:{},inverse:self.noop,fn:self.program(1, program1, data),contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
+  stack1 = helpers.unless.call(depth0, "model.user", {hash:{},inverse:self.noop,fn:self.program(1, program1, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+  if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
+  data.buffer.push("\n<div class=\"container\">\n	<nav class=\"navbar navbar-default\" role=\"navigation\">\n		<div class=\"navbar-header\">\n			<button type=\"button\" class=\"navbar-toggle\" data-toggle=\"collapse\" data-target=\".navbar-ex1-collapse\">\n				<span class=\"sr-only\">Toggle navigation</span>\n				<span class=\"icon-bar\"></scan>\n				<span class=\"icon-bar\"></scan>\n				<span class=\"icon-bar\"></scan>\n			</button>\n			<a href=\"/\" class=\"navbar-brand\">Socialr</a>\n		</div>\n		<div class=\"collapse navbar-collapse navbar-ex1-collapse\">\n			<ul class=\"nav navbar-nav pull-right\">\n				<li>");
+  hashTypes = {};
+  hashContexts = {};
+  options = {hash:{},inverse:self.noop,fn:self.program(3, program3, data),contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
   stack2 = ((stack1 = helpers.linkTo || depth0.linkTo),stack1 ? stack1.call(depth0, "accounts", options) : helperMissing.call(depth0, "linkTo", "accounts", options));
   if(stack2 || stack2 === 0) { data.buffer.push(stack2); }
   data.buffer.push("</li>\n				");
   hashTypes = {};
   hashContexts = {};
-  stack2 = helpers['if'].call(depth0, "user", {hash:{},inverse:self.program(5, program5, data),fn:self.program(3, program3, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+  stack2 = helpers['if'].call(depth0, "model.user", {hash:{},inverse:self.program(7, program7, data),fn:self.program(5, program5, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
   if(stack2 || stack2 === 0) { data.buffer.push(stack2); }
   data.buffer.push("\n			</ul>\n		</div>\n	</nav>\n	<div class=\"container\">\n		");
   hashTypes = {};
@@ -185,10 +195,20 @@ function program1(depth0,data) {
 Ember.TEMPLATES['login'] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
 this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
+  var buffer = '', stack1, hashTypes, hashContexts, self=this;
+
+function program1(depth0,data) {
   
+  
+  data.buffer.push("\n	<div class=\"alert alert-danger\">Please log in.</div>\n");
+  }
 
-
-  data.buffer.push("<p>You need a Google account to log into Socialr</p>\n<a href=\"http://socialr-s.herokuapp.com/auth/google\" type=\"button\" class=\"btn btn-primary\">Log In with Google</a>\n			");
+  hashTypes = {};
+  hashContexts = {};
+  stack1 = helpers['if'].call(depth0, "error", {hash:{},inverse:self.noop,fn:self.program(1, program1, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+  if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
+  data.buffer.push("\n<p>You need a Google account to log into Socialr.</p>\n<a href=\"http://localhost:3000/auth/google\" type=\"button\" class=\"btn btn-primary\">Log In with Google</a>\n			");
+  return buffer;
   
 });
 
@@ -236,20 +256,38 @@ helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
 Ember.TEMPLATES['referrers'] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
 this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
-  var buffer = '', stack1, hashTypes, hashContexts, escapeExpression=this.escapeExpression, self=this, helperMissing=helpers.helperMissing;
+  var buffer = '', stack1, hashContexts, hashTypes, escapeExpression=this.escapeExpression, self=this, helperMissing=helpers.helperMissing;
 
 function program1(depth0,data) {
+  
+  
+  data.buffer.push("Clicks");
+  }
+
+function program3(depth0,data) {
+  
+  
+  data.buffer.push("Followers");
+  }
+
+function program5(depth0,data) {
+  
+  
+  data.buffer.push("Retweets");
+  }
+
+function program7(depth0,data) {
   
   var buffer = '', stack1, hashTypes, hashContexts;
   data.buffer.push("\n		");
   hashTypes = {};
   hashContexts = {};
-  stack1 = helpers['if'].call(depth0, "model.onlyOneTweet", {hash:{},inverse:self.program(11, program11, data),fn:self.program(2, program2, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+  stack1 = helpers['if'].call(depth0, "model.onlyOneTweet", {hash:{},inverse:self.program(17, program17, data),fn:self.program(8, program8, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
   data.buffer.push("\n	");
   return buffer;
   }
-function program2(depth0,data) {
+function program8(depth0,data) {
   
   var buffer = '', stack1, stack2, hashContexts, hashTypes, options;
   data.buffer.push("\n			");
@@ -257,13 +295,13 @@ function program2(depth0,data) {
   hashTypes = {'tagName': "STRING"};
   options = {hash:{
     'tagName': ("li")
-  },inverse:self.noop,fn:self.program(3, program3, data),contexts:[depth0,depth0],types:["STRING","ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
+  },inverse:self.noop,fn:self.program(9, program9, data),contexts:[depth0,depth0],types:["STRING","ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
   stack2 = ((stack1 = helpers.linkTo || depth0.linkTo),stack1 ? stack1.call(depth0, "tweet", "model.tweets.firstObject", options) : helperMissing.call(depth0, "linkTo", "tweet", "model.tweets.firstObject", options));
   if(stack2 || stack2 === 0) { data.buffer.push(stack2); }
   data.buffer.push("\n		");
   return buffer;
   }
-function program3(depth0,data) {
+function program9(depth0,data) {
   
   var buffer = '', stack1, hashTypes, hashContexts;
   data.buffer.push("\n				<a href=\"#\">\n					");
@@ -273,12 +311,12 @@ function program3(depth0,data) {
   data.buffer.push("\n					<span class=\"badge\">\n						");
   hashTypes = {};
   hashContexts = {};
-  stack1 = helpers['if'].call(depth0, "controllers.referrers.sortingPropertyIsTotalClicks", {hash:{},inverse:self.program(6, program6, data),fn:self.program(4, program4, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+  stack1 = helpers['if'].call(depth0, "controllers.referrers.sortingPropertyIsTotalClicks", {hash:{},inverse:self.program(12, program12, data),fn:self.program(10, program10, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
   data.buffer.push("\n					</span>\n				</a>\n			");
   return buffer;
   }
-function program4(depth0,data) {
+function program10(depth0,data) {
   
   var buffer = '', hashTypes, hashContexts;
   data.buffer.push("\n							");
@@ -289,18 +327,18 @@ function program4(depth0,data) {
   return buffer;
   }
 
-function program6(depth0,data) {
+function program12(depth0,data) {
   
   var buffer = '', stack1, hashTypes, hashContexts;
   data.buffer.push("\n							");
   hashTypes = {};
   hashContexts = {};
-  stack1 = helpers['if'].call(depth0, "controllers.referrers.sortingPropertyIsFollowersCount", {hash:{},inverse:self.program(9, program9, data),fn:self.program(7, program7, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+  stack1 = helpers['if'].call(depth0, "controllers.referrers.sortingPropertyIsFollowersCount", {hash:{},inverse:self.program(15, program15, data),fn:self.program(13, program13, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
   data.buffer.push("\n						");
   return buffer;
   }
-function program7(depth0,data) {
+function program13(depth0,data) {
   
   var buffer = '', hashTypes, hashContexts;
   data.buffer.push("\n								");
@@ -311,7 +349,7 @@ function program7(depth0,data) {
   return buffer;
   }
 
-function program9(depth0,data) {
+function program15(depth0,data) {
   
   var buffer = '', hashTypes, hashContexts;
   data.buffer.push("\n								");
@@ -322,7 +360,7 @@ function program9(depth0,data) {
   return buffer;
   }
 
-function program11(depth0,data) {
+function program17(depth0,data) {
   
   var buffer = '', stack1, hashTypes, hashContexts;
   data.buffer.push("\n			<li ");
@@ -332,7 +370,7 @@ function program11(depth0,data) {
   data.buffer.push(">\n				<a href=\"#\">\n					<span>\n						");
   hashTypes = {};
   hashContexts = {};
-  stack1 = helpers['if'].call(depth0, "model.isExpanded", {hash:{},inverse:self.program(14, program14, data),fn:self.program(12, program12, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+  stack1 = helpers['if'].call(depth0, "model.isExpanded", {hash:{},inverse:self.program(20, program20, data),fn:self.program(18, program18, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
   data.buffer.push("\n					</span>\n					");
   hashTypes = {};
@@ -341,29 +379,29 @@ function program11(depth0,data) {
   data.buffer.push("\n					<span class=\"badge\">\n						");
   hashTypes = {};
   hashContexts = {};
-  stack1 = helpers['if'].call(depth0, "controllers.referrers.sortingPropertyIsTotalClicks", {hash:{},inverse:self.program(18, program18, data),fn:self.program(16, program16, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+  stack1 = helpers['if'].call(depth0, "controllers.referrers.sortingPropertyIsTotalClicks", {hash:{},inverse:self.program(24, program24, data),fn:self.program(22, program22, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
   data.buffer.push("\n					</span>\n				</a>\n			</li>\n			");
   hashTypes = {};
   hashContexts = {};
-  stack1 = helpers['if'].call(depth0, "model.isExpanded", {hash:{},inverse:self.noop,fn:self.program(21, program21, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+  stack1 = helpers['if'].call(depth0, "model.isExpanded", {hash:{},inverse:self.noop,fn:self.program(27, program27, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
   data.buffer.push("\n		");
   return buffer;
   }
-function program12(depth0,data) {
+function program18(depth0,data) {
   
   
   data.buffer.push("\n							&#x25BC;\n						");
   }
 
-function program14(depth0,data) {
+function program20(depth0,data) {
   
   
   data.buffer.push("\n							&#x25B6;\n						");
   }
 
-function program16(depth0,data) {
+function program22(depth0,data) {
   
   var buffer = '', hashTypes, hashContexts;
   data.buffer.push("\n							");
@@ -374,18 +412,18 @@ function program16(depth0,data) {
   return buffer;
   }
 
-function program18(depth0,data) {
+function program24(depth0,data) {
   
   var buffer = '', stack1, hashTypes, hashContexts;
   data.buffer.push("\n							");
   hashTypes = {};
   hashContexts = {};
-  stack1 = helpers['if'].call(depth0, "controllers.referrers.sortingPropertyIsFollowersCount", {hash:{},inverse:self.program(9, program9, data),fn:self.program(19, program19, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+  stack1 = helpers['if'].call(depth0, "controllers.referrers.sortingPropertyIsFollowersCount", {hash:{},inverse:self.program(15, program15, data),fn:self.program(25, program25, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
   data.buffer.push("\n						");
   return buffer;
   }
-function program19(depth0,data) {
+function program25(depth0,data) {
   
   var buffer = '', hashTypes, hashContexts;
   data.buffer.push("\n								");
@@ -396,7 +434,7 @@ function program19(depth0,data) {
   return buffer;
   }
 
-function program21(depth0,data) {
+function program27(depth0,data) {
   
   var buffer = '', stack1, hashTypes, hashContexts, options;
   data.buffer.push("\n				");
@@ -408,24 +446,33 @@ function program21(depth0,data) {
   return buffer;
   }
 
-  data.buffer.push("<label>Sort by</label>\n<div class=\"btn-group\">\n	<button ");
-  hashTypes = {};
-  hashContexts = {};
-  data.buffer.push(escapeExpression(helpers.action.call(depth0, "setSortingProperty", "totalClicks", {hash:{},contexts:[depth0,depth0],types:["ID","STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-  data.buffer.push(" type=\"button\" class=\"btn btn-default\">Clicks</button>\n	<button ");
-  hashTypes = {};
-  hashContexts = {};
-  data.buffer.push(escapeExpression(helpers.action.call(depth0, "setSortingProperty", "followers_count", {hash:{},contexts:[depth0,depth0],types:["ID","STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-  data.buffer.push(" type=\"button\" class=\"btn btn-default\">Followers</button>\n	<button ");
-  hashTypes = {};
-  hashContexts = {};
-  data.buffer.push(escapeExpression(helpers.action.call(depth0, "setSortingProperty", "retweet_count", {hash:{},contexts:[depth0,depth0],types:["ID","STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-  data.buffer.push(" type=\"button\" class=\"btn btn-default\">Retweets</button>\n</div>\n<br>\n<br>\n<ul class=\"nav nav-pills nav-stacked\">\n	");
+  data.buffer.push("<label>Sort by</label>\n<div class=\"btn-group\">\n	");
+  hashContexts = {'property': depth0};
+  hashTypes = {'property': "STRING"};
+  stack1 = helpers.view.call(depth0, "App.SortingButtonView", {hash:{
+    'property': ("totalClicks")
+  },inverse:self.noop,fn:self.program(1, program1, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+  if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
+  data.buffer.push("\n	");
+  hashContexts = {'property': depth0};
+  hashTypes = {'property': "STRING"};
+  stack1 = helpers.view.call(depth0, "App.SortingButtonView", {hash:{
+    'property': ("followers_count")
+  },inverse:self.noop,fn:self.program(3, program3, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+  if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
+  data.buffer.push("\n	");
+  hashContexts = {'property': depth0};
+  hashTypes = {'property': "STRING"};
+  stack1 = helpers.view.call(depth0, "App.SortingButtonView", {hash:{
+    'property': ("retweet_count")
+  },inverse:self.noop,fn:self.program(5, program5, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+  if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
+  data.buffer.push("\n</div>\n<br>\n<br>\n<ul class=\"nav nav-pills nav-stacked\">\n	");
   hashContexts = {'itemController': depth0};
   hashTypes = {'itemController': "STRING"};
   stack1 = helpers.each.call(depth0, "arrangedContent", {hash:{
     'itemController': ("referrer")
-  },inverse:self.noop,fn:self.program(1, program1, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+  },inverse:self.noop,fn:self.program(7, program7, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
   data.buffer.push("\n</ul>");
   return buffer;
@@ -446,35 +493,40 @@ function program1(depth0,data) {
 function program3(depth0,data) {
   
   var buffer = '', stack1, hashTypes, hashContexts;
+  data.buffer.push("\n	");
+  hashTypes = {};
+  hashContexts = {};
+  stack1 = helpers['if'].call(depth0, "error", {hash:{},inverse:self.noop,fn:self.program(4, program4, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+  if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
   data.buffer.push("\n	<h1>Sign Up</h1>\n	<br>\n	<dl class=\"signup\">\n		");
   hashTypes = {};
   hashContexts = {};
-  stack1 = helpers.view.call(depth0, "App.SignonView", {hash:{},inverse:self.noop,fn:self.program(4, program4, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+  stack1 = helpers.view.call(depth0, "App.SignonView", {hash:{},inverse:self.noop,fn:self.program(6, program6, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
   data.buffer.push("\n		<dd>");
   hashTypes = {};
   hashContexts = {};
-  stack1 = helpers.view.call(depth0, "App.SignonButtonView", {hash:{},inverse:self.noop,fn:self.program(6, program6, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+  stack1 = helpers.view.call(depth0, "App.SignonButtonView", {hash:{},inverse:self.noop,fn:self.program(8, program8, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
   data.buffer.push("</dd>\n\n		");
   hashTypes = {};
   hashContexts = {};
-  stack1 = helpers.view.call(depth0, "App.ConnectView", {hash:{},inverse:self.noop,fn:self.program(8, program8, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+  stack1 = helpers.view.call(depth0, "App.ConnectView", {hash:{},inverse:self.noop,fn:self.program(10, program10, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
   data.buffer.push("\n		<dd>");
   hashTypes = {};
   hashContexts = {};
-  stack1 = helpers.view.call(depth0, "App.ConnectButtonView", {hash:{},inverse:self.noop,fn:self.program(10, program10, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+  stack1 = helpers.view.call(depth0, "App.ConnectButtonView", {hash:{},inverse:self.noop,fn:self.program(12, program12, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
   data.buffer.push("</dd>\n\n		");
   hashTypes = {};
   hashContexts = {};
-  stack1 = helpers.view.call(depth0, "App.GetDataView", {hash:{},inverse:self.noop,fn:self.program(12, program12, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+  stack1 = helpers.view.call(depth0, "App.GetDataView", {hash:{},inverse:self.noop,fn:self.program(14, program14, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
   data.buffer.push("\n		<dd>");
   hashTypes = {};
   hashContexts = {};
-  stack1 = helpers.view.call(depth0, "App.GetDataButtonView", {hash:{},inverse:self.noop,fn:self.program(14, program14, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+  stack1 = helpers.view.call(depth0, "App.GetDataButtonView", {hash:{},inverse:self.noop,fn:self.program(16, program16, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
   data.buffer.push("</dd>\n	</dl>\n");
   return buffer;
@@ -482,34 +534,40 @@ function program3(depth0,data) {
 function program4(depth0,data) {
   
   
-  data.buffer.push("\n			Socialr needs access to your Google Analytics data. Please sign on with the Google account linked to your Analytics account.\n		");
+  data.buffer.push("\n		<div class=\"alert alert-danger\">Please finish the signup process.</div>\n	");
   }
 
 function program6(depth0,data) {
   
   
-  data.buffer.push("Sign On");
+  data.buffer.push("\n			Socialr needs access to your Google Analytics data. Please sign on with the Google account linked to your Analytics account.\n		");
   }
 
 function program8(depth0,data) {
   
   
-  data.buffer.push("\n			Socialr finds the tweets that led people to land on your website. You need to connect a Twitter account to your Socialr account.\n		");
+  data.buffer.push("Sign On");
   }
 
 function program10(depth0,data) {
   
   
-  data.buffer.push("Connect");
+  data.buffer.push("\n			Socialr finds the tweets that led people to land on your website. You need to connect a Twitter account to your Socialr account.\n		");
   }
 
 function program12(depth0,data) {
   
   
-  data.buffer.push("\n			Mash up Google Analytics and Twitter. Download your data.\n		");
+  data.buffer.push("Connect");
   }
 
 function program14(depth0,data) {
+  
+  
+  data.buffer.push("\n			Mash up Google Analytics and Twitter. Download your data.\n		");
+  }
+
+function program16(depth0,data) {
   
   
   data.buffer.push("Get Data");

@@ -1,3 +1,20 @@
+{{#unless model.user}}
+	<div class="addthis_toolbox addthis_floating_style addthis_32x32_style" style="position:fixed; top:40%">
+		<a class="addthis_button_preferred_1"></a>
+		<a class="addthis_button_preferred_2"></a>
+		<a class="addthis_button_preferred_3"></a>
+		<a class="addthis_button_compact"></a>
+	</div>
+	<script type="text/javascript">var addthis_config = {"data_track_addressbar":true};</script>
+	<script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-51ff7b84368a3b9b"></script>
+	<script type="text/javascript">
+		$(document).ready(function () {
+			$(window).bind("scroll", function (e) { 
+				$(".addthis_toolbox").css({position: "fixed", top: "40%"});
+			});
+		});
+	</script>
+{{/unless}}
 <div class="container">
 	<nav class="navbar navbar-default" role="navigation">
 		<div class="navbar-header">
@@ -12,7 +29,7 @@
 		<div class="collapse navbar-collapse navbar-ex1-collapse">
 			<ul class="nav navbar-nav pull-right">
 				<li>{{#linkTo "accounts"}}Explore{{/linkTo}}</li>
-				{{#if user}}
+				{{#if model.user}}
 					<li><a href="/logout">Logout</a></li>
 				{{else}}
 					<li>{{#linkTo "login"}}Login{{/linkTo}}</li>
