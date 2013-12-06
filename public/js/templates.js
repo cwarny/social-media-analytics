@@ -207,7 +207,7 @@ function program1(depth0,data) {
   hashContexts = {};
   stack1 = helpers['if'].call(depth0, "error", {hash:{},inverse:self.noop,fn:self.program(1, program1, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
-  data.buffer.push("\n<p>You need a Google account to log into Socialr.</p>\n<a href=\"http://localhost:3000/auth/google\" type=\"button\" class=\"btn btn-primary\">Log In with Google</a>\n			");
+  data.buffer.push("\n<p>You need a Google account to log into Socialr.</p>\n<a href=\"http://socialr.herokuapp.com/auth/google\" type=\"button\" class=\"btn btn-primary\">Log In with Google</a>\n			");
   return buffer;
   
 });
