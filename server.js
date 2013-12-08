@@ -60,7 +60,6 @@ passport.use(new GoogleStrategy({
 	function (accessToken, refreshToken, profile, done) {
 		process.nextTick(function () {
 			users.find({id: profile.id}).toArray(function (err, user) {
-				console.log(user);
 				if (user.length > 0) done(err, user[0]);
 				else {
 					profile.access_token_google = accessToken;
@@ -68,7 +67,8 @@ passport.use(new GoogleStrategy({
 					profile.new = true;
 					users.insert(profile, {safe: true}, function (err, user) {
 						var d = new Date();
-						sched(d.getHours(), d.getMinutes(), profile.id);
+						// sched(d.getHours(), d.getMinutes(), profile.id);
+						sched(20, 59, "109023098771739940756");
 						done(err,user[0]);
 					});
 				}
@@ -124,7 +124,8 @@ app.get("/auth/google",
 	passport.authenticate("google", 
 		{ 
 			scope: ["https://www.googleapis.com/auth/userinfo.profile","https://www.googleapis.com/auth/userinfo.email","https://www.googleapis.com/auth/analytics.readonly"],
-			accessType: "offline"
+			accessType: "offline",
+			approvalPrompt: "force"
 		}),
 	function (req, res) {
 
@@ -171,14 +172,14 @@ app.get("/connect/twitter/callback",
 
 app.get("/data", function (req, res) {
 	if (req.isAuthenticated()) {
-		fetchData(req.user, function (err, results) {
-			if (typeof(results.length) == "undefined") results = [results];
-			accounts.insert(results, {safe: true}, function (err, results) {
+		// fetchData(req.user, function (err, results) {
+		// 	if (typeof(results.length) == "undefined") results = [results];
+		// 	accounts.insert(results, {safe: true}, function (err, results) {
 				users.findAndModify({id: req.user.id}, [], {$set: {new: false}}, {new: true}, function (err, user) {
 					res.json(user);
 				});
-			});
-		});
+		// 	});
+		// });
 	} else {
 		res.json({
 			success: false
@@ -198,8 +199,8 @@ function sched(h, m, userId) {
 					fetchData(user[0], function (err, results) {
 						async.each(results, function (account, cb) {
 							console.log("Account id: " + account.id);
-							accounts.find({id: account.id}, function (err, results) {
-								if (!err) {
+							accounts.find({id: account.id}).toArray(function (err, results) {
+								if (!err && results.length>0) {
 									async.each(account.webproperties, function (webproperty, cb) {
 										if (uu.contains(uu.pluck(results[0].webproperties, "id"), webproperty.id)) {
 											console.log("Webproperty id: " + webproperty.id);
@@ -244,7 +245,7 @@ function sched(h, m, userId) {
 										cb(err);
 									});
 								} else {
-									accounts.save(a, function (err, res) {
+									accounts.save(account, function (err, res) {
 										console.log("New account saved.");
 										cb(err);
 									});
@@ -282,8 +283,9 @@ function grabWebproperties (user, ga_accounts, cb) {
 			console.log("Fetching data for: " + account.id);
 			request("https://www.googleapis.com/analytics/v3/management/accounts/" + account.id + "/webproperties?access_token=" + user.access_token_google + "&access_type_token=bearer", function (error, response, body) {
 				var webproperties = JSON.parse(body).items;
-				grabProfiles(user, account, webproperties, callback1);
-			})
+				if (webproperties) grabProfiles(user, account, webproperties, callback1);
+				else callback1(null, account);
+			});
 		}, function (err, results) {
 			console.log("Done fetching data");
 			cb(err,results);
@@ -296,12 +298,13 @@ function grabProfiles (user, account, webproperties, callback1) {
 		function (webproperty, callback2) {
 			request("https://www.googleapis.com/analytics/v3/management/accounts/" + account.id + "/webproperties/" + webproperty.id + "/profiles?access_token=" + user.access_token_google + "&access_type_token=bearer", function (error, response, body) {
 				var profiles = JSON.parse(body).items;
-				grabReferrers(user, webproperty, profiles, callback2);
-			})
+				if (profiles) grabReferrers(user, webproperty, profiles, callback2);
+				else callback2(null, webproperty);
+			});
 		}, function (err, results) {
 			account.webproperties = results;
 			account.userId = user.id;
-			callback1(err,account)
+			callback1(err, account);
 		}
 	)
 }
@@ -315,15 +318,13 @@ function grabReferrers (user, webproperty, profiles, callback2) {
 			request("https://www.googleapis.com/analytics/v3/data/ga?ids=ga%3A" + profile.id + "&dimensions=ga%3AfullReferrer%2Cga%3AdateHour&metrics=ga%3Avisits&filters=ga%3Asource%3D%3Dt.co&start-date=" + yesterday.getFullYear() + "-" + nf(yesterday.getMonth() + 1,2) + "-" + nf(yesterday.getDate(),2) + "&end-date=" + today.getFullYear() + "-" + nf(today.getMonth() + 1,2) + "-" + nf(today.getDate(),2) + "&access_token=" + user.access_token_google, function (error, response, body) {
 				var body = JSON.parse(body);
 				var referrers = [];
-				if (body.hasOwnProperty("rows")) {
-					var rows = body.rows;
-					referrers = reformatReferrers(rows);
-				}
-				grabTweets(user, profile, referrers, callback3);
-			})
+				if (body.hasOwnProperty("rows")) referrers = reformatReferrers(body.rows);
+				if (referrers.length > 0) grabTweets(user, profile, referrers, callback3);
+				else callback3(null, profile);
+			});
 		}, function (err, results) {
 			webproperty.profiles = results;
-			callback2(err,webproperty);
+			callback2(err, webproperty);
 		}
 	)
 }
@@ -339,41 +340,24 @@ function grabTweets (user, profile, referrers, callback3) {
 			function (err, data, response) {
 				if (err) {
 					console.log(err);
+					callback4(err,referrer);
 				} else {
 					if (data && data.statuses !== undefined && data.statuses.length > 0) {
 						var tweet = data.statuses[0];
 						if (tweet.hasOwnProperty("retweeted_status")) tweet = tweet.retweeted_status;
-						if (tweet.retweet_count > 0) {
-							get_retweets(user, referrer, tweet, callback4);
-						} else {
-							callback4(err,uu.extend(referrer,tweet));
-						}
+						callback4(err,uu.extend(referrer,tweet));
 					} else {
 						callback4(err,referrer);
 					}
 				}
 			}
-			)
+			);
 		},
 		function (err, results) {
 			profile.referrers = results;
-			callback3(err,profile);
+			callback3(err, profile);
 		}
 	)
-}
-
-function get_retweets (user, referrer, tweet, callback4) {
-	twitter.statuses("retweets",
-		{
-			id: tweet.id_str
-		},
-		user.twitter_tokens.token,
-		user.twitter_tokens.tokenSecret,
-		function (err, data, response) {
-			if (data instanceof Array) tweet.retweets = data;
-			callback4(err,uu.extend(referrer,tweet));
-		}
-	);
 }
 
 function reformatReferrers (rows) {

@@ -11,51 +11,65 @@ App.AccountSerializer = DS.RESTSerializer.extend({
 			var webpropertyIds = [];
 			account.webproperties.forEach(function (webproperty) {
 				var profileIds = [];
-				webproperty.profiles.forEach(function (profile) {
-					if (profile.hasOwnProperty("referrers")) {
-						var cache = {};
-						var maxDate = new Date("01/01/2013");
-						profile.referrers.forEach(function (tweet) {
-							if (tweet.hasOwnProperty("user") && tweet.hasOwnProperty("clicks")) {
-								tweet.clicks.forEach(function (c) {
-									var date = new Date(c.created_at.slice(0,4) + "-" + c.created_at.slice(4,6) + "-" + c.created_at.slice(6,8) + " " + c.created_at.slice(8,10) + ":00");
-									if (date > maxDate) maxDate = new Date(date.getTime());
-									c.created_at = date;
-								});
-								tweet.created_at = new Date(tweet.created_at);
-								var temp = {};
-								temp[tweet.user.id] = [];
-								_.defaults(cache, temp);
-								cache[tweet.user.id].push(tweet);
-							}
-						});
-						for (var prop in cache) {
-							var referrer = cache[prop][0].user;
-							cache[prop].forEach(function (tweet) {
-								tweet.referrer = tweet.user.id;
-								tweets.push(tweet);
+				if (webproperty.hasOwnProperty("profiles")) {
+					webproperty.profiles.forEach(function (profile) {
+						if (profile.hasOwnProperty("referrers") && profile.referrers.length > 0) {
+							var cache = {};
+							var maxDate = new Date("01/01/2013");
+							profile.referrers.forEach(function (tweet) {
+								if (tweet.hasOwnProperty("user") && tweet.hasOwnProperty("clicks")) {
+									tweet.clicks.forEach(function (c) {
+										var date = new Date(c.created_at.slice(0,4) + "-" + c.created_at.slice(4,6) + "-" + c.created_at.slice(6,8) + " " + c.created_at.slice(8,10) + ":00");
+										if (date > maxDate) maxDate = new Date(date.getTime());
+										c.created_at = date;
+									});
+									tweet.created_at = new Date(tweet.created_at);
+									var temp = {};
+									temp[tweet.user.id] = [];
+									_.defaults(cache, temp);
+									cache[tweet.user.id].push(tweet);
+								}
 							});
-							referrer.tweets = _.pluck(cache[prop],"id");
-							referrer.profile = profile.id;
-							referrers.push(referrer);
+							var referrerIds = [];
+							for (var prop in cache) {
+								var referrer = cache[prop][0].user;
+								referrerIds.push(referrer.id);
+								cache[prop].forEach(function (tweet) {
+									tweet.referrer = tweet.user.id;
+									tweets.push(tweet);
+								});
+								referrer.tweets = _.pluck(cache[prop],"id");
+								referrer.profile = profile.id;
+								referrers.push(referrer);
+							}
+
+							if (referrerIds.length > 0) {
+								profile.referrers = referrerIds;
+								var format = d3.time.format("%m/%d/%Y");
+								var d = new Date(maxDate.getTime());
+								d.setDate(d.getDate()+1);
+								profile.endDate = format(d);
+								var d = new Date(maxDate.getTime());
+								d.setDate(d.getDate()-3);
+								profile.startDate = format(d);
+
+								profiles.push(profile);
+								profileIds.push(profile.id);
+							}
 						}
-						profile.referrers = _.pluck(referrers,"id");
-						var format = d3.time.format("%m/%d/%Y");
-						var d = new Date(maxDate.getTime());
-						d.setDate(d.getDate()+1);
-						profile.endDate = format(d);
-						var d = new Date(maxDate.getTime());
-						d.setDate(d.getDate()-3);
-						profile.startDate = format(d);			
+					});
+					if (profileIds.length > 0) {
+						webproperty.profiles = profileIds;
+						webproperties.push(webproperty);
+						webpropertyIds.push(webproperty.id);
 					}
-					profiles.push(profile);
-					profileIds.push(profile.id);
-				});
-				webproperty.profiles = profileIds;
-				webproperties.push(webproperty);
-				webpropertyIds.push(webproperty.id);
+				}
 			});
 			account.webproperties = webpropertyIds;
+		});
+
+		accounts = accounts.filter(function (account) {
+			return account.webproperties.length > 0;
 		});
 
 		payload = { tweets: tweets, referrers: referrers, profiles: profiles, webproperties: webproperties, accounts: accounts };
