@@ -260,7 +260,7 @@ schedule.scheduleJob({hour: 14, minute: 1}, function () {
 			console.log("Done updating.");
 		});
 	});
-}
+});
 
 
 // Utility functions
