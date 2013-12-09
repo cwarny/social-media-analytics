@@ -68,7 +68,8 @@ passport.use(new GoogleStrategy({
 					users.insert(profile, {safe: true}, function (err, user) {
 						var d = new Date();
 						// sched(d.getHours(), d.getMinutes(), profile.id);
-						sched(13, 25, profile.id);
+						console.log("Scheduling...");
+						sched(13, 32, profile.id);
 						done(err,user[0]);
 					});
 				}
