@@ -186,7 +186,7 @@ app.get("/data", function (req, res) {
 
 // Every day, update user data
 
-schedule.scheduleJob({hour: 19, minute: 25}, function () {
+schedule.scheduleJob({minute: 25}, function () {
 	console.log("Update started...");
 	users.find().toArray(function (err, results) {
 		async.each(results, function (user, cb) {
@@ -204,9 +204,10 @@ schedule.scheduleJob({hour: 19, minute: 25}, function () {
 										if (uu.contains(uu.pluck(results[0].webproperties, "id"), webproperty.id)) {
 											console.log("Webproperty id: " + webproperty.id);
 											async.map(webproperty.profiles, function (profile, cb) {
-												if (uu.contains(uu.pluck(uu.findWhere(results[0].webproperties, {id: webproperty.id}).profiles, "id"), profile.id)) {
+												if (profile.hasOwnProperty("referrers") && uu.contains(uu.pluck(uu.findWhere(results[0].webproperties, {id: webproperty.id}).profiles, "id"), profile.id)) {
 													console.log("Profile id: " + profile.id);
 													var old_referrers = uu.findWhere(uu.findWhere(results[0].webproperties, {id: webproperty.id}).profiles, {id: profile.id}).referrers;
+													if (old_referrers === undefined) old_referrers = [];
 													var new_referrers = profile.referrers;
 													var new_clicks_count = 0;
 													new_referrers = new_referrers.filter(function (referrer) {
