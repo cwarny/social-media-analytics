@@ -95,7 +95,7 @@ passport.deserializeUser(function (id, done) {
 });
 
 app.get("/", function (req, res) {
-	res.sendfile("index.html");
+	res.sendfile("index.html"); 
 });
 
 app.get("/user", function (req, res) {
