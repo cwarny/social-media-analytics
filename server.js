@@ -186,7 +186,7 @@ app.get("/data", function (req, res) {
 
 // Every day, update user data
 
-schedule.scheduleJob({minute: 25}, function () {
+schedule.scheduleJob({minute: 10}, function () {
 	console.log("Update started...");
 	users.find().toArray(function (err, results) {
 		async.each(results, function (user, cb) {
@@ -341,7 +341,8 @@ function grabTweets (user, profile, referrers, callback3) {
 			user.twitter_tokens.tokenSecret,
 			function (err, data, response) {
 				if (err) {
-					console.log(err);
+					console.log("Error");
+					console.error(err);
 					callback4(err,referrer);
 				} else {
 					if (data && data.statuses !== undefined && data.statuses.length > 0) {
