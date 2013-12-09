@@ -22,7 +22,7 @@ var TWITTER_CONSUMER_KEY = "669NaQjJ3prRexOFBfoA",
 	TWITTER_CONSUMER_SECRET = "sCpxu93VDaMr2FdpJ6qvCC4IyZOjirA7LJ3KFt5E"
 	GOOGLE_CLIENT_ID = "898266335618-fhhc3qu7ad057j5a70m1mr3ikttud14k.apps.googleusercontent.com",
 	GOOGLE_CLIENT_SECRET = "st_nsM_HJ-RSLce5eKg1vlD0",
-	GOOGLE_REDIRECT_URL = "http://socialr.herokuapp.com/auth/google/callback";
+	GOOGLE_REDIRECT_URL = "http://socialr-s.herokuapp.com/auth/google/callback";
 
 app.configure(function () {
 	app.set("port", process.env.PORT || 3000);
@@ -66,8 +66,6 @@ passport.use(new GoogleStrategy({
 					profile.refresh_token_google = refreshToken;
 					profile.new = true;
 					users.insert(profile, {safe: true}, function (err, user) {
-						var d = new Date();
-						sched(d.getHours(), d.getMinutes(), profile.id);
 						done(err,user[0]);
 					});
 				}
@@ -79,7 +77,7 @@ passport.use(new GoogleStrategy({
 passport.use("twitter-authz", new TwitterStrategy({
 		consumerKey: TWITTER_CONSUMER_KEY,
 		consumerSecret: TWITTER_CONSUMER_SECRET,
-		callbackURL: "http://socialr.herokuapp.com/connect/twitter/callback"
+		callbackURL: "http://socialr-s.herokuapp.com/connect/twitter/callback"
 	},
 	function (token, tokenSecret, profile, done) {
 		return done(null,{token: token, tokenSecret: tokenSecret});
@@ -188,14 +186,16 @@ app.get("/data", function (req, res) {
 
 // Every day, update user data
 
-function sched(h, m, userId) {
-	schedule.scheduleJob({hour: h, minute: m}, function () {
-		console.log("Update for " + userId + " started...");
-		users.find({id: userId}).toArray(function (err, user) {
-			refresh(user[0].refresh_token_google, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, function (err, json, res) {
-				if (!err & !json.error) {
-					user[0].access_token_google = json.accessToken;
-					fetchData(user[0], function (err, results) {
+schedule.scheduleJob({hour: 14, minute: 1}, function () {
+	console.log("Update started...");
+	users.find().toArray(function (err, results) {
+		async.each(results, function (user, cb) {
+			console.log("User id: " + user.id);
+			refresh(user.refresh_token_google, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, function (err, json, res) {
+				if (err || json.error) cb(err);
+				else {
+					user.access_token_google = json.accessToken;
+					fetchData(user, function (err, results) {
 						async.each(results, function (account, cb) {
 							console.log("Account id: " + account.id);
 							accounts.find({id: account.id}).toArray(function (err, results) {
@@ -251,11 +251,13 @@ function sched(h, m, userId) {
 								}
 							});
 						}, function (err) {
-							console.log("Done updating.");
+							cb(err);
 						});
 					});
 				}
 			});
+		}, function (err) {
+			console.log("Done updating.");
 		});
 	});
 }
