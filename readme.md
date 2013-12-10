@@ -2,7 +2,7 @@
 
 Socialr is a web app built with Node.js and Ember.js that enables you to analyze who talks about your content, how influential they are and what online social conversations they spawn.
 
-Is your website receiving a lot of traffic from social media platforms? Want to put a face on who's driving traffic to your website? You can sign up for an account [here](http://socialr.herokuapp/com).
+Is your website receiving a lot of traffic from social media platforms? Want to put a face on who's driving traffic to your website? You can sign up for an account [here](http://socialr.herokuapp.com).
 
 # Current status
 
