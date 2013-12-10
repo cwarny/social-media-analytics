@@ -199,10 +199,10 @@ schedule.scheduleJob({hour: 14, minute: 25}, function () {
 						async.each(results, function (account, cb) {
 							console.log("Account id: " + account.id);
 							accounts.find({id: account.id}).toArray(function (err, results) {
-								if (!err && results.length>0) {
+								if (!err && results.length>0 && account.hasOwnProperty("webproperties")) {
 									async.each(account.webproperties, function (webproperty, cb) {
-										if (uu.contains(uu.pluck(results[0].webproperties, "id"), webproperty.id)) {
-											console.log("Webproperty id: " + webproperty.id);
+										console.log("Webproperty id: " + webproperty.id);
+										if (webproperty.hasOwnProperty("profiles") && uu.contains(uu.pluck(results[0].webproperties, "id"), webproperty.id)) {
 											async.map(webproperty.profiles, function (profile, cb) {
 												if (profile.hasOwnProperty("referrers") && uu.contains(uu.pluck(uu.findWhere(results[0].webproperties, {id: webproperty.id}).profiles, "id"), profile.id)) {
 													console.log("Profile id: " + profile.id);
@@ -341,7 +341,8 @@ function grabTweets (user, profile, referrers, callback3) {
 			user.twitter_tokens.tokenSecret,
 			function (err, data, response) {
 				if (err) {
-					console.log(err);
+					console.log("Error");
+					console.error(err);
 					callback4(err,referrer);
 				} else {
 					if (data && data.statuses !== undefined && data.statuses.length > 0) {
