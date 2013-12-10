@@ -2,11 +2,13 @@
 
 Socialr is a web app built with Node.js and Ember.js that enables you to analyze who talks about your content, how influential they are and what online social conversations they spawn.
 
+Is your website receiving a lot of traffic from social media platforms? Want to put a face on who's driving traffic to your website? You can sign up for an account [here](http://socialr.herokuapp/com).
+
 # Current status
 
 Beta. Please file any bugs [here](https://github.com/cwarny/social-media-analytics/issues).
 
-# Getting started
+# If you want to run it locally
 
 ```
 $ git clone git@github.com:cwarny/social-media-analytics.git # or download the zip and unzip
@@ -22,9 +24,9 @@ For both the Google app and the Twitter app, set the callback URLs respectively 
 
 You will have to set these IDs, secrets and callback URLs as environment variables for your back-end Node application (or hard-code them in the source code).
 
-# Concept
+# How it works
 
-This web app grabs your Google Analytics account data, checks your site's visitors data for Twitter [shortened URLs](https://support.twitter.com//entries/109623) as referrers. 
+Socialr grabs your Google Analytics account data, checks your site's visitors data for Twitter [shortened URLs](https://support.twitter.com//entries/109623) as referrers. 
 
 ![referrers list](http://a1.distilledcdn.com/wp-content/uploads/2011/08/tco.png)
 
