@@ -13,16 +13,17 @@ var express = require("express"),
 	schedule = require("node-schedule"),
 	mongodb = require("mongodb");
 
-var MONGODB_URI = process.env.MONGOLAB_URI || process.env.MONGOHQ_URL || "mongodb://@ds053668.mongolab.com:53668/heroku_app20069412",
+var MONGODB_URI = process.env.MONGOLAB_URI || process.env.MONGOHQ_URL,
 	db,
 	users,
 	accounts;
 
-var TWITTER_CONSUMER_KEY = "669NaQjJ3prRexOFBfoA",
-	TWITTER_CONSUMER_SECRET = "sCpxu93VDaMr2FdpJ6qvCC4IyZOjirA7LJ3KFt5E"
-	GOOGLE_CLIENT_ID = "898266335618-fhhc3qu7ad057j5a70m1mr3ikttud14k.apps.googleusercontent.com",
-	GOOGLE_CLIENT_SECRET = "st_nsM_HJ-RSLce5eKg1vlD0",
-	GOOGLE_REDIRECT_URL = "http://socialr.herokuapp.com/auth/google/callback";
+var TWITTER_CONSUMER_KEY = process.env.TWITTER_CONSUMER_KEY,
+	TWITTER_CONSUMER_SECRET = process.env.TWITTER_CONSUMER_SECRET,
+	TWITTER_REDIRECT_URL = process.env.TWITTER_REDIRECT_URL,
+	GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID,
+	GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET,
+	GOOGLE_REDIRECT_URL = process.env.GOOGLE_REDIRECT_URL; 
 
 app.configure(function () {
 	app.set("port", process.env.PORT || 3000);
@@ -77,7 +78,7 @@ passport.use(new GoogleStrategy({
 passport.use("twitter-authz", new TwitterStrategy({
 		consumerKey: TWITTER_CONSUMER_KEY,
 		consumerSecret: TWITTER_CONSUMER_SECRET,
-		callbackURL: "http://socialr.herokuapp.com/connect/twitter/callback"
+		callbackURL: TWITTER_REDIRECT_URL
 	},
 	function (token, tokenSecret, profile, done) {
 		return done(null,{token: token, tokenSecret: tokenSecret});
@@ -317,7 +318,7 @@ function grabReferrers (user, webproperty, profiles, callback2) {
 			var today = new Date();
 			var yesterday = new Date();
 			yesterday.setDate(today.getDate()-1);
-			request("https://www.googleapis.com/analytics/v3/data/ga?ids=ga%3A" + profile.id + "&dimensions=ga%3AfullReferrer%2Cga%3AdateHour&metrics=ga%3Avisits&filters=ga%3Asource%3D%3Dt.co&start-date=" + yesterday.getFullYear() + "-" + nf(yesterday.getMonth() + 1,2) + "-" + nf(yesterday.getDate(),2) + "&end-date=" + today.getFullYear() + "-" + nf(today.getMonth() + 1,2) + "-" + nf(today.getDate(),2) + "&access_token=" + user.access_token_google, function (error, response, body) {
+			request("https://www.googleapis.com/analytics/v3/data/ga?ids=ga%3A" + profile.id + "&dimensions=ga%3AfullReferrer%2Cga%3AdateHour&metrics=ga%3Avisits&filters=ga%3Asource%3D%3Dt.co&max-results=400&start-date=" + yesterday.getFullYear() + "-" + nf(yesterday.getMonth() + 1,2) + "-" + nf(yesterday.getDate(),2) + "&end-date=" + today.getFullYear() + "-" + nf(today.getMonth() + 1,2) + "-" + nf(today.getDate(),2) + "&access_token=" + user.access_token_google, function (error, response, body) {
 				var body = JSON.parse(body);
 				var referrers = [];
 				if (body.hasOwnProperty("rows")) referrers = reformatReferrers(body.rows);
@@ -341,7 +342,6 @@ function grabTweets (user, profile, referrers, callback3) {
 			user.twitter_tokens.tokenSecret,
 			function (err, data, response) {
 				if (err) {
-					console.log("Error");
 					console.error(err);
 					callback4(err,referrer);
 				} else {

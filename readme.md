@@ -4,7 +4,7 @@ Socialr enables you to analyze who talks about your content, how influential the
 
 # Current status
 
-Still in development.
+In beta. 
 
 # Concept
 
