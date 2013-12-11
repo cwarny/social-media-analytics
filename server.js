@@ -63,6 +63,7 @@ passport.use(new GoogleStrategy({
 			users.find({id: profile.id}).toArray(function (err, user) {
 				if (user.length > 0) done(err, user[0]);
 				else {
+					console.log("New user");
 					profile.access_token_google = accessToken;
 					profile.refresh_token_google = refreshToken;
 					profile.new = true;
