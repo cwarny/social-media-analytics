@@ -176,11 +176,11 @@ function program8(depth0,data) {
   hashContexts = {};
   stack2 = helpers['if'].call(depth0, "model.user", {hash:{},inverse:self.program(7, program7, data),fn:self.program(5, program5, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
   if(stack2 || stack2 === 0) { data.buffer.push(stack2); }
-  data.buffer.push("\n			</ul>\n		</div>\n	</nav>\n	<div class=\"container\">\n		");
+  data.buffer.push("\n			</ul>\n		</div>\n	</nav>\n	");
   hashTypes = {};
   hashContexts = {};
   data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "outlet", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-  data.buffer.push("\n	</div>\n</div>");
+  data.buffer.push("\n</div>");
   return buffer;
   
 });
