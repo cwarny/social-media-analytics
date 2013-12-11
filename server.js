@@ -276,7 +276,9 @@ function nf (num,dec) {
 function fetchData (user, cb) {
 	request("https://www.googleapis.com/analytics/v3/management/accounts?access_token=" + user.access_token_google + "&access_type_token=bearer", function (error, response, body) {
 		var ga_accounts = JSON.parse(body).items;
-		grabWebproperties(user, ga_accounts, cb);
+		console.log(ga_accounts);
+		if (ga_accounts) grabWebproperties(user, ga_accounts, cb);
+		else cb(null, []);
 	});
 }
 
@@ -291,7 +293,7 @@ function grabWebproperties (user, ga_accounts, cb) {
 			});
 		}, function (err, results) {
 			console.log("Done fetching data");
-			cb(err,results);
+			cb(err, results);
 		}
 	)
 }

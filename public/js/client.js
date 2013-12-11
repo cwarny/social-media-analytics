@@ -219,6 +219,7 @@ App.AccountsRoute = Ember.Route.extend({
 		}
 	},
 	afterModel: function (model, transition) {
+		console.log(this.get("model"));
 		if (this.controllerFor("application").get("model.user") && this.controllerFor("application").get("model.user.new")) {
 			this.controllerFor("signup").set("error","Signup process unfinished.");
 			this.transitionTo("signup"); 
