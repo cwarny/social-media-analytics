@@ -1,31 +1,35 @@
-<div class="row">
-	<div class="col-md-4">
-		<dl class="faq">
-			<dt class="one">Select account</dt>
-		</dl>
-		<ul class="nav nav-pills nav-stacked">
-			{{#each content}}
-				{{#linkTo "account" this tagName="li"}}
-					<a {{bindAttr href="#"}}>{{name}}</a>
-				{{/linkTo}}
-			{{/each}}
-		</ul>
+{{#if content}}
+	<div class="row">
+		<div class="col-md-4">
+			<dl class="faq">
+				<dt class="one">Select account</dt>
+			</dl>
+			<ul class="nav nav-pills nav-stacked">
+				{{#each content}}
+					{{#linkTo "account" this tagName="li"}}
+						<a {{bindAttr href="#"}}>{{name}}</a>
+					{{/linkTo}}
+				{{/each}}
+			</ul>
+		</div>
+		{{outlet account}}
 	</div>
-	{{outlet account}}
-</div>
-<br>
-<br>
-<br>
-<div class="container profile">
-	{{outlet profile}}
-</div>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
+	<br>
+	<br>
+	<br>
+	<div class="container profile">
+		{{outlet profile}}
+	</div>
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+{{else}}
+	<div class="alert alert-warning">You do not have any Google Analytics data.</div>
+{{/if}}

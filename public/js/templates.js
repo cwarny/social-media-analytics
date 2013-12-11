@@ -52,26 +52,47 @@ function program2(depth0,data) {
 Ember.TEMPLATES['accounts'] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
 this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
-  var buffer = '', stack1, hashTypes, hashContexts, options, escapeExpression=this.escapeExpression, self=this, helperMissing=helpers.helperMissing;
+  var stack1, hashTypes, hashContexts, escapeExpression=this.escapeExpression, self=this, helperMissing=helpers.helperMissing;
 
 function program1(depth0,data) {
   
-  var buffer = '', stack1, stack2, hashContexts, hashTypes, options;
-  data.buffer.push("\n				");
-  hashContexts = {'tagName': depth0};
-  hashTypes = {'tagName': "STRING"};
-  options = {hash:{
-    'tagName': ("li")
-  },inverse:self.noop,fn:self.program(2, program2, data),contexts:[depth0,depth0],types:["STRING","ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
-  stack2 = ((stack1 = helpers.linkTo || depth0.linkTo),stack1 ? stack1.call(depth0, "account", "", options) : helperMissing.call(depth0, "linkTo", "account", "", options));
-  if(stack2 || stack2 === 0) { data.buffer.push(stack2); }
-  data.buffer.push("\n			");
+  var buffer = '', stack1, hashTypes, hashContexts, options;
+  data.buffer.push("\n	<div class=\"row\">\n		<div class=\"col-md-4\">\n			<dl class=\"faq\">\n				<dt class=\"one\">Select account</dt>\n			</dl>\n			<ul class=\"nav nav-pills nav-stacked\">\n				");
+  hashTypes = {};
+  hashContexts = {};
+  stack1 = helpers.each.call(depth0, "content", {hash:{},inverse:self.noop,fn:self.program(2, program2, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+  if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
+  data.buffer.push("\n			</ul>\n		</div>\n		");
+  hashTypes = {};
+  hashContexts = {};
+  options = {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
+  data.buffer.push(escapeExpression(((stack1 = helpers.outlet || depth0.outlet),stack1 ? stack1.call(depth0, "account", options) : helperMissing.call(depth0, "outlet", "account", options))));
+  data.buffer.push("\n	</div>\n	<br>\n	<br>\n	<br>\n	<div class=\"container profile\">\n		");
+  hashTypes = {};
+  hashContexts = {};
+  options = {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
+  data.buffer.push(escapeExpression(((stack1 = helpers.outlet || depth0.outlet),stack1 ? stack1.call(depth0, "profile", options) : helperMissing.call(depth0, "outlet", "profile", options))));
+  data.buffer.push("\n	</div>\n	<br>\n	<br>\n	<br>\n	<br>\n	<br>\n	<br>\n	<br>\n	<br>\n	<br>\n	<br>\n");
   return buffer;
   }
 function program2(depth0,data) {
   
+  var buffer = '', stack1, stack2, hashContexts, hashTypes, options;
+  data.buffer.push("\n					");
+  hashContexts = {'tagName': depth0};
+  hashTypes = {'tagName': "STRING"};
+  options = {hash:{
+    'tagName': ("li")
+  },inverse:self.noop,fn:self.program(3, program3, data),contexts:[depth0,depth0],types:["STRING","ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
+  stack2 = ((stack1 = helpers.linkTo || depth0.linkTo),stack1 ? stack1.call(depth0, "account", "", options) : helperMissing.call(depth0, "linkTo", "account", "", options));
+  if(stack2 || stack2 === 0) { data.buffer.push(stack2); }
+  data.buffer.push("\n				");
+  return buffer;
+  }
+function program3(depth0,data) {
+  
   var buffer = '', hashContexts, hashTypes;
-  data.buffer.push("\n					<a ");
+  data.buffer.push("\n						<a ");
   hashContexts = {'href': depth0};
   hashTypes = {'href': "STRING"};
   data.buffer.push(escapeExpression(helpers.bindAttr.call(depth0, {hash:{
@@ -81,27 +102,21 @@ function program2(depth0,data) {
   hashTypes = {};
   hashContexts = {};
   data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "name", {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data})));
-  data.buffer.push("</a>\n				");
+  data.buffer.push("</a>\n					");
   return buffer;
   }
 
-  data.buffer.push("<div class=\"row\">\n	<div class=\"col-md-4\">\n		<dl class=\"faq\">\n			<dt class=\"one\">Select account</dt>\n		</dl>\n		<ul class=\"nav nav-pills nav-stacked\">\n			");
+function program5(depth0,data) {
+  
+  
+  data.buffer.push("\n	<div class=\"alert alert-warning\">You do not have any Google Analytics data.</div>\n");
+  }
+
   hashTypes = {};
   hashContexts = {};
-  stack1 = helpers.each.call(depth0, "content", {hash:{},inverse:self.noop,fn:self.program(1, program1, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+  stack1 = helpers['if'].call(depth0, "content", {hash:{},inverse:self.program(5, program5, data),fn:self.program(1, program1, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
-  data.buffer.push("\n		</ul>\n	</div>\n	");
-  hashTypes = {};
-  hashContexts = {};
-  options = {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
-  data.buffer.push(escapeExpression(((stack1 = helpers.outlet || depth0.outlet),stack1 ? stack1.call(depth0, "account", options) : helperMissing.call(depth0, "outlet", "account", options))));
-  data.buffer.push("\n</div>\n<br>\n<br>\n<br>\n<div class=\"container profile\">\n	");
-  hashTypes = {};
-  hashContexts = {};
-  options = {hash:{},contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
-  data.buffer.push(escapeExpression(((stack1 = helpers.outlet || depth0.outlet),stack1 ? stack1.call(depth0, "profile", options) : helperMissing.call(depth0, "outlet", "profile", options))));
-  data.buffer.push("\n</div>\n<br>\n<br>\n<br>\n<br>\n<br>\n<br>\n<br>\n<br>\n<br>\n<br>");
-  return buffer;
+  else { data.buffer.push(''); }
   
 });
 
@@ -207,7 +222,7 @@ function program1(depth0,data) {
   hashContexts = {};
   stack1 = helpers['if'].call(depth0, "error", {hash:{},inverse:self.noop,fn:self.program(1, program1, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
-  data.buffer.push("\n<p>You need a Google account to log into Socialr.</p>\n<a href=\"http://socialr.herokuapp.com/auth/google\" type=\"button\" class=\"btn btn-primary\">Log In with Google</a>\n			");
+  data.buffer.push("\n<p>You need a Google account to log into Socialr.</p>\n<a href=\"http://socialr.herokuapp.com/auth/google\" type=\"button\" class=\"btn btn-primary\">Log In with Google</a>");
   return buffer;
   
 });
