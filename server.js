@@ -187,7 +187,7 @@ app.get("/data", function (req, res) {
 
 // Every day, update user data
 
-schedule.scheduleJob({hour: 15, minute: 50}, function () {
+schedule.scheduleJob({hour: 16, minute: 8}, function () {
 	console.log("Update started...");
 	users.find().toArray(function (err, results) {
 		async.each(results, function (user, cb) {
