@@ -11,7 +11,9 @@ var express = require("express"),
 	twitterAPI = require("node-twitter-api"),
 	refresh = require("google-refresh-token"),
 	schedule = require("node-schedule"),
-	mongodb = require("mongodb");
+	mongodb = require("mongodb"),
+	fetchData = require("./fetchData"),
+	update = require("./update");
 
 var MONGODB_URI = process.env.MONGOLAB_URI || process.env.MONGOHQ_URL,
 	db,
@@ -188,197 +190,197 @@ app.get("/data", function (req, res) {
 
 // Every day, update user data
 
-schedule.scheduleJob({hour: 16, minute: 32}, function () {
-	console.log("Update started...");
-	users.find().toArray(function (err, results) {
-		async.each(results, function (user, cb) {
-			console.log("User id: " + user.id);
-			refresh(user.refresh_token_google, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, function (err, json, res) {
-				if (err || json.error) cb(err);
-				else {
-					user.access_token_google = json.accessToken;
-					fetchData(user, function (err, results) {
-						async.each(results, function (account, cb) {
-							console.log("Account id: " + account.id);
-							accounts.find({id: account.id}).toArray(function (err, results) {
-								if (!err && results.length > 0 && account.hasOwnProperty("webproperties")) {
-									async.each(account.webproperties, function (webproperty, cb) {
-										console.log("Webproperty id: " + webproperty.id);
-										if (webproperty.hasOwnProperty("profiles") && uu.contains(uu.pluck(results[0].webproperties, "id"), webproperty.id)) {
-											async.map(webproperty.profiles, function (profile, cb) {
-												if (profile.hasOwnProperty("referrers") && uu.contains(uu.pluck(uu.findWhere(results[0].webproperties, {id: webproperty.id}).profiles, "id"), profile.id)) {
-													console.log("Profile id: " + profile.id);
-													var old_referrers = uu.findWhere(uu.findWhere(results[0].webproperties, {id: webproperty.id}).profiles, {id: profile.id}).referrers;
-													if (old_referrers === undefined) old_referrers = [];
-													var new_referrers = profile.referrers;
-													var new_clicks_count = 0;
-													new_referrers = new_referrers.filter(function (referrer) {
-														var r = uu.findWhere(old_referrers, {fullreferrer: referrer.fullreferrer});
-														if (r) {
-															referrer.clicks.forEach(function (c) {
-																if (!uu.contains(uu.pluck(r.clicks, "created_at"), c.created_at)) {
-																	new_clicks_count++;
-																	r.clicks.push(c);
-																}
-															});
-															return false;
-														} else {
-															return true;
-														}
-													});
-													console.log("Number of new referrers: " + new_referrers.length);
-													console.log("Number of new clicks: " + new_clicks_count);
-													profile.referrers = uu.union(old_referrers,new_referrers);
-												}
-												cb(null, profile);
-											}, function (err, profiles) {
-												accounts.update({"webproperties.id":webproperty.id},{$set:{"webproperties.$.profiles": profiles}}, function (err, results) {
-													console.log("Webproperty updated.");
-													cb(err);
-												});
-											});
-										} else {
-											accounts.update({id: account.id}, {$push: {webproperties: webproperty}}, function (err, results) {
-												console.log("New webproperty saved.");
-												cb(err);
-											});
-										}
-									}, function (err) {
-										cb(err);
-									});
-								} else {
-									accounts.save(account, function (err, res) {
-										console.log("New account saved.");
-										cb(err);
-									});
-								}
-							});
-						}, function (err) {
-							cb(err);
-						});
-					});
-				}
-			});
-		}, function (err) {
-			console.log("Done updating.");
-		});
-	});
-});
+// schedule.scheduleJob({hour: 16, minute: 32}, function () {
+// 	console.log("Update started...");
+// 	users.find().toArray(function (err, results) {
+// 		async.each(results, function (user, cb) {
+// 			console.log("User id: " + user.id);
+// 			refresh(user.refresh_token_google, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, function (err, json, res) {
+// 				if (err || json.error) cb(err);
+// 				else {
+// 					user.access_token_google = json.accessToken;
+// 					fetchData(user, function (err, results) {
+// 						async.each(results, function (account, cb) {
+// 							console.log("Account id: " + account.id);
+// 							accounts.find({id: account.id}).toArray(function (err, results) {
+// 								if (!err && results.length > 0 && account.hasOwnProperty("webproperties")) {
+// 									async.each(account.webproperties, function (webproperty, cb) {
+// 										console.log("Webproperty id: " + webproperty.id);
+// 										if (webproperty.hasOwnProperty("profiles") && uu.contains(uu.pluck(results[0].webproperties, "id"), webproperty.id)) {
+// 											async.map(webproperty.profiles, function (profile, cb) {
+// 												if (profile.hasOwnProperty("referrers") && uu.contains(uu.pluck(uu.findWhere(results[0].webproperties, {id: webproperty.id}).profiles, "id"), profile.id)) {
+// 													console.log("Profile id: " + profile.id);
+// 													var old_referrers = uu.findWhere(uu.findWhere(results[0].webproperties, {id: webproperty.id}).profiles, {id: profile.id}).referrers;
+// 													if (old_referrers === undefined) old_referrers = [];
+// 													var new_referrers = profile.referrers;
+// 													var new_clicks_count = 0;
+// 													new_referrers = new_referrers.filter(function (referrer) {
+// 														var r = uu.findWhere(old_referrers, {fullreferrer: referrer.fullreferrer});
+// 														if (r) {
+// 															referrer.clicks.forEach(function (c) {
+// 																if (!uu.contains(uu.pluck(r.clicks, "created_at"), c.created_at)) {
+// 																	new_clicks_count++;
+// 																	r.clicks.push(c);
+// 																}
+// 															});
+// 															return false;
+// 														} else {
+// 															return true;
+// 														}
+// 													});
+// 													console.log("Number of new referrers: " + new_referrers.length);
+// 													console.log("Number of new clicks: " + new_clicks_count);
+// 													profile.referrers = uu.union(old_referrers,new_referrers);
+// 												}
+// 												cb(null, profile);
+// 											}, function (err, profiles) {
+// 												accounts.update({"webproperties.id":webproperty.id},{$set:{"webproperties.$.profiles": profiles}}, function (err, results) {
+// 													console.log("Webproperty updated.");
+// 													cb(err);
+// 												});
+// 											});
+// 										} else {
+// 											accounts.update({id: account.id}, {$push: {webproperties: webproperty}}, function (err, results) {
+// 												console.log("New webproperty saved.");
+// 												cb(err);
+// 											});
+// 										}
+// 									}, function (err) {
+// 										cb(err);
+// 									});
+// 								} else {
+// 									accounts.save(account, function (err, res) {
+// 										console.log("New account saved.");
+// 										cb(err);
+// 									});
+// 								}
+// 							});
+// 						}, function (err) {
+// 							cb(err);
+// 						});
+// 					});
+// 				}
+// 			});
+// 		}, function (err) {
+// 			console.log("Done updating.");
+// 		});
+// 	});
+// });
 
 
-// Utility functions
+// // Utility functions
 
-function nf (num,dec) {
-	return ("0" + num).slice(-dec);
-}
+// function nf (num,dec) {
+// 	return ("0" + num).slice(-dec);
+// }
 
-// Fetching data
+// // Fetching data
 
-function fetchData (user, cb) {
-	request("https://www.googleapis.com/analytics/v3/management/accounts?access_token=" + user.access_token_google + "&access_type_token=bearer", function (error, response, body) {
-		var ga_accounts = JSON.parse(body).items;
-		console.log(ga_accounts);
-		if (ga_accounts) grabWebproperties(user, ga_accounts, cb);
-		else cb(null, []);
-	});
-}
+// function fetchData (user, cb) {
+// 	request("https://www.googleapis.com/analytics/v3/management/accounts?access_token=" + user.access_token_google + "&access_type_token=bearer", function (error, response, body) {
+// 		var ga_accounts = JSON.parse(body).items;
+// 		console.log(ga_accounts);
+// 		if (ga_accounts) grabWebproperties(user, ga_accounts, cb);
+// 		else cb(null, []);
+// 	});
+// }
 
-function grabWebproperties (user, ga_accounts, cb) {
-	async.mapSeries(ga_accounts,
-		function (account, callback1) {
-			console.log("Fetching data for: " + account.id);
-			request("https://www.googleapis.com/analytics/v3/management/accounts/" + account.id + "/webproperties?access_token=" + user.access_token_google + "&access_type_token=bearer", function (error, response, body) {
-				var webproperties = JSON.parse(body).items;
-				if (webproperties) grabProfiles(user, account, webproperties, callback1);
-				else callback1(null, account);
-			});
-		}, function (err, results) {
-			console.log("Done fetching data");
-			cb(err, results);
-		}
-	)
-}
+// function grabWebproperties (user, ga_accounts, cb) {
+// 	async.mapSeries(ga_accounts,
+// 		function (account, callback1) {
+// 			console.log("Fetching data for: " + account.id);
+// 			request("https://www.googleapis.com/analytics/v3/management/accounts/" + account.id + "/webproperties?access_token=" + user.access_token_google + "&access_type_token=bearer", function (error, response, body) {
+// 				var webproperties = JSON.parse(body).items;
+// 				if (webproperties) grabProfiles(user, account, webproperties, callback1);
+// 				else callback1(null, account);
+// 			});
+// 		}, function (err, results) {
+// 			console.log("Done fetching data");
+// 			cb(err, results);
+// 		}
+// 	)
+// }
 
-function grabProfiles (user, account, webproperties, callback1) {
-	async.mapSeries(webproperties, 
-		function (webproperty, callback2) {
-			request("https://www.googleapis.com/analytics/v3/management/accounts/" + account.id + "/webproperties/" + webproperty.id + "/profiles?access_token=" + user.access_token_google + "&access_type_token=bearer", function (error, response, body) {
-				var profiles = JSON.parse(body).items;
-				if (profiles) grabReferrers(user, webproperty, profiles, callback2);
-				else callback2(null, webproperty);
-			});
-		}, function (err, results) {
-			account.webproperties = results;
-			account.userId = user.id;
-			callback1(err, account);
-		}
-	)
-}
+// function grabProfiles (user, account, webproperties, callback1) {
+// 	async.mapSeries(webproperties, 
+// 		function (webproperty, callback2) {
+// 			request("https://www.googleapis.com/analytics/v3/management/accounts/" + account.id + "/webproperties/" + webproperty.id + "/profiles?access_token=" + user.access_token_google + "&access_type_token=bearer", function (error, response, body) {
+// 				var profiles = JSON.parse(body).items;
+// 				if (profiles) grabReferrers(user, webproperty, profiles, callback2);
+// 				else callback2(null, webproperty);
+// 			});
+// 		}, function (err, results) {
+// 			account.webproperties = results;
+// 			account.userId = user.id;
+// 			callback1(err, account);
+// 		}
+// 	)
+// }
 
-function grabReferrers (user, webproperty, profiles, callback2) {
-	async.mapSeries(profiles, 
-		function (profile, callback3) {
-			var today = new Date();
-			var yesterday = new Date();
-			yesterday.setDate(today.getDate()-1);
-			request("https://www.googleapis.com/analytics/v3/data/ga?ids=ga%3A" + profile.id + "&dimensions=ga%3AfullReferrer%2Cga%3AdateHour&metrics=ga%3Avisits&filters=ga%3Asource%3D%3Dt.co&max-results=400&start-date=" + yesterday.getFullYear() + "-" + nf(yesterday.getMonth() + 1,2) + "-" + nf(yesterday.getDate(),2) + "&end-date=" + today.getFullYear() + "-" + nf(today.getMonth() + 1,2) + "-" + nf(today.getDate(),2) + "&access_token=" + user.access_token_google, function (error, response, body) {
-				var body = JSON.parse(body);
-				var referrers = [];
-				if (body.hasOwnProperty("rows")) referrers = reformatReferrers(body.rows);
-				if (referrers.length > 0) grabTweets(user, profile, referrers, callback3);
-				else callback3(null, profile);
-			});
-		}, function (err, results) {
-			webproperty.profiles = results;
-			callback2(err, webproperty);
-		}
-	)
-}
+// function grabReferrers (user, webproperty, profiles, callback2) {
+// 	async.mapSeries(profiles, 
+// 		function (profile, callback3) {
+// 			var today = new Date();
+// 			var yesterday = new Date();
+// 			yesterday.setDate(today.getDate()-1);
+// 			request("https://www.googleapis.com/analytics/v3/data/ga?ids=ga%3A" + profile.id + "&dimensions=ga%3AfullReferrer%2Cga%3AdateHour&metrics=ga%3Avisits&filters=ga%3Asource%3D%3Dt.co&max-results=400&start-date=" + yesterday.getFullYear() + "-" + nf(yesterday.getMonth() + 1,2) + "-" + nf(yesterday.getDate(),2) + "&end-date=" + today.getFullYear() + "-" + nf(today.getMonth() + 1,2) + "-" + nf(today.getDate(),2) + "&access_token=" + user.access_token_google, function (error, response, body) {
+// 				var body = JSON.parse(body);
+// 				var referrers = [];
+// 				if (body.hasOwnProperty("rows")) referrers = reformatReferrers(body.rows);
+// 				if (referrers.length > 0) grabTweets(user, profile, referrers, callback3);
+// 				else callback3(null, profile);
+// 			});
+// 		}, function (err, results) {
+// 			webproperty.profiles = results;
+// 			callback2(err, webproperty);
+// 		}
+// 	)
+// }
 
-function grabTweets (user, profile, referrers, callback3) {
-	async.mapSeries(referrers,
-		function (referrer, callback4) {
-			twitter.search({
-				q: "http://" + referrer.fullreferrer
-			},
-			user.twitter_tokens.token,
-			user.twitter_tokens.tokenSecret,
-			function (err, data, response) {
-				if (err) {
-					console.error(err);
-					callback4(err,referrer);
-				} else {
-					if (data && data.statuses !== undefined && data.statuses.length > 0) {
-						var tweet = data.statuses[0];
-						if (tweet.hasOwnProperty("retweeted_status")) tweet = tweet.retweeted_status;
-						callback4(err,uu.extend(referrer,tweet));
-					} else {
-						callback4(err,referrer);
-					}
-				}
-			}
-			);
-		},
-		function (err, results) {
-			profile.referrers = results;
-			callback3(err, profile);
-		}
-	)
-}
+// function grabTweets (user, profile, referrers, callback3) {
+// 	async.mapSeries(referrers,
+// 		function (referrer, callback4) {
+// 			twitter.search({
+// 				q: "http://" + referrer.fullreferrer
+// 			},
+// 			user.twitter_tokens.token,
+// 			user.twitter_tokens.tokenSecret,
+// 			function (err, data, response) {
+// 				if (err) {
+// 					console.error(err);
+// 					callback4(err,referrer);
+// 				} else {
+// 					if (data && data.statuses !== undefined && data.statuses.length > 0) {
+// 						var tweet = data.statuses[0];
+// 						if (tweet.hasOwnProperty("retweeted_status")) tweet = tweet.retweeted_status;
+// 						callback4(err,uu.extend(referrer,tweet));
+// 					} else {
+// 						callback4(err,referrer);
+// 					}
+// 				}
+// 			}
+// 			);
+// 		},
+// 		function (err, results) {
+// 			profile.referrers = results;
+// 			callback3(err, profile);
+// 		}
+// 	)
+// }
 
-function reformatReferrers (rows) {
-	var referrers = {};
-	for (var i=0; i<rows.length; i++) {
-		if (referrers.hasOwnProperty(rows[i][0])) {
-			referrers[rows[i][0]].push({created_at: rows[i][1], count: rows[i][2]});
-		} else {
-			referrers[rows[i][0]] = [{created_at: rows[i][1], count: rows[i][2]}];
-		}
-	}
-	return uu.map(uu.pairs(referrers), function (pair) {
-		return {
-			fullreferrer: pair[0], 
-			clicks: pair[1]
-		}
-	});
-}
+// function reformatReferrers (rows) {
+// 	var referrers = {};
+// 	for (var i=0; i<rows.length; i++) {
+// 		if (referrers.hasOwnProperty(rows[i][0])) {
+// 			referrers[rows[i][0]].push({created_at: rows[i][1], count: rows[i][2]});
+// 		} else {
+// 			referrers[rows[i][0]] = [{created_at: rows[i][1], count: rows[i][2]}];
+// 		}
+// 	}
+// 	return uu.map(uu.pairs(referrers), function (pair) {
+// 		return {
+// 			fullreferrer: pair[0], 
+// 			clicks: pair[1]
+// 		}
+// 	});
+// }
