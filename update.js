@@ -36,31 +36,36 @@ mongodb.MongoClient.connect(MONGODB_URI, function (err, database) {
 										console.log("Webproperty id: " + webproperty.id);
 										if (webproperty.hasOwnProperty("profiles") && uu.contains(uu.pluck(results[0].webproperties, "id"), webproperty.id)) {
 											async.map(webproperty.profiles, function (profile, cb) {
-												if (profile.hasOwnProperty("referrers") && uu.contains(uu.pluck(uu.findWhere(results[0].webproperties, {id: webproperty.id}).profiles, "id"), profile.id)) {
-													console.log("Profile id: " + profile.id);
-													var old_referrers = uu.findWhere(uu.findWhere(results[0].webproperties, {id: webproperty.id}).profiles, {id: profile.id}).referrers;
-													if (old_referrers === undefined) old_referrers = [];
-													var new_referrers = profile.referrers;
-													var new_clicks_count = 0;
-													new_referrers = new_referrers.filter(function (referrer) {
-														var r = uu.findWhere(old_referrers, {fullreferrer: referrer.fullreferrer});
-														if (r) {
-															referrer.clicks.forEach(function (c) {
-																if (!uu.contains(uu.pluck(r.clicks, "created_at"), c.created_at)) {
-																	new_clicks_count++;
-																	r.clicks.push(c);
-																}
-															});
-															return false;
-														} else {
-															return true;
-														}
-													});
-													console.log("Number of new referrers: " + new_referrers.length);
-													console.log("Number of new clicks: " + new_clicks_count);
-													profile.referrers = uu.union(old_referrers,new_referrers);
+												if (uu.contains(uu.pluck(uu.findWhere(results[0].webproperties, {id: webproperty.id}).profiles, "id"), profile.id)) {
+													var nonupdated_profile = uu.findWhere(uu.findWhere(results[0].webproperties, {id: webproperty.id}).profiles, {id: profile.id});
+													if (profile.hasOwnProperty("referrers")) {
+														console.log("Profile id: " + profile.id);
+														var old_referrers = nonupdated_profile.referrers;
+														if (old_referrers === undefined) old_referrers = [];
+														var new_referrers = profile.referrers;
+														new_referrers = new_referrers.filter(function (referrer) {
+															var r = uu.findWhere(old_referrers, {fullreferrer: referrer.fullreferrer});
+															if (r) {
+																referrer.clicks.forEach(function (c) {
+																	if (!uu.contains(uu.pluck(r.clicks, "created_at"), c.created_at)) {
+																		r.clicks.push(c);
+																	}
+																});
+																return false;
+															} else {
+																return true;
+															}
+														});
+														console.log("Number of new referrers: " + new_referrers.length);
+														profile.referrers = uu.union(old_referrers,new_referrers);
+														cb(null, profile);
+													} else {
+														cb(null, nonupdated_profile);
+													}
+												} else {
+													console.log("New profile");
+													cb(null, profile);
 												}
-												cb(null, profile);
 											}, function (err, profiles) {
 												accounts.update({"webproperties.id":webproperty.id},{$set:{"webproperties.$.profiles": profiles}}, function (err, results) {
 													console.log("Webproperty updated.");
