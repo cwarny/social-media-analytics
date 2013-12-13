@@ -9,6 +9,11 @@ var MONGODB_URI = process.env.MONGOLAB_URI || process.env.MONGOHQ_URL,
 	users,
 	accounts;
 
+var GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID,
+	GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
+
+console.log("Update started");
+
 mongodb.MongoClient.connect(MONGODB_URI, function (err, database) {
 	if (err) throw err;
 	db = database;
