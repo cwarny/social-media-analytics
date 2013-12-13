@@ -196,7 +196,7 @@ function program1(depth0,data) {
   data.buffer.push("<button class=\"btn btn-primary\">Sign Up</button>");
   }
 
-  data.buffer.push("<div class=\"jumbotron\">\n	<h1>Hi there</h1>\n	<br>\n	<p><strong>Socialr</strong> enables you to analyze who talks about your content, how influential they are and what online social conversations they spawn</p>\n	<br>\n	<div class=\"centering\">\n		<iframe width=\"560\" height=\"315\" src=\"//www.youtube.com/embed/3bO0L-qZDZM\" frameborder=\"0\" allowfullscreen></iframe>\n	</div>\n	<br>\n	<div class=\"centering\">\n		<p>Are you getting lots of visits from social media sites?</p>\n		<p>Want to put a face on who's driving traffic to your website?</p>\n		<p>Want to read the stories around your web content?</p>\n		");
+  data.buffer.push("<div class=\"jumbotron\">\n	<h1>Hi there</h1>\n	<br>\n	<p><strong>Socialr</strong> enables you to analyze who talks about your content, how influential they are and what online social conversations they spawn</p>\n	<br>\n	<div class=\"centering\">\n		<iframe width=\"560\" height=\"315\" src=\"//www.youtube.com/embed/KgjC7U6-IrA\" frameborder=\"0\" allowfullscreen></iframe>\n	</div>\n	<br>\n	<div class=\"centering\">\n		<p>Are you getting lots of visits from social media sites?</p>\n		<p>Want to put a face on who's driving traffic to your website?</p>\n		<p>Want to read the stories around your web content?</p>\n		");
   hashTypes = {};
   hashContexts = {};
   options = {hash:{},inverse:self.noop,fn:self.program(1, program1, data),contexts:[depth0],types:["STRING"],hashContexts:hashContexts,hashTypes:hashTypes,data:data};
