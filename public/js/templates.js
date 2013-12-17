@@ -543,7 +543,12 @@ function program3(depth0,data) {
   hashContexts = {};
   stack1 = helpers.view.call(depth0, "App.GetDataButtonView", {hash:{},inverse:self.noop,fn:self.program(16, program16, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
-  data.buffer.push("</dd>\n	</dl>\n");
+  data.buffer.push("</dd>\n		\n		");
+  hashTypes = {};
+  hashContexts = {};
+  stack1 = helpers.unless.call(depth0, "isNotAtGetDataStep", {hash:{},inverse:self.noop,fn:self.program(18, program18, data),contexts:[depth0],types:["ID"],hashContexts:hashContexts,hashTypes:hashTypes,data:data});
+  if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
+  data.buffer.push("\n	</dl>\n");
   return buffer;
   }
 function program4(depth0,data) {
@@ -586,6 +591,12 @@ function program16(depth0,data) {
   
   
   data.buffer.push("Get Data");
+  }
+
+function program18(depth0,data) {
+  
+  
+  data.buffer.push("\n			<div class=\"alert alert-warning\">On sign up, Socialr grabs data only one day in the past. From then on, your data will be updated daily, adding to your data history.</div>\n		");
   }
 
   hashTypes = {};

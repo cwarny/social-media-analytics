@@ -25,5 +25,9 @@
 			Mash up Google Analytics and Twitter. Download your data.
 		{{/view}}
 		<dd>{{#view App.GetDataButtonView}}Get Data{{/view}}</dd>
+		
+		{{#unless isNotAtGetDataStep}}
+			<div class="alert alert-warning">On sign up, Socialr grabs data only one day in the past. From then on, your data will be updated daily, adding to your data history.</div>
+		{{/unless}}
 	</dl>
 {{/if}}

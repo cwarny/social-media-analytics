@@ -120,7 +120,11 @@ App.LoginController = Ember.Controller.extend();
 
 App.SignupController = Ember.Controller.extend({
 	needs: ["application"],
-	downloading: false
+	downloading: false,
+	isNotAtGetDataStep: function () {
+		if (!this.get("controllers.application.model.user") || !this.get("controllers.application.model.user.twitter_tokens") || !this.get("controllers.application.model.user.new")) return true;
+		else return false;
+	}
 });
 
 App.SignupStepView = Ember.View.extend({
