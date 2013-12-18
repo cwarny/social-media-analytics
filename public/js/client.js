@@ -124,7 +124,7 @@ App.SignupController = Ember.Controller.extend({
 	isNotAtGetDataStep: function () {
 		if (!this.get("controllers.application.model.user") || !this.get("controllers.application.model.user.twitter_tokens") || !this.get("controllers.application.model.user.new")) return true;
 		else return false;
-	}
+	}.property("ontrollers.application.model.user")
 });
 
 App.SignupStepView = Ember.View.extend({
