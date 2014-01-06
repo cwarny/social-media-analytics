@@ -356,6 +356,10 @@ App.TweetController = Ember.Controller.extend({
 		}
 	},
 
+	noClicks: function () {
+		return this.get("model.totalClicks") === 0;
+	}.property("model.totalClicks"),
+
 	chunks: function () {
 		var text = this.get("model.text");
 		var chunks = [];

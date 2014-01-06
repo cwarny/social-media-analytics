@@ -1,17 +1,19 @@
 <ul class="nav nav-pills nav-stacked">
 	{{#each arrangedContent itemController="tweet"}}
-		{{#linkTo "tweet" model tagName="li"}}
-			<a href="#">
-				{{#if controllers.referrers.sortingPropertyIsTotalClicks}}
-					{{model.referrer.screen_name}}<span class="badge">{{model.totalClicks}}</span>
-				{{else}}
-					{{#if controllers.referrers.sortingPropertyIsFollowersCount}}
-						{{model.referrer.screen_name}}<span class="badge">{{model.referrer.followers_count}}</span>
+		{{#unless noClicks}}
+			{{#linkTo "tweet" model tagName="li"}}
+				<a href="#">
+					{{#if controllers.referrers.sortingPropertyIsTotalClicks}}
+						{{model.referrer.screen_name}}<span class="badge">{{model.totalClicks}}</span>
 					{{else}}
-						{{model.referrer.screen_name}}<span class="badge">{{model.retweet_count}}</span>
+						{{#if controllers.referrers.sortingPropertyIsFollowersCount}}
+							{{model.referrer.screen_name}}<span class="badge">{{model.referrer.followers_count}}</span>
+						{{else}}
+							{{model.referrer.screen_name}}<span class="badge">{{model.retweet_count}}</span>
+						{{/if}}
 					{{/if}}
-				{{/if}}
-			</a>
-		{{/linkTo}}
+				</a>
+			{{/linkTo}}
+		{{/unless}}
 	{{/each}}
 </ul>

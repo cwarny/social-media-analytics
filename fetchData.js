@@ -21,6 +21,8 @@ var twitter = new twitterAPI({
 	consumerSecret: TWITTER_CONSUMER_SECRET
 });
 
+var c = 0;
+
 // Fetching data
 
 module.exports = function (user, cb) {
@@ -99,7 +101,10 @@ function grabTweets (user, profile, referrers, callback3) {
 			user.twitter_tokens.token,
 			user.twitter_tokens.tokenSecret,
 			function (err, data, response) {
+				c++;
+				console.log(c);
 				if (err) {
+					c = 0;
 					console.error(err);
 					callback4(err,referrer);
 				} else {
